@@ -1,0 +1,15 @@
+:root {
+  --background: #3c3c3c;
+  --green: #339f45;
+  --dark-green: #19411f;
+  --light-green: #40ce57;
+  --title-color: #a6fab4;
+  --playback-menu-color: #fff;
+  --dark-text-color: #0f2012;
+  --breakpoint-button-text-color: #f3fdbb;
+}
+
+body {
+  color: #fff;
+  font-size: 62.5%;
+}
