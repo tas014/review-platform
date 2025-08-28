@@ -1,28 +1,29 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { invoke } from "@tauri-apps/api/core";
+import Modes from "./components/Modes.vue";
+import { ref, provide } from "vue";
+/* import { invoke } from "@tauri-apps/api/core"; */
 
-const greetMsg = ref("");
-const name = ref("");
+const mode = ref(true); // for switching between analysis and review modes
+const toggleMode = () => {
+  mode.value = !mode.value;
+};
+provide("mode", {
+  mode,
+  toggleMode,
+});
 
-async function greet() {
+/* async function greet() {
   // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
   greetMsg.value = await invoke("greet", { name: name.value });
-}
+} */
 </script>
 
 <template>
   <main class="container">
-    <h1>Hello World</h1>
+    <Modes />
+    <h1 v-if="mode">Replay Mode</h1>
+    <h1 v-else>Analysis Mode</h1>
   </main>
 </template>
 
-<style scoped>
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: rgb(45, 45, 45);
-}
-</style>
+<style scoped></style>
