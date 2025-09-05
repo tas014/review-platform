@@ -1,7 +1,6 @@
 import { reactive } from "vue";
+import Analysis from "./classes/Analysis";
 
-const store = reactive({
-  currentTime: 0,
-});
+const store = reactive(new Analysis());
 
 export default store;

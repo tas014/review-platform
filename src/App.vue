@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import Modes from "./components/Modes.vue";
-import { ref, provide } from "vue";
+import { ref, provide, Ref } from "vue";
+import VideoComponent from "./components/VideoComponent.vue";
 /* import { invoke } from "@tauri-apps/api/core"; */
 
-const mode = ref(true); // for switching between analysis and review modes
+const mode: Ref<"replay" | "analysis"> = ref("replay"); // for switching between analysis and replay modes
 const toggleMode = () => {
-  mode.value = !mode.value;
+  if (mode.value === "analysis") {
+    mode.value = "replay";
+  } else {
+    mode.value = "analysis";
+  }
 };
 provide("mode", {
   mode,
@@ -21,9 +26,14 @@ provide("mode", {
 <template>
   <main class="container">
     <Modes />
-    <h1 v-if="mode">Replay Mode</h1>
-    <h1 v-else>Analysis Mode</h1>
+    <div class="wrapper">
+      <VideoComponent />
+    </div>
   </main>
 </template>
 
-<style scoped></style>
+<style scoped>
+.wrapper {
+  padding: 1rem 2.5vw;
+}
+</style>

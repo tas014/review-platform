@@ -1,27 +1,30 @@
 <script setup lang="ts">
-import { inject } from "vue";
+import { computed, inject } from "vue";
 import ModeState from "../assets/interfaces/ModeState";
 
 const { mode, toggleMode } = inject<ModeState>("mode") as ModeState;
 
-const swapSelected = (b: boolean) => {
+const swapSelected = (b: "replay" | "analysis") => {
   if (mode.value !== b) {
     toggleMode();
   }
 };
+const selected = computed(() => {
+  return mode.value === "replay";
+});
 </script>
 <template>
   <header>
     <div class="wrapper">
       <div
-        :class="mode ? 'mode-container selected' : 'mode-container'"
-        @click="() => swapSelected(true)"
+        :class="selected ? 'mode-container selected' : 'mode-container'"
+        @click="() => swapSelected('replay')"
       >
         <h1>Replay Mode</h1>
       </div>
       <div
-        :class="!mode ? 'mode-container selected' : 'mode-container'"
-        @click="() => swapSelected(false)"
+        :class="!selected ? 'mode-container selected' : 'mode-container'"
+        @click="() => swapSelected('analysis')"
       >
         <h1>Analysis Mode</h1>
       </div>
