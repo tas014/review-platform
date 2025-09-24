@@ -1,4 +1,6 @@
-type NullableString = string | null;
+import { ShallowRef } from "vue";
+
+type VideoRef = Readonly<ShallowRef<HTMLVideoElement | null>>;
 type NullableNumber = number | null;
 type PlaybackSpeed = 1 | 2 | 3 | 4 | 5 | 10;
 class Video {
@@ -10,7 +12,7 @@ class Video {
   #playback_speed_values: PlaybackSpeed[] = [1, 2, 3, 4, 5, 10];
 
   constructor(
-    src: NullableString = null,
+    src: VideoRef,
     current_frame: NullableNumber = null,
     playback_direction = null
   ) {
@@ -65,16 +67,22 @@ class Video {
     }
   }
 
+  // playback state getter
+  get isPlaying() {
+    if (this.#playback_direction !== null) return true;
+    return false;
+  }
+
   // video behavior methods
-  play() {
-    if (this.#playback_direction) return;
-    this.#playback_direction = true;
-  }
-  pause() {
-    if (!this.#playback_direction) return;
+  play = (direction = true) => {
+    if (this.#playback_direction === direction) return;
+    this.#playback_direction = direction;
+  };
+  pause = () => {
+    if (this.#playback_direction === null) return;
     this.#playback_direction = null;
-  }
-  fastForward(speed: PlaybackSpeed | "loop" = 2) {
+  };
+  fastForward = (speed: PlaybackSpeed | "loop" = 1) => {
     if (speed === "loop") {
       const speedIndex = this.#playback_speed_values.indexOf(
         this.#playback_speed
@@ -87,8 +95,8 @@ class Video {
       this.#setPlayback(speed);
     } else
       throw Error("Playback speed must be greater than 0 and a maximum of 10.");
-  }
-  rewind(speed: PlaybackSpeed | "loop") {
+  };
+  rewind = (speed: PlaybackSpeed | "loop" = 1) => {
     if (speed === "loop") {
       const speedIndex = this.#playback_speed_values.indexOf(
         this.#playback_speed
@@ -101,23 +109,23 @@ class Video {
       this.#setPlayback(speed, false);
     } else
       throw Error("Rewind speed must be greater than 0 and a maximum of 10.");
-  }
+  };
 
   // private utility methods
-  #dropPlayback() {
+  #dropPlayback = () => {
     console.log("Dropped playback UI");
     this.#current_frame = null;
     this.#playback_direction = null;
-  }
-  #dropReplay() {
+  };
+  #dropReplay = () => {
     console.log("Dropped replay");
     this.#current_frame = null;
-  }
-  #switchReplay(newSrc: string) {
+  };
+  #switchReplay = (newSrc: VideoRef) => {
     console.log("Switched replays");
     this.#src = newSrc;
-  }
-  #setPlayback(speed: PlaybackSpeed = 1, direction = true) {
+  };
+  #setPlayback = (speed: PlaybackSpeed = 1, direction = true) => {
     if (this.#playback_direction !== direction) {
       speed = 1;
     }
@@ -131,7 +139,7 @@ class Video {
       this.#playback_direction = false;
     }
     this.#playback_speed = speed;
-  }
+  };
 }
 
 export default Video;

@@ -2,10 +2,10 @@
 import { computed, inject } from "vue";
 import ModeState from "../assets/interfaces/ModeState";
 
-const { mode, toggleMode } = inject<ModeState>("mode") as ModeState;
+const { mode, toggleMode } = inject("mode") as ModeState;
 
-const swapSelected = (b: "replay" | "analysis") => {
-  if (mode.value !== b) {
+const swapSelected = (m: "replay" | "analysis") => {
+  if (mode.value !== m) {
     toggleMode();
   }
 };
