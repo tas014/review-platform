@@ -1,4 +1,4 @@
-import { type ShallowRef, type Reactive, type Ref } from "vue";
+import { type ShallowRef, type Ref } from "vue";
 
 type PlaybackSpeed = 1 | 2 | 3 | 4 | 5 | 10 | "loop";
 type VideoHook = {

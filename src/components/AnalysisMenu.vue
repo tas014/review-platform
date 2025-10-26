@@ -34,8 +34,8 @@ const clicker = () => {
       </div>
     </div>
     <div class="analysis-buttons">
-      <button>Delete All breakpoints</button>
-      <button>Export Analysis File</button>
+      <button class="delete-breakpoints btn">Delete All <br></br>Breakpoints</button>
+      <button class="export-analysis btn">Export <br></br>Analysis File</button>
     </div>
   </section>
 </template>
@@ -63,6 +63,8 @@ section {
 }
 .tool-list li {
   display: flex;
+  padding-bottom: 1rem;
+  border-bottom: solid 1px whitesmoke;
 }
 .tool-list span {
   margin-right: 1rem;
@@ -81,5 +83,17 @@ h3 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+}
+.export-analysis {
+  background-color: var(--green);
+}
+.delete-breakpoints {
+  background-color: var(--delete-breakpoints-inactive);
+}
+.btn {
+  color: #FFF;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5rem;
 }
 </style>
