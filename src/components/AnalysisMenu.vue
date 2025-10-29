@@ -8,28 +8,28 @@ const clicker = () => {
 <template>
   <section>
     <div class="analysis-menu">
-      <h1>Analysis Menu</h1>
+      <h1 class="analysis-main-title">Analysis Menu</h1>
       <div>
-        <h3>Edit</h3>
+        <h3 class="analysis-section-title">Edit</h3>
         <ul class="tool-list">
           <li>
-            <span>Trim Mode</span>
+            <span class="tool-name">Trim Mode</span>
             <Checkbox :clickFn="clicker" />
           </li>
         </ul>
       </div>
       <div>
-        <h3>Tools</h3>
+        <h3 class="analysis-section-title">Tools</h3>
         <ul class="tool-list">
           <li>
-            <span>Draw Mode</span>
+            <span class="tool-name">Draw Mode</span>
             <Checkbox :clickFn="clicker" />
           </li>
           <li>
-            <span>Add Text Note</span>
+            <span class="tool-name">Add Text Note</span>
             <i class="pi pi-microphone"></i>
           </li>
-          <li>Add Voice Recording</li>
+          <li class="tool-name">Add Voice Recording</li>
         </ul>
       </div>
     </div>
@@ -42,7 +42,6 @@ const clicker = () => {
 <style scoped>
 section {
   position: absolute;
-  font-size: 1.2rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -63,16 +62,26 @@ section {
 }
 .tool-list li {
   display: flex;
+  align-items: center;
   padding-bottom: 1rem;
   border-bottom: solid 1px whitesmoke;
 }
 .tool-list span {
   margin-right: 1rem;
 }
+.tool-name {
+  font-size: var(--mode-size);
+}
 h1,
 h3 {
   color: var(--title-color);
   border-bottom: solid 1px var(--title-color);
+}
+.analysis-main-title {
+  font-size: var(--analysis-title-size);
+}
+.analysis-section-title {
+  font-size: var(--analysis-section-title-size);  
 }
 .analysis-menu {
   margin-top: 5vh;

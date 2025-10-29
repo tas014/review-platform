@@ -1,4 +1,5 @@
 import { ref, computed, readonly, watch, type Ref } from "vue";
+import { videoUrl } from "./useFileUpload";
 
 type Nullable<T> = T | null;
 type PlaybackSpeed = 1 | 2 | 3 | 4 | 5 | 10;
@@ -6,7 +7,7 @@ type VideoRef = Ref<HTMLVideoElement | null>;
 
 export function useVideo(initialSrc: VideoRef = ref(null)) {
   // --- Private State (internal to the composable) ---
-  const _src = initialSrc;
+  const _videoElementRef = initialSrc;
   const _currentFrame = ref<Nullable<number>>(null);
   const _playbackDirection = ref<Nullable<boolean>>(null); // null: paused, true: forwards, false: rewinding
   const _playbackSpeed = ref<PlaybackSpeed>(1);
@@ -58,7 +59,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)) {
 
   // Watch for changes in `_playbackDirection` and update the video element
   watch(_playbackDirection, (newState) => {
-    if (_src.value === null) return;
+    if (_videoElementRef.value === null || videoUrl.value === null) return;
     switch (newState) {
       case true:
       case false:
@@ -70,6 +71,11 @@ export function useVideo(initialSrc: VideoRef = ref(null)) {
       default:
         break;
     }
+  });
+
+  watch(videoUrl, (newUrl) => {
+    if (typeof newUrl !== "string" || !_videoElementRef.value) return;
+    _videoElementRef.value;
   });
 
   // --- Private Utility Methods ---
@@ -84,7 +90,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)) {
 
   // --- Return the Public API ---
   return {
-    src: readonly(_src),
+    videoElement: readonly(_videoElementRef),
     currentFrame,
     isPlaying,
     playbackDirection: _playbackDirection,

@@ -82,7 +82,6 @@ const handlePlayPause = () => {
   display: flex;
   flex-direction: column;
   gap: 3rem;
-  padding: 0rem 2rem 2rem 2rem;
 }
 .playback-progress {
   height: 1vh;
@@ -117,7 +116,7 @@ const handlePlayPause = () => {
   gap: 8rem;
 }
 .controls-container i {
-  font-size: 3rem;
+  font-size: 3.8rem;
   font-weight: bold;
   cursor: pointer;
 }

@@ -37,11 +37,15 @@ header {
   color: #cdd8c3;
   display: flex;
   justify-content: center;
+  font-size: var(--mode-size);
 }
 .wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
   width: 30%;
+}
+.wrapper h1:not(.selected) {
+  font-size: 1em;
 }
 .mode-container {
   display: grid;

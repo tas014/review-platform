@@ -32,8 +32,8 @@ provide("video", {
 </script>
 
 <template>
+  <Modes />
   <main class="container">
-    <Modes />
     <div
       :class="`playback-wrapper ${mode === 'analysis' ? 'analysis' : 'replay'}`"
     >
