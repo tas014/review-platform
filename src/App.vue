@@ -2,8 +2,10 @@
 import Modes from "./components/Modes.vue";
 import { ref, provide, Ref, useTemplateRef, reactive } from "vue";
 import VideoComponent from "./components/VideoComponent.vue";
+import VideoPlaceholder from "./components/VideoPlaceholder.vue";
 import AnalysisMenu from "./components/AnalysisMenu.vue";
 import { useVideo } from "./components/store/hooks/useVideo";
+import { videoUrl } from "./components/store/hooks/useFileUpload";
 /* import { invoke } from "@tauri-apps/api/core"; */
 
 const mode: Ref<"replay" | "analysis"> = ref("replay"); // for switching between analysis and replay modes
@@ -39,7 +41,13 @@ provide("video", {
     >
       <VideoComponent>
         <template v-slot:video>
-          <video class="video" ref="video-playback"></video>
+          <video
+            v-if="videoUrl"
+            :src="videoUrl"
+            class="video"
+            ref="video-playback"
+          ></video>
+          <VideoPlaceholder v-else />
         </template>
       </VideoComponent>
       <AnalysisMenu v-if="mode === 'analysis'" />

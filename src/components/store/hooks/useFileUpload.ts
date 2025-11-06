@@ -1,8 +1,10 @@
 import { open } from "@tauri-apps/plugin-dialog";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { ref } from "vue";
+import { basename } from "@tauri-apps/api/path";
 
 const videoUrl = ref<null | string>(null);
+const videoName = ref<null | string>(null);
 
 const selectVideo = async () => {
   try {
@@ -20,9 +22,11 @@ const selectVideo = async () => {
 
     // Check if the user selected a file
     if (typeof selected === "string") {
-      const filePath = selected;
-      videoUrl.value = convertFileSrc(filePath);
+      const filePath = convertFileSrc(selected);
+      const fileName = await basename(selected);
 
+      videoUrl.value = filePath;
+      videoName.value = fileName;
       console.log("Video loaded successfully with URL:", videoUrl.value);
     } else {
       console.log("No file selected.");
@@ -33,4 +37,4 @@ const selectVideo = async () => {
   }
 };
 
-export { videoUrl, selectVideo };
+export { videoUrl, videoName, selectVideo };

@@ -3,20 +3,20 @@ import { inject, ref } from "vue";
 import ModeState from "../assets/interfaces/ModeState";
 import VideoState from "../assets/interfaces/VideoState";
 import PlaybackControls from "./PlaybackControls.vue";
-import { selectVideo, videoUrl } from "./store/hooks/useFileUpload";
+import { selectVideo, videoName } from "./store/hooks/useFileUpload";
 
 const { mode } = inject("mode") as ModeState;
 const { playbackControls } = inject("video") as VideoState;
 
-const { isPlaying, src } = playbackControls;
+const { isPlaying, videoElement } = playbackControls;
 </script>
 <template>
   <div class="main-wrapper">
     <span class="current-file">
-      {{ videoUrl ? "Currently playing:" : "Load a file to start:" }}
-      {{ videoUrl ? videoUrl : "" }}
+      {{ videoName ? "Currently playing:" : "Load a file to start:" }}
+      {{ videoName ? videoName : "" }}
       <button @click="selectVideo">
-        {{ videoUrl ? "Change file" : "Choose file" }}
+        {{ videoName ? "Change file" : "Choose file" }}
       </button>
     </span>
     <div :class="`video-wrapper ${mode}`">
@@ -36,7 +36,6 @@ const { isPlaying, src } = playbackControls;
   margin-top: 1rem;
   flex-direction: column;
   gap: 1rem;
-  min-height: 70vh;
   transition: width 0.3s;
 }
 .replay {
@@ -58,10 +57,12 @@ const { isPlaying, src } = playbackControls;
   border-radius: 4px;
 }
 .video-container {
+  min-height: 70vh;
   border-radius: 10px;
   overflow: hidden;
 }
 .playing {
+  box-sizing: border-box;
   border: solid 3px var(--light-green);
 }
 </style>

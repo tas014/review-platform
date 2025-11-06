@@ -1,8 +1,13 @@
 import { type ShallowRef, type Ref } from "vue";
 
 type PlaybackSpeed = 1 | 2 | 3 | 4 | 5 | 10 | "loop";
+type Nullable<T> = T | null;
+type VideoRef = Ref<HTMLVideoElement | null>;
 type VideoHook = {
-  src: Ref<HTMLVideoElement | null>;
+  videoElement: Readonly<VideoRef>;
+  totalDuration: Readonly<Ref<number | null>>;
+  videoStart: Readonly<Ref<Nullable<number>>>;
+  progress: Readonly<Ref<number>>;
   currentFrame: Ref<number | null>;
   isPlaying: Ref<boolean | null>;
   playbackDirection: Ref<boolean | null>;
@@ -10,6 +15,8 @@ type VideoHook = {
   rewind: (speed?: PlaybackSpeed) => void;
   play: () => void;
   pause: () => void;
+  skipToStart: () => void;
+  skipToEnd: () => void;
 };
 
 export default interface ModeState {

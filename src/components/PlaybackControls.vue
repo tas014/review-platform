@@ -5,40 +5,29 @@ import VideoState from "../assets/interfaces/VideoState";
 const { playbackControls } = inject("video") as VideoState;
 const {
   isPlaying,
-  src,
   currentFrame,
   playbackDirection,
   play,
   rewind,
   fastForward,
   pause,
+  skipToStart,
+  skipToEnd,
 } = playbackControls;
 
 const handleFastForward = () => {
-  if (isPlaying.value === true) return fastForward("loop");
-  if (isPlaying.value !== null) {
-    fastForward();
-  } else if (src !== null) {
-    fastForward();
-  }
+  if (playbackDirection.value === true) return fastForward("loop");
+  if (playbackDirection.value !== null) return fastForward();
 };
 
 const handleRewind = () => {
-  if (isPlaying.value === false) return rewind("loop");
-  if (isPlaying.value !== null) {
-    rewind();
-  } else if (src !== null) {
-    rewind();
-  }
+  if (playbackDirection.value === false) return rewind("loop");
+  if (playbackDirection.value !== null) return rewind();
 };
 
 const handlePlayPause = () => {
-  if (src === null) return;
-  if (isPlaying.value === null) {
-    play();
-  } else {
-    pause();
-  }
+  if (playbackDirection.value === null) return play();
+  pause();
 };
 </script>
 <template>
@@ -48,14 +37,7 @@ const handlePlayPause = () => {
     </div>
     <div class="playback-controls">
       <div class="controls-container">
-        <i
-          :class="`pi pi-step-backward-alt`"
-          @click="
-            () => {
-              currentFrame = 0;
-            }
-          "
-        ></i>
+        <i :class="`pi pi-step-backward-alt`" @click="skipToStart"></i>
         <i
           :class="`pi pi-backward ${
             playbackDirection === false ? 'selected' : ''
@@ -72,7 +54,7 @@ const handlePlayPause = () => {
           }`"
           @click="handleFastForward"
         ></i>
-        <i :class="`pi pi-step-forward-alt`"></i>
+        <i :class="`pi pi-step-forward-alt`" @click="skipToEnd"></i>
       </div>
     </div>
   </div>
