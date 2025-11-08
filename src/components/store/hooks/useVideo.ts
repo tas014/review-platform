@@ -19,7 +19,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)) {
   const currentFrame = readonly(_currentFrame);
   const isPlaying = computed(() => _playbackDirection.value !== null);
   const _totalDuration = computed(() => {
-    if (!_videoElementRef.value?.duration) return null;
+    if (!_videoElementRef.value) return null;
     if (_customVideoEnd.value) return _customVideoEnd.value;
     return _videoElementRef.value.duration;
   });
@@ -111,7 +111,8 @@ export function useVideo(initialSrc: VideoRef = ref(null)) {
         _videoElementRef.value.play();
         // Start the progress reporting interval
         _intervalTracker = setInterval(() => {
-          const currentTime = _videoElementRef.value?.currentTime as number;
+          if (!_videoElementRef.value) throw new Error("video ref is missing");
+          const currentTime = _videoElementRef.value.currentTime;
           if (_customVideoEnd.value && currentTime >= _customVideoEnd.value) {
             _currentFrame.value = _customVideoEnd.value;
             return clearInterval(_intervalTracker);
@@ -190,10 +191,26 @@ export function useVideo(initialSrc: VideoRef = ref(null)) {
     }, INTERVAL_MS);
   };
 
+  const skipToTime = (percent: number) => {
+    if (percent < 0 || percent > 1)
+      throw new Error("Percentage must be a number between 0 and 1.");
+    if (
+      _videoElementRef.value === null ||
+      videoUrl.value === null ||
+      !_totalDuration.value
+    )
+      return;
+
+    const newTime = _startTime.value + _totalDuration.value * percent;
+    _videoElementRef.value.currentTime = newTime;
+    _currentFrame.value = newTime;
+    pause();
+  };
+
   // --- Return the Public API ---
   return {
     videoElement: readonly(_videoElementRef),
-    currentFrame: readonly(currentFrame),
+    currentTime: readonly(currentFrame),
     totalDuration: readonly(_totalDuration),
     videoStart: readonly(_startTime),
     progress: readonly(_progressPercent),
@@ -205,5 +222,6 @@ export function useVideo(initialSrc: VideoRef = ref(null)) {
     pause,
     skipToEnd,
     skipToStart,
+    skipToTime,
   };
 }

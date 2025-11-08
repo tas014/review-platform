@@ -8,7 +8,7 @@ type VideoHook = {
   totalDuration: Readonly<Ref<number | null>>;
   videoStart: Readonly<Ref<Nullable<number>>>;
   progress: Readonly<Ref<number>>;
-  currentFrame: Ref<number | null>;
+  currentTime: Ref<number | null>;
   isPlaying: Ref<boolean | null>;
   playbackDirection: Ref<boolean | null>;
   fastForward: (speed?: PlaybackSpeed) => void;
@@ -17,6 +17,7 @@ type VideoHook = {
   pause: () => void;
   skipToStart: () => void;
   skipToEnd: () => void;
+  skipToTime: (percent: number) => void;
 };
 
 export default interface ModeState {

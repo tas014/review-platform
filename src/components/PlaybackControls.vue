@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { inject } from "vue";
 import VideoState from "../assets/interfaces/VideoState";
+import VideoTimeline from "./VideoTimeline.vue";
 
 const { playbackControls } = inject("video") as VideoState;
 const {
   isPlaying,
-  currentFrame,
+  progress,
   playbackDirection,
   play,
   rewind,
@@ -13,6 +14,7 @@ const {
   pause,
   skipToStart,
   skipToEnd,
+  skipToTime,
 } = playbackControls;
 
 const handleFastForward = () => {
@@ -32,9 +34,11 @@ const handlePlayPause = () => {
 </script>
 <template>
   <div class="wrapper">
-    <div class="playback-progress">
-      <div class="progress-circle"></div>
-    </div>
+    <VideoTimeline
+      :skip-to-time="skipToTime"
+      :pause="pause"
+      :progress="progress"
+    />
     <div class="playback-controls">
       <div class="controls-container">
         <i :class="`pi pi-step-backward-alt`" @click="skipToStart"></i>
@@ -64,28 +68,6 @@ const handlePlayPause = () => {
   display: flex;
   flex-direction: column;
   gap: 3rem;
-}
-.playback-progress {
-  height: 1vh;
-  background-color: var(--dark-green);
-  border-radius: 1rem;
-  position: relative;
-}
-.progress-circle {
-  position: absolute;
-  left: 15%;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  background-color: var(--light-green);
-  box-shadow: 0px 0px 3px var(--light-green);
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-.progress-circle:hover {
-  background-color: var(--title-color);
 }
 .playback-controls {
   display: grid;
