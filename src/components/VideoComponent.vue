@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref } from "vue";
+import { inject } from "vue";
 import ModeState from "../assets/interfaces/ModeState";
 import VideoState from "../assets/interfaces/VideoState";
 import PlaybackControls from "./PlaybackControls.vue";
@@ -8,7 +8,7 @@ import { selectVideo, videoName } from "./store/hooks/useFileUpload";
 const { mode } = inject("mode") as ModeState;
 const { playbackControls } = inject("video") as VideoState;
 
-const { isPlaying, videoElement } = playbackControls;
+const { isPlaying } = playbackControls;
 </script>
 <template>
   <div class="main-wrapper">
@@ -36,7 +36,7 @@ const { isPlaying, videoElement } = playbackControls;
   margin-top: 1rem;
   flex-direction: column;
   gap: 1rem;
-  transition: width 0.3s;
+  transition: width var(--mode-switch-anim-duration);
 }
 .replay {
   width: 95vw;

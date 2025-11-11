@@ -105,4 +105,18 @@ h3 {
   border-radius: 5px;
   padding: 0.5rem;
 }
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+.animated-in {
+  animation: slide-in 0.5s ease-in-out forwards;
+}
+.animated-out {
+  animation: slide-in 0.5s ease-in-out reverse forwards;
+}
 </style>

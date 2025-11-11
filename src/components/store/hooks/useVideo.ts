@@ -1,11 +1,12 @@
 import { ref, computed, readonly, watch, type Ref } from "vue";
 import { videoUrl } from "./useFileUpload";
+import { VideoHook } from "../../../assets/interfaces/VideoState";
 
 type Nullable<T> = T | null;
 type PlaybackSpeed = 1 | 2 | 3 | 4 | 5 | 10;
 type VideoRef = Ref<HTMLVideoElement | null>;
 
-export function useVideo(initialSrc: VideoRef = ref(null)) {
+export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
   // --- Private State (internal to the composable) ---
   const _videoElementRef = initialSrc;
   const _currentFrame = ref<Nullable<number>>(null);
@@ -46,6 +47,13 @@ export function useVideo(initialSrc: VideoRef = ref(null)) {
   });
 
   // --- Public Methods ---
+  const initializePlayback = () => {
+    if (!_videoElementRef.value) return;
+    // CRITICAL STEP: forces _totalDuration (Dependency 1) to re-run and return a number on call. To be used with the @loadedmetadata event.
+    _customVideoEnd.value = _videoElementRef.value.duration;
+    _currentFrame.value = _startTime.value;
+  };
+
   const fastForward = (speed: PlaybackSpeed | "loop" = 1) => {
     if (speed === "loop") {
       const speedIndex = _playbackSpeedValues.indexOf(_playbackSpeed.value);
@@ -209,7 +217,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)) {
 
   // --- Return the Public API ---
   return {
-    videoElement: readonly(_videoElementRef),
+    videoElement: readonly(_videoElementRef) as VideoRef,
     currentTime: readonly(currentFrame),
     totalDuration: readonly(_totalDuration),
     videoStart: readonly(_startTime),
@@ -223,5 +231,6 @@ export function useVideo(initialSrc: VideoRef = ref(null)) {
     skipToEnd,
     skipToStart,
     skipToTime,
+    initializePlayback,
   };
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Modes from "./components/Modes.vue";
-import { ref, provide, Ref, useTemplateRef, reactive } from "vue";
+import { ref, provide, Ref, useTemplateRef, Transition } from "vue";
 import VideoComponent from "./components/VideoComponent.vue";
 import VideoPlaceholder from "./components/VideoPlaceholder.vue";
 import AnalysisMenu from "./components/AnalysisMenu.vue";
@@ -18,6 +18,10 @@ const toggleMode = () => {
     mode.value = "analysis";
   }
 };
+
+const updateVideoElement = () => {
+  playbackControls.initializePlayback();
+};
 provide("mode", {
   mode,
   toggleMode,
@@ -26,11 +30,6 @@ provide("video", {
   videoElement,
   playbackControls,
 });
-
-/* async function greet() {
-  // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-  greetMsg.value = await invoke("greet", { name: name.value });
-} */
 </script>
 
 <template>
@@ -46,11 +45,14 @@ provide("video", {
             :src="videoUrl"
             class="video"
             ref="video-playback"
+            @loadedmetadata="updateVideoElement"
           ></video>
           <VideoPlaceholder v-else />
         </template>
       </VideoComponent>
-      <AnalysisMenu v-if="mode === 'analysis'" />
+      <Transition name="slide-fade">
+        <AnalysisMenu v-if="mode === 'analysis'" />
+      </Transition>
     </div>
   </main>
 </template>
@@ -71,5 +73,27 @@ provide("video", {
   background-color: black;
   width: 100%;
   height: 75vh;
+}
+</style>
+<style>
+@keyframes slide-transition {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.slide-fade-enter-active {
+  animation: slide-transition var(--mode-switch-anim-duration) ease-in-out
+    forwards;
+  position: absolute;
+}
+.slide-fade-leave-active {
+  animation: slide-transition var(--mode-switch-anim-duration) ease-in-out
+    reverse forwards;
+  position: absolute;
 }
 </style>
