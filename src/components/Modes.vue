@@ -1,27 +1,30 @@
 <script setup lang="ts">
-import { inject } from "vue";
+import { computed, inject } from "vue";
 import ModeState from "../assets/interfaces/ModeState";
 
-const { mode, toggleMode } = inject<ModeState>("mode") as ModeState;
+const { mode, toggleMode } = inject("mode") as ModeState;
 
-const swapSelected = (b: boolean) => {
-  if (mode.value !== b) {
+const swapSelected = (m: "replay" | "analysis") => {
+  if (mode.value !== m) {
     toggleMode();
   }
 };
+const selected = computed(() => {
+  return mode.value === "replay";
+});
 </script>
 <template>
   <header>
     <div class="wrapper">
       <div
-        :class="mode ? 'mode-container selected' : 'mode-container'"
-        @click="() => swapSelected(true)"
+        :class="selected ? 'mode-container selected' : 'mode-container'"
+        @click="() => swapSelected('replay')"
       >
         <h1>Replay Mode</h1>
       </div>
       <div
-        :class="!mode ? 'mode-container selected' : 'mode-container'"
-        @click="() => swapSelected(false)"
+        :class="!selected ? 'mode-container selected' : 'mode-container'"
+        @click="() => swapSelected('analysis')"
       >
         <h1>Analysis Mode</h1>
       </div>
@@ -34,11 +37,16 @@ header {
   color: #cdd8c3;
   display: flex;
   justify-content: center;
+  font-size: var(--mode-size);
 }
 .wrapper {
+  --modes-border-radius: 10rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  width: 30%;
+  width: 40%;
+}
+.wrapper h1:not(.selected) {
+  font-size: 1em;
 }
 .mode-container {
   display: grid;
@@ -48,10 +56,10 @@ header {
   transition: all 0.3s;
 }
 .mode-container:nth-of-type(1) {
-  border-bottom-left-radius: 10rem;
+  border-bottom-left-radius: var(--modes-border-radius);
 }
 .mode-container:nth-of-type(2) {
-  border-bottom-right-radius: 10rem;
+  border-bottom-right-radius: var(--modes-border-radius);
 }
 .mode-container:not(.selected):hover {
   color: #fff;
@@ -65,5 +73,21 @@ header {
   color: #2d873d;
   font-weight: bold;
   box-shadow: 0px 0px 5px var(--title-color);
+}
+@media (max-width: 1350px) {
+  .wrapper {
+    --modes-border-radius: 5rem;
+    width: 60%;
+  }
+  header {
+    min-height: 5vh;
+    height: fit-content;
+  }
+}
+@media (max-width: 700px) {
+  .wrapper {
+    --modes-border-radius: 2rem;
+    width: 80%;
+  }
 }
 </style>

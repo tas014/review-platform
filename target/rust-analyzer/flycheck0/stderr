@@ -1,0 +1,267 @@
+    Blocking waiting for file lock on build directory
+  36.700508400s  INFO prepare_target{force=false package_id=review-platform v0.1.0 (D:\Programming\projects\tesis\review-platform\src-tauri) target="review_platform_lib"}: cargo::core::compiler::fingerprint: fingerprint error for review-platform v0.1.0 (D:\Programming\projects\tesis\review-platform\src-tauri)/Check { test: false }/TargetInner { ..: lib_target("review_platform_lib", ["staticlib", "cdylib", "rlib"], "D:\\Programming\\projects\\tesis\\review-platform\\src-tauri\\src\\lib.rs", Edition2021) }
+  36.701156800s  INFO prepare_target{force=false package_id=review-platform v0.1.0 (D:\Programming\projects\tesis\review-platform\src-tauri) target="review_platform_lib"}: cargo::core::compiler::fingerprint:     err: failed to read `D:\Programming\projects\tesis\review-platform\src-tauri\target\debug\.fingerprint\review-platform-88a82fd082597c08\lib-review_platform_lib`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_path
+   6: git_filter_source_path
+   7: git_filter_source_path
+   8: git_filter_source_path
+   9: git_filter_source_repo
+  10: git_filter_source_repo
+  11: git_filter_source_repo
+  12: git_filter_source_repo
+  13: git_filter_source_repo
+  14: <unknown>
+  15: <unknown>
+  16: git_midx_writer_dump
+  17: git_filter_source_repo
+  18: git_midx_writer_dump
+  19: BaseThreadInitThunk
+  20: RtlUserThreadStart
+  36.780661200s  INFO prepare_target{force=false package_id=tauri v2.9.1 target="tauri"}: cargo::core::compiler::fingerprint: fingerprint error for tauri v2.9.1/Check { test: false }/TargetInner { ..: lib_target("tauri", ["lib"], "C:\\Users\\franc\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-2.9.1\\src\\lib.rs", Edition2021) }
+  36.780688800s  INFO prepare_target{force=false package_id=tauri v2.9.1 target="tauri"}: cargo::core::compiler::fingerprint:     err: failed to read `D:\Programming\projects\tesis\review-platform\src-tauri\target\debug\.fingerprint\tauri-7942eb298df32524\lib-tauri`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_path
+   6: git_filter_source_path
+   7: git_filter_source_path
+   8: git_filter_source_path
+   9: git_filter_source_path
+  10: git_filter_source_repo
+  11: git_filter_source_repo
+  12: git_filter_source_repo
+  13: git_filter_source_repo
+  14: git_filter_source_repo
+  15: <unknown>
+  16: <unknown>
+  17: git_midx_writer_dump
+  18: git_filter_source_repo
+  19: git_midx_writer_dump
+  20: BaseThreadInitThunk
+  21: RtlUserThreadStart
+  36.788153500s  INFO prepare_target{force=false package_id=http-range v0.1.5 target="http_range"}: cargo::core::compiler::fingerprint: fingerprint error for http-range v0.1.5/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("http_range", ["lib"], "C:\\Users\\franc\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\http-range-0.1.5\\src\\lib.rs", Edition2018) }
+  36.788183500s  INFO prepare_target{force=false package_id=http-range v0.1.5 target="http_range"}: cargo::core::compiler::fingerprint:     err: failed to read `D:\Programming\projects\tesis\review-platform\src-tauri\target\debug\.fingerprint\http-range-35c7aff569b68bbf\lib-http_range`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_path
+   6: git_filter_source_path
+   7: git_filter_source_path
+   8: git_filter_source_path
+   9: git_filter_source_path
+  10: git_filter_source_path
+  11: git_filter_source_repo
+  12: git_filter_source_repo
+  13: git_filter_source_repo
+  14: git_filter_source_repo
+  15: git_filter_source_repo
+  16: <unknown>
+  17: <unknown>
+  18: git_midx_writer_dump
+  19: git_filter_source_repo
+  20: git_midx_writer_dump
+  21: BaseThreadInitThunk
+  22: RtlUserThreadStart
+  36.824403700s  INFO prepare_target{force=false package_id=tauri-plugin-dialog v2.4.1 target="tauri_plugin_dialog"}: cargo::core::compiler::fingerprint: fingerprint error for tauri-plugin-dialog v2.4.1/Check { test: false }/TargetInner { ..: lib_target("tauri_plugin_dialog", ["lib"], "C:\\Users\\franc\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-plugin-dialog-2.4.1\\src\\lib.rs", Edition2021) }
+  36.824433400s  INFO prepare_target{force=false package_id=tauri-plugin-dialog v2.4.1 target="tauri_plugin_dialog"}: cargo::core::compiler::fingerprint:     err: failed to read `D:\Programming\projects\tesis\review-platform\src-tauri\target\debug\.fingerprint\tauri-plugin-dialog-1b7161ceee196216\lib-tauri_plugin_dialog`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_path
+   6: git_filter_source_path
+   7: git_filter_source_path
+   8: git_filter_source_path
+   9: git_filter_source_path
+  10: git_filter_source_repo
+  11: git_filter_source_repo
+  12: git_filter_source_repo
+  13: git_filter_source_repo
+  14: git_filter_source_repo
+  15: <unknown>
+  16: <unknown>
+  17: git_midx_writer_dump
+  18: git_filter_source_repo
+  19: git_midx_writer_dump
+  20: BaseThreadInitThunk
+  21: RtlUserThreadStart
+  36.829100400s  INFO prepare_target{force=false package_id=tauri-plugin-fs v2.4.3 target="tauri_plugin_fs"}: cargo::core::compiler::fingerprint: fingerprint error for tauri-plugin-fs v2.4.3/Check { test: false }/TargetInner { ..: lib_target("tauri_plugin_fs", ["lib"], "C:\\Users\\franc\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-plugin-fs-2.4.3\\src\\lib.rs", Edition2021) }
+  36.829138000s  INFO prepare_target{force=false package_id=tauri-plugin-fs v2.4.3 target="tauri_plugin_fs"}: cargo::core::compiler::fingerprint:     err: failed to read `D:\Programming\projects\tesis\review-platform\src-tauri\target\debug\.fingerprint\tauri-plugin-fs-4a2451c067cac17e\lib-tauri_plugin_fs`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_path
+   6: git_filter_source_path
+   7: git_filter_source_path
+   8: git_filter_source_path
+   9: git_filter_source_path
+  10: git_filter_source_path
+  11: git_filter_source_repo
+  12: git_filter_source_repo
+  13: git_filter_source_repo
+  14: git_filter_source_repo
+  15: git_filter_source_repo
+  16: <unknown>
+  17: <unknown>
+  18: git_midx_writer_dump
+  19: git_filter_source_repo
+  20: git_midx_writer_dump
+  21: BaseThreadInitThunk
+  22: RtlUserThreadStart
+  36.831621100s  INFO prepare_target{force=false package_id=tauri-plugin-opener v2.5.1 target="tauri_plugin_opener"}: cargo::core::compiler::fingerprint: fingerprint error for tauri-plugin-opener v2.5.1/Check { test: false }/TargetInner { ..: lib_target("tauri_plugin_opener", ["lib"], "C:\\Users\\franc\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\tauri-plugin-opener-2.5.1\\src\\lib.rs", Edition2021) }
+  36.831644600s  INFO prepare_target{force=false package_id=tauri-plugin-opener v2.5.1 target="tauri_plugin_opener"}: cargo::core::compiler::fingerprint:     err: failed to read `D:\Programming\projects\tesis\review-platform\src-tauri\target\debug\.fingerprint\tauri-plugin-opener-2c32b79180bf7dee\lib-tauri_plugin_opener`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_path
+   6: git_filter_source_path
+   7: git_filter_source_path
+   8: git_filter_source_path
+   9: git_filter_source_path
+  10: git_filter_source_repo
+  11: git_filter_source_repo
+  12: git_filter_source_repo
+  13: git_filter_source_repo
+  14: git_filter_source_repo
+  15: <unknown>
+  16: <unknown>
+  17: git_midx_writer_dump
+  18: git_filter_source_repo
+  19: git_midx_writer_dump
+  20: BaseThreadInitThunk
+  21: RtlUserThreadStart
+  36.833338400s  INFO prepare_target{force=false package_id=review-platform v0.1.0 (D:\Programming\projects\tesis\review-platform\src-tauri) target="review_platform_lib"}: cargo::core::compiler::fingerprint: fingerprint error for review-platform v0.1.0 (D:\Programming\projects\tesis\review-platform\src-tauri)/Check { test: true }/TargetInner { ..: lib_target("review_platform_lib", ["staticlib", "cdylib", "rlib"], "D:\\Programming\\projects\\tesis\\review-platform\\src-tauri\\src\\lib.rs", Edition2021) }
+  36.833364500s  INFO prepare_target{force=false package_id=review-platform v0.1.0 (D:\Programming\projects\tesis\review-platform\src-tauri) target="review_platform_lib"}: cargo::core::compiler::fingerprint:     err: failed to read `D:\Programming\projects\tesis\review-platform\src-tauri\target\debug\.fingerprint\review-platform-80c84ffa230c1c18\test-lib-review_platform_lib`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_path
+   6: git_filter_source_path
+   7: git_filter_source_path
+   8: git_filter_source_path
+   9: git_filter_source_repo
+  10: git_filter_source_repo
+  11: git_filter_source_repo
+  12: git_filter_source_repo
+  13: git_filter_source_repo
+  14: <unknown>
+  15: <unknown>
+  16: git_midx_writer_dump
+  17: git_filter_source_repo
+  18: git_midx_writer_dump
+  19: BaseThreadInitThunk
+  20: RtlUserThreadStart
+  36.835292100s  INFO prepare_target{force=false package_id=review-platform v0.1.0 (D:\Programming\projects\tesis\review-platform\src-tauri) target="review-platform"}: cargo::core::compiler::fingerprint: fingerprint error for review-platform v0.1.0 (D:\Programming\projects\tesis\review-platform\src-tauri)/Check { test: false }/TargetInner { name: "review-platform", doc: true, ..: with_path("D:\\Programming\\projects\\tesis\\review-platform\\src-tauri\\src\\main.rs", Edition2021) }
+  36.835325800s  INFO prepare_target{force=false package_id=review-platform v0.1.0 (D:\Programming\projects\tesis\review-platform\src-tauri) target="review-platform"}: cargo::core::compiler::fingerprint:     err: failed to read `D:\Programming\projects\tesis\review-platform\src-tauri\target\debug\.fingerprint\review-platform-d5ea5c90c21ec34f\bin-review-platform`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_path
+   6: git_filter_source_path
+   7: git_filter_source_path
+   8: git_filter_source_path
+   9: git_filter_source_repo
+  10: git_filter_source_repo
+  11: git_filter_source_repo
+  12: git_filter_source_repo
+  13: git_filter_source_repo
+  14: <unknown>
+  15: <unknown>
+  16: git_midx_writer_dump
+  17: git_filter_source_repo
+  18: git_midx_writer_dump
+  19: BaseThreadInitThunk
+  20: RtlUserThreadStart
+  36.836960500s  INFO prepare_target{force=false package_id=review-platform v0.1.0 (D:\Programming\projects\tesis\review-platform\src-tauri) target="review-platform"}: cargo::core::compiler::fingerprint: fingerprint error for review-platform v0.1.0 (D:\Programming\projects\tesis\review-platform\src-tauri)/Check { test: true }/TargetInner { name: "review-platform", doc: true, ..: with_path("D:\\Programming\\projects\\tesis\\review-platform\\src-tauri\\src\\main.rs", Edition2021) }
+  36.836980800s  INFO prepare_target{force=false package_id=review-platform v0.1.0 (D:\Programming\projects\tesis\review-platform\src-tauri) target="review-platform"}: cargo::core::compiler::fingerprint:     err: failed to read `D:\Programming\projects\tesis\review-platform\src-tauri\target\debug\.fingerprint\review-platform-e729bee35b567923\test-bin-review-platform`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_path
+   6: git_filter_source_path
+   7: git_filter_source_path
+   8: git_filter_source_path
+   9: git_filter_source_repo
+  10: git_filter_source_repo
+  11: git_filter_source_repo
+  12: git_filter_source_repo
+  13: git_filter_source_repo
+  14: <unknown>
+  15: <unknown>
+  16: git_midx_writer_dump
+  17: git_filter_source_repo
+  18: git_midx_writer_dump
+  19: BaseThreadInitThunk
+  20: RtlUserThreadStart
+    Checking http-range v0.1.5
+    Checking tauri v2.9.1
+    Checking tauri-plugin-fs v2.4.3
+    Checking tauri-plugin-opener v2.5.1
+    Checking tauri-plugin-dialog v2.4.1
+    Checking review-platform v0.1.0 (D:\Programming\projects\tesis\review-platform\src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 54.28s
