@@ -10,6 +10,8 @@ This is a project made to help gamers review their games and theorize about crea
 
 ## Running the app
 
+### Installing
+
 Clone the repository, run one of the following:
 
 - npm install (or npm i)
@@ -27,3 +29,7 @@ Or run the build command with one of:
 - npm tauri build
 - pnpm tauri build
 - yarn tauri build
+
+### Usage
+
+There's not a whole lot yet, there's only basic playback and file selection as well as basic mode switching. None of the Analysis tools do anything yet, it's just a template for future development. This app is intended to be used as a desktop application, so make sure you run a tauri dev environment or build instead of viewing it in the local browser port vue creates, since the file uploading won't work there.
