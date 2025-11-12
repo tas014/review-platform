@@ -57,7 +57,7 @@ const { isPlaying } = playbackControls;
   border-radius: 4px;
 }
 .video-container {
-  min-height: 70vh;
+  height: 70vh;
   border-radius: 10px;
   overflow: hidden;
 }

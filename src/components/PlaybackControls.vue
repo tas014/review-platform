@@ -8,6 +8,7 @@ const {
   isPlaying,
   progress,
   playbackDirection,
+  transitionTime,
   play,
   rewind,
   fastForward,
@@ -38,6 +39,7 @@ const handlePlayPause = () => {
       :skip-to-time="skipToTime"
       :pause="pause"
       :progress="progress"
+      :transition-time="transitionTime"
     />
     <div class="playback-controls">
       <div class="controls-container">

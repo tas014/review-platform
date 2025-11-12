@@ -5,6 +5,7 @@ const props = defineProps<{
   skipToTime: (percent: number) => void;
   pause: () => void;
   progress: number;
+  transitionTime: string;
 }>();
 
 const timelineContainer = ref<HTMLDivElement | null>(null);
@@ -54,39 +55,52 @@ onUnmounted(() => {
 <template>
   <div
     class="playback-progress"
+    :style="`--video-progress: ${progress}%; --transition-time: ${transitionTime}`"
     ref="timelineContainer"
     @click="handleTimeLineClick"
   >
-    <div
-      class="progress-circle"
-      :style="`--progress-percent: ${progress}%`"
-      @mousedown.prevent="startDrag"
-    ></div>
+    <div class="progress-circle" @mousedown.prevent="startDrag"></div>
   </div>
 </template>
 <style scoped>
 .playback-progress {
+  --video-progress: 0%;
+  --transition-time: 0.1s;
   height: 1vh;
   background-color: var(--dark-green);
   border-radius: 1rem;
   position: relative;
+  z-index: 1;
+}
+.playback-progress::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  width: var(--video-progress);
+  height: 100%;
+  border-radius: 1rem;
+  background-color: var(--title-color);
+  transition: width var(--transition-time) linear;
 }
 .progress-circle {
   --progress-percent: 0%;
-  --transition-time: 0.5s;
   position: absolute;
-  left: var(--progress-percent);
+  z-index: 3;
+  left: var(--video-progress);
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(-50%) translateX(-50%);
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
   background-color: var(--light-green);
   box-shadow: 0px 0px 3px var(--light-green);
-  cursor: pointer;
+  cursor: grab;
   transition: background-color 0.3s, left var(--transition-time) linear;
 }
 .progress-circle:hover {
   background-color: var(--title-color);
+}
+.progress-circle:active {
+  cursor: grabbing;
 }
 </style>

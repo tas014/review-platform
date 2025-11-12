@@ -15,6 +15,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
   const _playbackSpeedValues: PlaybackSpeed[] = [1, 2, 3, 4, 5, 10];
   const _customVideoEnd = ref<Nullable<number>>(null);
   const _customVideoStart = ref<Nullable<number>>(null);
+  const updateTickrate = 300;
 
   // --- Public Getters (Computed Properties) ---
   const currentFrame = readonly(_currentFrame);
@@ -129,11 +130,10 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
           if (_totalDuration.value && currentTime >= _totalDuration.value) {
             pause();
           }
-          console.log(_progressPercent.value);
-        }, 500);
+        }, updateTickrate);
         break;
 
-      case false: // REWIND (must use seeking workaround)
+      case false: // REWIND (tauri doesnt support negative playback so I use reverse seeking workaround)
         _videoElementRef.value.pause();
         _playReverseSeek();
         break;
@@ -224,6 +224,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
     progress: readonly(_progressPercent),
     isPlaying: readonly(isPlaying),
     playbackDirection: readonly(_playbackDirection),
+    transitionTime: `${updateTickrate / 1000}s`,
     fastForward,
     rewind,
     play,
