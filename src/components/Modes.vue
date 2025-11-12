@@ -40,9 +40,10 @@ header {
   font-size: var(--mode-size);
 }
 .wrapper {
+  --modes-border-radius: 10rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  width: 30%;
+  width: 40%;
 }
 .wrapper h1:not(.selected) {
   font-size: 1em;
@@ -55,10 +56,10 @@ header {
   transition: all 0.3s;
 }
 .mode-container:nth-of-type(1) {
-  border-bottom-left-radius: 10rem;
+  border-bottom-left-radius: var(--modes-border-radius);
 }
 .mode-container:nth-of-type(2) {
-  border-bottom-right-radius: 10rem;
+  border-bottom-right-radius: var(--modes-border-radius);
 }
 .mode-container:not(.selected):hover {
   color: #fff;
@@ -72,5 +73,21 @@ header {
   color: #2d873d;
   font-weight: bold;
   box-shadow: 0px 0px 5px var(--title-color);
+}
+@media (max-width: 1350px) {
+  .wrapper {
+    --modes-border-radius: 5rem;
+    width: 60%;
+  }
+  header {
+    min-height: 5vh;
+    height: fit-content;
+  }
+}
+@media (max-width: 700px) {
+  .wrapper {
+    --modes-border-radius: 2rem;
+    width: 80%;
+  }
 }
 </style>

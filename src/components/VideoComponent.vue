@@ -15,7 +15,7 @@ const { isPlaying } = playbackControls;
     <span class="current-file">
       {{ videoName ? "Currently playing:" : "Load a file to start:" }}
       {{ videoName ? videoName : "" }}
-      <button @click="selectVideo">
+      <button class="current-file-button" @click="selectVideo">
         {{ videoName ? "Change file" : "Choose file" }}
       </button>
     </span>
@@ -47,7 +47,7 @@ const { isPlaying } = playbackControls;
 .current-file {
   color: var(--title-color);
 }
-.current-file button {
+.current-file-button {
   font-size: var(--small-text);
   margin-left: 0.4rem;
   padding: 0rem 1rem;
@@ -55,6 +55,11 @@ const { isPlaying } = playbackControls;
   color: var(--title-color);
   border: solid 1px var(--light-green);
   border-radius: 4px;
+  transition: background-color 0.3s;
+  cursor: pointer;
+}
+.current-file-button:hover {
+  background-color: var(--checkbox-green);
 }
 .video-container {
   height: 70vh;

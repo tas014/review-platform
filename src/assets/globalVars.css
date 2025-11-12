@@ -28,3 +28,10 @@ body {
   width: 100vw;
   overflow: hidden;
 }
+
+@media (max-width: 1350px) {
+  body {
+    height: fit-content;
+    min-height: 100vw;
+  }
+}

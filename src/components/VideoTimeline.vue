@@ -71,6 +71,7 @@ onUnmounted(() => {
   border-radius: 1rem;
   position: relative;
   z-index: 1;
+  cursor: pointer;
 }
 .playback-progress::before {
   content: "";

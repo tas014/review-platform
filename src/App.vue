@@ -96,4 +96,9 @@ provide("video", {
     reverse forwards;
   position: absolute;
 }
+@media (max-width: 1350px) {
+  .container {
+    height: fit-content;
+  }
+}
 </style>
