@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { inject } from "vue";
-import VideoState from "../assets/interfaces/VideoState";
+import VideoState from "../../assets/interfaces/VideoState";
 import VideoTimeline from "./VideoTimeline.vue";
 
 const { playbackControls } = inject("video") as VideoState;

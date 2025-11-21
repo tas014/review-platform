@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, computed } from "vue";
 
 const props = defineProps<{
   skipToTime: (percent: number) => void;
@@ -9,10 +9,15 @@ const props = defineProps<{
 }>();
 
 const timelineContainer = ref<HTMLDivElement | null>(null);
+const isSeeking = ref(false);
+const transitionTimeValue = computed(() => {
+  if (isSeeking.value) return "0s";
+  return props.transitionTime;
+});
 let isDragging = false;
 const handleTimeLineClick = (event: MouseEvent) => {
   if (isDragging || !timelineContainer.value) return; // Ignore if click is part of a drag
-
+  isSeeking.value = true;
   const timelineRect = timelineContainer.value.getBoundingClientRect();
   const clickX = event.clientX;
 
@@ -23,6 +28,7 @@ const handleTimeLineClick = (event: MouseEvent) => {
 
 const startDrag = () => {
   isDragging = true;
+  isSeeking.value = true;
   props.pause(); // Pause video while dragging
 };
 
@@ -39,6 +45,7 @@ const handleDrag = (event: MouseEvent) => {
 
 const stopDrag = () => {
   if (isDragging) isDragging = false;
+  if (isSeeking.value) isSeeking.value = false;
 };
 
 onMounted(() => {
@@ -55,7 +62,7 @@ onUnmounted(() => {
 <template>
   <div
     class="playback-progress"
-    :style="`--video-progress: ${progress}%; --transition-time: ${transitionTime}`"
+    :style="`--video-progress: ${progress}%; --transition-time: ${transitionTimeValue}`"
     ref="timelineContainer"
     @click="handleTimeLineClick"
   >

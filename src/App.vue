@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import Modes from "./components/Modes.vue";
 import { ref, provide, Ref, useTemplateRef, Transition } from "vue";
-import VideoComponent from "./components/VideoComponent.vue";
-import VideoPlaceholder from "./components/VideoPlaceholder.vue";
+import VideoComponent from "./components/video/VideoComponent.vue";
+import VideoPlaceholder from "./components/video/VideoPlaceholder.vue";
 import AnalysisMenu from "./components/AnalysisMenu.vue";
 import { useVideo } from "./components/store/hooks/useVideo";
 import { videoUrl } from "./components/store/hooks/useFileUpload";

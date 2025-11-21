@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import Checkbox from "./Checkbox.vue";
+import TrimMode from "./analysis/TrimMode.vue";
+import DrawMode from "./analysis/DrawMode.vue";
+import TextMode from "./analysis/TextMode.vue";
+import VoiceMode from "./analysis/VoiceMode.vue";
 
-const clicker = () => {
-  console.log("I've been clicked");
-};
 </script>
 <template>
   <section>
@@ -12,24 +12,15 @@ const clicker = () => {
       <div>
         <h3 class="analysis-section-title">Edit</h3>
         <ul class="tool-list">
-          <li>
-            <span class="tool-name">Trim Mode</span>
-            <Checkbox :clickFn="clicker" />
-          </li>
+          <TrimMode />
         </ul>
       </div>
       <div>
         <h3 class="analysis-section-title">Tools</h3>
         <ul class="tool-list">
-          <li>
-            <span class="tool-name">Draw Mode</span>
-            <Checkbox :clickFn="clicker" />
-          </li>
-          <li>
-            <span class="tool-name">Add Text Note</span>
-            <i class="pi pi-microphone"></i>
-          </li>
-          <li class="tool-name">Add Voice Recording</li>
+          <DrawMode />
+          <TextMode />
+          <VoiceMode />
         </ul>
       </div>
     </div>
@@ -59,18 +50,6 @@ section {
   gap: 1rem;
   margin-top: 1rem;
   padding-left: 0px;
-}
-.tool-list li {
-  display: flex;
-  align-items: center;
-  padding-bottom: 1rem;
-  border-bottom: solid 1px whitesmoke;
-}
-.tool-list span {
-  margin-right: 1rem;
-}
-.tool-name {
-  font-size: var(--mode-size);
 }
 h1,
 h3 {
@@ -118,5 +97,19 @@ h3 {
 }
 .animated-out {
   animation: slide-in 0.5s ease-in-out reverse forwards;
+}
+</style>
+<style>
+.tool-list li {
+  display: flex;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: solid 1px whitesmoke;
+}
+.tool-list span {
+  margin-right: 1rem;
+}
+.tool-name {
+  font-size: var(--mode-size);
 }
 </style>

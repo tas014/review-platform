@@ -2,6 +2,7 @@
 import { ref } from "vue";
 const props = defineProps<{
   clickFn: () => void;
+  isActive: boolean;
 }>();
 const active = ref(false);
 const toggle = () => {

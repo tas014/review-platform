@@ -9,6 +9,7 @@ type VideoRef = Ref<HTMLVideoElement | null>;
 export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
   // --- Private State (internal to the composable) ---
   const _videoElementRef = initialSrc;
+  const _videoSrc = ref<string | null>(null);
   const _currentFrame = ref<Nullable<number>>(null);
   const _playbackDirection = ref<Nullable<boolean>>(null); // null: paused, true: forwards, false: rewinding
   const _playbackSpeed = ref<PlaybackSpeed>(1);
@@ -56,6 +57,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
   };
 
   const fastForward = (speed: PlaybackSpeed | "loop" = 1) => {
+    if (!_videoSrc.value) return;
     if (speed === "loop") {
       const speedIndex = _playbackSpeedValues.indexOf(_playbackSpeed.value);
       const loopedIndex = (speedIndex + 1) % _playbackSpeedValues.length;
@@ -70,6 +72,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
   };
 
   const rewind = (speed: PlaybackSpeed | "loop" = 1) => {
+    if (!_videoSrc.value) return;
     if (speed === "loop") {
       const speedIndex = _playbackSpeedValues.indexOf(_playbackSpeed.value);
       const loopedIndex = (speedIndex + 1) % _playbackSpeedValues.length;
@@ -84,14 +87,18 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
   };
 
   const play = () => {
+    if (!_videoSrc.value) return;
+    if (_progressPercent.value === 100) skipToStart();
     _setPlayback(1, true);
   };
 
   const pause = () => {
+    if (!_videoSrc.value) return;
     _setPlayback(1, null);
   };
 
   const skipToEnd = () => {
+    if (!_videoSrc.value) return;
     if (
       _videoElementRef.value === null ||
       videoUrl.value === null ||
@@ -104,10 +111,15 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
   };
 
   const skipToStart = () => {
+    if (!_videoSrc.value) return;
     if (_videoElementRef.value === null || videoUrl.value === null) return;
     _videoElementRef.value.currentTime = _startTime.value;
     _currentFrame.value = _startTime.value;
     pause();
+  };
+
+  const updateVideoSrc = (newSrc: string | null = null) => {
+    _videoSrc.value = newSrc;
   };
 
   // Watch for changes in `_playbackDirection` and update the video element
@@ -151,6 +163,10 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
     if (_playbackDirection.value)
       _videoElementRef.value.playbackRate = newSpeed;
     if (_playbackDirection.value === false) _playReverseSeek(newSpeed);
+  });
+
+  watch(_progressPercent, (progress) => {
+    if (progress === 100) pause();
   });
 
   // --- Private Utility Methods ---
@@ -218,6 +234,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
   // --- Return the Public API ---
   return {
     videoElement: readonly(_videoElementRef) as VideoRef,
+    videoSrc: readonly(_videoSrc),
     currentTime: readonly(currentFrame),
     totalDuration: readonly(_totalDuration),
     videoStart: readonly(_startTime),
@@ -233,5 +250,6 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
     skipToStart,
     skipToTime,
     initializePlayback,
+    updateVideoSrc,
   };
 }

@@ -9,6 +9,7 @@ type ProvidedContext = {
 };
 type VideoHook = {
   videoElement: Readonly<VideoRef>;
+  videoSrc: Readonly<Ref<string | null>>;
   totalDuration: Readonly<Ref<number | null>>;
   videoStart: Readonly<Ref<Nullable<number>>>;
   progress: Readonly<Ref<number>>;
@@ -24,6 +25,7 @@ type VideoHook = {
   skipToEnd: () => void;
   skipToTime: (percent: number) => void;
   initializePlayback: () => void;
+  updateVideoSrc: (newSrc: string | null) => void;
 };
 
 export default interface ModeState {

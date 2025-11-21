@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import { inject } from "vue";
-import ModeState from "../assets/interfaces/ModeState";
-import VideoState from "../assets/interfaces/VideoState";
-import PlaybackControls from "./PlaybackControls.vue";
-import { selectVideo, videoName } from "./store/hooks/useFileUpload";
+import { inject, watch } from "vue";
+import ModeState from "../../assets/interfaces/ModeState";
+import VideoState from "../../assets/interfaces/VideoState";
+import PlaybackControls from "../playback/PlaybackControls.vue";
+import { selectVideo, videoName, videoUrl } from "../store/hooks/useFileUpload";
 
 const { mode } = inject("mode") as ModeState;
 const { playbackControls } = inject("video") as VideoState;
+const { isPlaying, updateVideoSrc } = playbackControls;
 
-const { isPlaying } = playbackControls;
+watch(videoUrl, (newUrl) => {
+  updateVideoSrc(newUrl);
+});
 </script>
 <template>
   <div class="main-wrapper">
