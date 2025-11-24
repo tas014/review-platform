@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Modes from "./components/Modes.vue";
-import { ref, provide, Ref, useTemplateRef, Transition } from "vue";
+import { ref, provide, reactive, Ref, useTemplateRef, Transition } from "vue";
 import VideoComponent from "./components/video/VideoComponent.vue";
 import VideoPlaceholder from "./components/video/VideoPlaceholder.vue";
 import AnalysisMenu from "./components/AnalysisMenu.vue";
@@ -11,6 +11,10 @@ import { videoUrl } from "./components/store/hooks/useFileUpload";
 const mode: Ref<"replay" | "analysis"> = ref("replay"); // for switching between analysis and replay modes
 const videoElement = useTemplateRef("video-playback");
 const playbackControls = useVideo(videoElement);
+const breakpointStore = reactive({
+  videodata: null,
+  breakpoints: []
+})
 const toggleMode = () => {
   if (mode.value === "analysis") {
     mode.value = "replay";
@@ -30,6 +34,9 @@ provide("video", {
   videoElement,
   playbackControls,
 });
+provide("breakpointStore", {
+  breakpointStore
+})
 </script>
 
 <template>
