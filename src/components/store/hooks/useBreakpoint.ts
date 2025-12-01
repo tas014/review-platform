@@ -5,6 +5,7 @@ import { TextContent, VoiceContent, DrawingContent, Vector } from "../../../asse
 type BreakpointStoreState = Reactive<{
 	videoData: string | null;
 	breakpoints: Breakpoint[];
+	activeBreakpoint: Breakpoint | null;
 }>
 
 type Position = {
@@ -22,15 +23,18 @@ const useBreakpoint = () => {
 	let currentId = 0;
 	const _state : BreakpointStoreState = reactive({
 		videoData: null,
-    breakpoints: []
+    breakpoints: [],
+		activeBreakpoint: null
 	})
 	
 	// public methods
 
-	const addBreakpoint = (timeStamp:number = 0) => {
+	const createBreakpoint = (timeStamp:number = 0) => {
 		const newBreakpoint : Breakpoint = {
 			timeStamp
 		}
+		const timeStampExists = _state.breakpoints.find(bp => bp.timeStamp === timeStamp);
+		if (timeStampExists) return;
 		_state.breakpoints.push(newBreakpoint);
 	}
 
@@ -44,8 +48,7 @@ const useBreakpoint = () => {
 		position : Position,
 		dimensions : Dimensions
 	) => {
-		const breakpointFilter = _state.breakpoints.filter(bp => bp.timeStamp === timeStamp);
-		const currentBreakpoint = breakpointFilter.length > 0 ? breakpointFilter[0] : null;
+		const currentBreakpoint = _state.breakpoints.find(bp => bp.timeStamp === timeStamp);
 		if (!currentBreakpoint) throw new Error("No breakpoint detected on timestamp "+ timeStamp);
 		const newTextContent : TextContent= {
 			id: _createNewId(),
@@ -68,8 +71,7 @@ const useBreakpoint = () => {
 		dimensions : Dimensions,
 		duration:number
 	) => {
-		const breakpointFilter = _state.breakpoints.filter(bp => bp.timeStamp === timeStamp);
-		const currentBreakpoint = breakpointFilter.length > 0 ? breakpointFilter[0] : null;
+		const currentBreakpoint = _state.breakpoints.find(bp => bp.timeStamp === timeStamp);
 		if (!currentBreakpoint) throw new Error("No breakpoint detected on timestamp "+ timeStamp);
 		const newVoiceContent : VoiceContent= {
 			id: _createNewId(),
@@ -92,8 +94,7 @@ const useBreakpoint = () => {
 		position : Position,
 		dimensions : Dimensions
 	) => {
-		const breakpointFilter = _state.breakpoints.filter(bp => bp.timeStamp === timeStamp);
-		const currentBreakpoint = breakpointFilter.length > 0 ? breakpointFilter[0] : null;
+		const currentBreakpoint = _state.breakpoints.find(bp => bp.timeStamp === timeStamp);
 		if (!currentBreakpoint) throw new Error("No breakpoint detected on timestamp "+ timeStamp);
 		const newDrawingTextContent : DrawingContent= {
 			id: _createNewId(),
@@ -103,6 +104,28 @@ const useBreakpoint = () => {
 			dimensions
 		}
 		currentBreakpoint.drawingContent = newDrawingTextContent;
+	}
+
+	const setCurrentBreakpoint = (timeStamp : number | null) => {
+		if (!timeStamp) {
+			_state.activeBreakpoint = null;
+			return;
+		}
+		const currentBreakpoint = _state.breakpoints.find(bp => bp.timeStamp === timeStamp);
+		if (!currentBreakpoint) throw new Error("No breakpoint detected on timestamp "+ timeStamp);
+		_state.activeBreakpoint = currentBreakpoint;
+	}
+
+	const removeBreakpoint = (timeStamp : number) => {
+		const currentBreakpoint = _state.breakpoints.find(bp => bp.timeStamp === timeStamp);
+		if (!currentBreakpoint) throw new Error("No breakpoint detected on timestamp "+ timeStamp);
+		_state.breakpoints = _state.breakpoints.filter(bp => bp.timeStamp !== timeStamp);
+		_state.activeBreakpoint = null;
+	}
+
+	const removeAllBreakpoints = () => {
+		_state.breakpoints = [];
+		_state.activeBreakpoint = null;
 	}
 
 	// private methods
@@ -121,11 +144,14 @@ const useBreakpoint = () => {
 
 	const exports = {
 		breakpoints: readonly(_state),
-		addBreakpoint,
+		createBreakpoint,
 		updateVideoData,
 		createTextContent,
 		createVoiceContent,
 		createDrawingContent,
+		setCurrentBreakpoint,
+		removeBreakpoint,
+		removeAllBreakpoints
 	}
 
 	return exports

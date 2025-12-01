@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, computed } from "vue";
+import { onMounted, onUnmounted, ref, computed, inject, Ref } from "vue";
+import Breakpoint, {
+  BreakpointHook,
+} from "../../assets/interfaces/BreakpointType";
+import { VideoHook } from "../../assets/interfaces/VideoState";
+import TimelineHandle from "./TimelineHandle.vue";
 
 const props = defineProps<{
   skipToTime: (percent: number) => void;
@@ -7,6 +12,22 @@ const props = defineProps<{
   progress: number;
   transitionTime: string;
 }>();
+
+const breakpointStore = inject("breakpointStore") as BreakpointHook;
+const videoElement = inject("video") as VideoHook;
+const currentBreakpoint = inject("currentBreakpoint") as Ref<number | null>;
+const breakpoints = computed(() => breakpointStore.breakpoints.value);
+
+const frameToPercentage = (frame: number) => {
+  if (!videoElement.currentTime.value) return 0;
+  return ((frame / videoElement.currentTime.value) * 100).toFixed(2);
+};
+
+const jumpToBreakpoint = (breakpoint: Breakpoint) => {
+  if (!videoElement.currentTime.value) return;
+  props.skipToTime(breakpoint.timeStamp / videoElement.currentTime.value);
+  currentBreakpoint.value = breakpoint.timeStamp;
+};
 
 const timelineContainer = ref<HTMLDivElement | null>(null);
 const isSeeking = ref(false);
@@ -66,7 +87,17 @@ onUnmounted(() => {
     ref="timelineContainer"
     @click="handleTimeLineClick"
   >
-    <div class="progress-circle" @mousedown.prevent="startDrag"></div>
+    <div @mousedown.prevent="startDrag">
+      <TimelineHandle />
+    </div>
+    <div
+      v-if="breakpoints.length > 0"
+      v-for="breakpoint in breakpoints"
+      :key="breakpoint.timeStamp"
+      class="breakpoint"
+      :style="`--video-position: ${frameToPercentage(breakpoint.timeStamp)}%`"
+      @click="jumpToBreakpoint(breakpoint)"
+    ></div>
   </div>
 </template>
 <style scoped>
@@ -90,25 +121,17 @@ onUnmounted(() => {
   background-color: var(--title-color);
   transition: width var(--transition-time) linear;
 }
-.progress-circle {
-  --progress-percent: 0%;
+.breakpoint {
+  --video-position: 0%;
   position: absolute;
   z-index: 3;
-  left: var(--video-progress);
+  left: var(--video-position);
   top: 50%;
-  transform: translateY(-50%) translateX(-50%);
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  background-color: var(--light-green);
-  box-shadow: 0px 0px 3px var(--light-green);
-  cursor: grab;
-  transition: background-color 0.3s, left var(--transition-time) linear;
-}
-.progress-circle:hover {
-  background-color: var(--title-color);
-}
-.progress-circle:active {
-  cursor: grabbing;
+  transform: translateY(-50%);
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 1rem;
+  background-color: var(--breakpoint-color);
+  box-shadow: 0px 0px 3px var(--breakpoint-color);
 }
 </style>

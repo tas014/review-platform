@@ -6,15 +6,14 @@ import VideoPlaceholder from "./components/video/VideoPlaceholder.vue";
 import AnalysisMenu from "./components/AnalysisMenu.vue";
 import { useVideo } from "./components/store/hooks/useVideo";
 import { videoUrl } from "./components/store/hooks/useFileUpload";
+import useBreakpoint from "./components/store/hooks/useBreakpoint";
 /* import { invoke } from "@tauri-apps/api/core"; */
 
 const mode: Ref<"replay" | "analysis"> = ref("replay"); // for switching between analysis and replay modes
+const currentBreakpoint: Ref<number | null> = ref(null);
 const videoElement = useTemplateRef("video-playback");
 const playbackControls = useVideo(videoElement);
-const breakpointStore = reactive({
-  videodata: null,
-  breakpoints: []
-})
+const breakpointStore = useBreakpoint();
 const toggleMode = () => {
   if (mode.value === "analysis") {
     mode.value = "replay";
@@ -34,9 +33,8 @@ provide("video", {
   videoElement,
   playbackControls,
 });
-provide("breakpointStore", {
-  breakpointStore
-})
+provide("breakpointStore", breakpointStore);
+provide("currentBreakpoint", currentBreakpoint);
 </script>
 
 <template>

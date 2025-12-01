@@ -3,10 +3,17 @@ import TrimMode from "./analysis/TrimMode.vue";
 import DrawMode from "./analysis/DrawMode.vue";
 import TextMode from "./analysis/TextMode.vue";
 import VoiceMode from "./analysis/VoiceMode.vue";
+import NoBreakpointTemplate from "./analysis/NoBreakpointTemplate.vue";
+import { computed, inject } from "vue";
+import { BreakpointHook } from "../assets/interfaces/BreakpointType";
+
+const breakpointStore = inject("breakpointStore") as BreakpointHook;
+const hasBreakpoints = computed(() => breakpointStore.breakpoints.value.length > 0);
 
 </script>
 <template>
-  <section>
+  <section class="wrapper">
+    <NoBreakpointTemplate v-if="!hasBreakpoints" />
     <div class="analysis-menu">
       <h1 class="analysis-main-title">Analysis Menu</h1>
       <div>
@@ -31,8 +38,8 @@ import VoiceMode from "./analysis/VoiceMode.vue";
   </section>
 </template>
 <style scoped>
-section {
-  position: absolute;
+.wrapper {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
