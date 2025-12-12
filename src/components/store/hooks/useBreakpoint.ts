@@ -1,4 +1,4 @@
-import { reactive, Reactive, readonly } from "vue"
+import { reactive, Reactive, readonly, toRef } from "vue"
 import Breakpoint from "../../../assets/interfaces/BreakpointType"
 import { TextContent, VoiceContent, DrawingContent, Vector } from "../../../assets/interfaces/BreakpointType";
 
@@ -143,7 +143,7 @@ const useBreakpoint = () => {
 	}
 
 	const exports = {
-		breakpoints: readonly(_state),
+		breakpoints: readonly(toRef(_state, "breakpoints")),
 		createBreakpoint,
 		updateVideoData,
 		createTextContent,

@@ -5,7 +5,7 @@ type Nullable<T> = T | null;
 type VideoRef = Ref<HTMLVideoElement | null>;
 type ProvidedContext = {
   videoElement: VideoRef;
-  playbackControls: Ref<VideoHook>;
+  playbackControls: VideoHook;
 };
 type VideoHook = {
   videoElement: Readonly<VideoRef>;

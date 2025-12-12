@@ -39,7 +39,7 @@ const hasBreakpoints = computed(() => breakpointStore.breakpoints.value.length >
 </template>
 <style scoped>
 .wrapper {
-  position: relative;
+  position: absolute;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

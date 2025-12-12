@@ -1,27 +1,32 @@
 <script setup lang="ts">
 import { inject, computed } from "vue";
-import { VideoHook } from "../../assets/interfaces/VideoState";
+import { ProvidedContext } from "../../assets/interfaces/VideoState";
 import BreakpointButton from "../analysis/BreakpointButton.vue";
 
-const videoElement = inject("video") as VideoHook;
+const { playbackControls } = inject("video") as ProvidedContext;
 
-const isPlaying = computed(() => videoElement.isPlaying.value);
+const isPlaying = computed(() => playbackControls.isPlaying.value);
 </script>
 <template>
-  <div class="wrapper">
+  <div class="progress-wrapper">
     <div class="progress-circle"></div>
     <BreakpointButton v-if="!isPlaying" />
   </div>
 </template>
 <style scoped>
-.progress-circle {
-  position: absolute;
-  z-index: 4;
-  left: var(--video-progress);
-  top: 50%;
-  transform: translateY(-50%) translateX(-50%);
+.progress-wrapper {
+  position: relative;
   width: 2rem;
   height: 2rem;
+}
+.progress-circle {
+  position: absolute;
+  z-index: 5;
+  left: var(--video-progress);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   background-color: var(--light-green);
   box-shadow: 0px 0px 3px var(--light-green);

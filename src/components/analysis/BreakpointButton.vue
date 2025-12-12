@@ -24,15 +24,36 @@ const editBreakpoint = () => {
 };
 </script>
 <template>
-  <button @click="existingBreakpoint ? editBreakpoint : addBreakpoint">
+  <button
+    class="breakpoint-button"
+    @click="existingBreakpoint ? editBreakpoint : addBreakpoint"
+  >
     {{ existingBreakpoint ? "Edit Breakpoint" : "Create Breakpoint" }}
   </button>
 </template>
 <style scoped>
-button {
+.breakpoint-button {
+  position: relative;
+  white-space: nowrap;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 55%);
   background-color: var(--breakpoint-color);
   color: white;
   border-radius: 5px;
-  padding: 0.5rem;
+  padding: 1rem 2rem;
+  z-index: 3;
+  border: none;
+}
+.breakpoint-button::after {
+  content: "";
+  position: absolute;
+  top: 2%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+  border-left: 1rem solid transparent;
+  border-right: 1rem solid transparent;
+  border-bottom: 1rem solid var(--breakpoint-color);
+  z-index: 4;
 }
 </style>

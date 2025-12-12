@@ -1,15 +1,18 @@
 <template>
-  <div class="wrapper">
+  <div class="no-breakpoint-wrapper">
     <h1>No breakpoints detected</h1>
     <p>Create a breakpoint to use the analysis tools</p>
   </div>
 </template>
 <style scoped>
-.wrapper {
-  display: grid;
-  place-items: center;
+.no-breakpoint-wrapper {
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  background-color: rgba(0, 0, 0, 0.8);
   top: 0%;
   left: 0%;
   width: 100%;
