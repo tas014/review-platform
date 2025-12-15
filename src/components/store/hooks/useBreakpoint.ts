@@ -130,13 +130,13 @@ const useBreakpoint = () => {
 
 	// private methods
 
-	const _setCurrentId = (newId?: number) => {
+	/* const _setCurrentId = (newId?: number) => {
 		if (!newId) {
 			currentId++
 		} else {
 			currentId = ++newId
 		}
-	}
+	} */
 
 	const _createNewId = () => {
 		return currentId++

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Modes from "./components/Modes.vue";
-import { ref, provide, reactive, Ref, useTemplateRef, Transition } from "vue";
+import { ref, provide, Ref, useTemplateRef } from "vue";
 import VideoComponent from "./components/video/VideoComponent.vue";
 import VideoPlaceholder from "./components/video/VideoPlaceholder.vue";
 import AnalysisMenu from "./components/AnalysisMenu.vue";
