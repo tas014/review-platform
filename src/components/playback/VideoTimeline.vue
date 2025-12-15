@@ -104,7 +104,7 @@ onUnmounted(() => {
 .playback-progress {
   --video-progress: 0%;
   --transition-time: 0.1s;
-  height: 1vh;
+  height: 1rem;
   background-color: var(--dark-green);
   border-radius: 1rem;
   position: relative;

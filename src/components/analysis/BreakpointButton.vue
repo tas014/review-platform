@@ -37,7 +37,7 @@ const editBreakpoint = () => {
   white-space: nowrap;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, 55%);
+  transform: translate(-50%, 85%);
   background-color: var(--breakpoint-color);
   color: white;
   border-radius: 5px;

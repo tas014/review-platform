@@ -18,13 +18,13 @@ const isPlaying = computed(() => playbackControls.isPlaying.value);
   position: relative;
   width: 2rem;
   height: 2rem;
+  transform: translateY(-75%);
 }
 .progress-circle {
   position: absolute;
   z-index: 5;
   left: var(--video-progress);
   top: 50%;
-  transform: translateY(-50%);
   width: 100%;
   height: 100%;
   border-radius: 50%;

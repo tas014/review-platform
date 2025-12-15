@@ -130,7 +130,12 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
       case true: // FORWARD (native playback)
         _videoElementRef.value.playbackRate = _playbackSpeed.value;
         _videoElementRef.value.play().catch((e) => {
-          console.error("Video playback failed:", e);
+          const err = _videoElementRef.value?.error;
+          console.error("Video playback failed:", e, {
+            code: err?.code,
+            message: err?.message,
+            src: _videoElementRef.value?.currentSrc,
+          });
         });
         // Start the progress reporting interval
         _intervalTracker = setInterval(() => {
