@@ -27,6 +27,7 @@ const jumpToBreakpoint = (breakpoint: Breakpoint) => {
   if (!videoElement.currentTime.value) return;
   props.skipToTime(breakpoint.timeStamp / videoElement.currentTime.value);
   currentBreakpoint.value = breakpoint.timeStamp;
+  isSeeking.value = false;
 };
 
 const timelineContainer = ref<HTMLDivElement | null>(null);
@@ -45,6 +46,7 @@ const handleTimeLineClick = (event: MouseEvent) => {
   // Calculate position as a percentage (0 to 1)
   const percent = (clickX - timelineRect.left) / timelineRect.width;
   props.skipToTime(percent);
+  isSeeking.value = false;
 };
 
 const startDrag = () => {
@@ -87,8 +89,8 @@ onUnmounted(() => {
     ref="timelineContainer"
     @click="handleTimeLineClick"
   >
-    <div @mousedown.prevent="startDrag">
-      <TimelineHandle />
+    <div>
+      <TimelineHandle :is-seeking="isSeeking" :handle-drag="startDrag" />
     </div>
     <div
       v-if="breakpoints.length > 0"

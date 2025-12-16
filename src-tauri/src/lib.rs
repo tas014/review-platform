@@ -53,8 +53,6 @@ fn start_video_server() {
             #[cfg(not(target_os = "windows"))]
             let path = &path; // On Linux, the URL path IS the file path if it starts with /
 
-            eprintln!("Video Server Request: {}", path);
-
             let file = match File::open(path) {
                 Ok(f) => f,
                 Err(e) => {

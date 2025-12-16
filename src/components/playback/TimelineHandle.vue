@@ -1,37 +1,53 @@
 <script setup lang="ts">
 import { inject, computed } from "vue";
-import { ProvidedContext } from "../../assets/interfaces/VideoState";
 import BreakpointButton from "../analysis/BreakpointButton.vue";
+import VideoInjection from "../../assets/interfaces/VideoState";
+import ModeState from "../../assets/interfaces/ModeState";
 
-const { playbackControls } = inject("video") as ProvidedContext;
+const props = defineProps<{
+  handleDrag: (event: MouseEvent) => void;
+  isSeeking: boolean;
+}>();
 
-const isPlaying = computed(() => playbackControls.isPlaying.value);
+const { mode } = inject("mode") as ModeState;
+const { playbackControls, videoElement } = inject("video") as VideoInjection;
+
+const showBreakpointButton = computed(() => {
+  const renderCondition =
+    !playbackControls.currentTime.value ||
+    playbackControls.isPlaying.value ||
+    mode.value !== "analysis" ||
+    videoElement.value?.src === null ||
+    props.isSeeking;
+
+  return !renderCondition;
+});
 </script>
 <template>
   <div class="progress-wrapper">
-    <div class="progress-circle"></div>
-    <BreakpointButton v-if="!isPlaying" />
+    <div @mousedown.prevent="handleDrag" class="progress-circle"></div>
+    <BreakpointButton v-if="showBreakpointButton" />
   </div>
 </template>
 <style scoped>
 .progress-wrapper {
   position: relative;
+  left: var(--video-progress);
   width: 2rem;
   height: 2rem;
-  transform: translateY(-75%);
+  transform: translate(-50%, -25%);
+  transition: left var(--transition-time) linear;
 }
 .progress-circle {
   position: absolute;
   z-index: 5;
-  left: var(--video-progress);
-  top: 50%;
   width: 100%;
   height: 100%;
   border-radius: 50%;
   background-color: var(--light-green);
   box-shadow: 0px 0px 3px var(--light-green);
   cursor: grab;
-  transition: background-color 0.3s, left var(--transition-time) linear;
+  transition: background-color 0.3s;
 }
 .progress-circle:hover {
   background-color: var(--title-color);
