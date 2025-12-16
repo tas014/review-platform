@@ -1,5 +1,5 @@
 import { open } from "@tauri-apps/plugin-dialog";
-import { convertFileSrc } from "@tauri-apps/api/core";
+import { invoke } from "@tauri-apps/api/core";
 import { ref } from "vue";
 import { basename } from "@tauri-apps/api/path";
 
@@ -22,7 +22,14 @@ const selectVideo = async () => {
 
     // Check if the user selected a file
     if (typeof selected === "string") {
-      const filePath = convertFileSrc(selected);
+      // Get the ephemeral port from the backend
+      const port = await invoke<number>("get_video_server_port");
+      
+      // Construct local HTTP URL
+      // We must encode the path BUT on Linux/Unix absolute paths start with /
+      // so it becomes http://127.0.0.1:PORT//home/user/...
+      // tiny_http will see path as "//home/user/..." and we decode it.
+      const filePath = `http://127.0.0.1:${port}${encodeURI(selected)}`;
       const fileName = await basename(selected);
 
       videoUrl.value = filePath;

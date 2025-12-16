@@ -22,7 +22,7 @@
         "enable": true,
         "scope": ["**"]
       },
-      "csp": "default-src 'self'; media-src 'self' asset:;"
+      "csp": "default-src 'self'; media-src 'self' asset: blob: http://127.0.0.1:*; img-src 'self' asset: data:;"
     }
   },
   "bundle": {
