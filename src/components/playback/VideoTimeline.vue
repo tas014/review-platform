@@ -3,8 +3,9 @@ import { onMounted, onUnmounted, ref, computed, inject, Ref } from "vue";
 import Breakpoint, {
   BreakpointHook,
 } from "../../assets/interfaces/BreakpointType";
-import { VideoHook } from "../../assets/interfaces/VideoState";
+import VideoInjection from "../../assets/interfaces/VideoState";
 import TimelineHandle from "./TimelineHandle.vue";
+import ModeState from "../../assets/interfaces/ModeState";
 
 const props = defineProps<{
   skipToTime: (percent: number) => void;
@@ -14,18 +15,22 @@ const props = defineProps<{
 }>();
 
 const breakpointStore = inject("breakpointStore") as BreakpointHook;
-const videoElement = inject("video") as VideoHook;
 const currentBreakpoint = inject("currentBreakpoint") as Ref<number | null>;
+const { mode } = inject("mode") as ModeState;
+const VidInjection = inject("video") as VideoInjection;
+const { playbackControls } = VidInjection;
 const breakpoints = computed(() => breakpointStore.breakpoints.value);
 
 const frameToPercentage = (frame: number) => {
-  if (!videoElement.currentTime.value) return 0;
-  return ((frame / videoElement.currentTime.value) * 100).toFixed(2);
+  if (!playbackControls.totalDuration.value) return 0;
+  return ((frame / playbackControls.totalDuration.value) * 100).toFixed(2);
 };
 
 const jumpToBreakpoint = (breakpoint: Breakpoint) => {
-  if (!videoElement.currentTime.value) return;
-  props.skipToTime(breakpoint.timeStamp / videoElement.currentTime.value);
+  if (!playbackControls.totalDuration.value) return;
+  const percent = breakpoint.timeStamp / playbackControls.totalDuration.value;
+  console.log(percent);
+  props.skipToTime(percent);
   currentBreakpoint.value = breakpoint.timeStamp;
   isSeeking.value = false;
 };
@@ -93,12 +98,12 @@ onUnmounted(() => {
       <TimelineHandle :is-seeking="isSeeking" :handle-drag="startDrag" />
     </div>
     <div
-      v-if="breakpoints.length > 0"
+      v-if="breakpoints.length > 0 && mode === 'analysis'"
       v-for="breakpoint in breakpoints"
       :key="breakpoint.timeStamp"
       class="breakpoint"
       :style="`--video-position: ${frameToPercentage(breakpoint.timeStamp)}%`"
-      @click="jumpToBreakpoint(breakpoint)"
+      @click.stop="jumpToBreakpoint(breakpoint)"
     ></div>
   </div>
 </template>
@@ -129,11 +134,15 @@ onUnmounted(() => {
   z-index: 3;
   left: var(--video-position);
   top: 50%;
-  transform: translateY(-50%);
+  transform: translate(-50%, -50%);
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 1rem;
   background-color: var(--breakpoint-color);
   box-shadow: 0px 0px 3px var(--breakpoint-color);
+  transition: background-color 0.3s;
+}
+.breakpoint:hover {
+  background-color: var(--breakpoint-button-text-color);
 }
 </style>

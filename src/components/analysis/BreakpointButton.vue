@@ -1,33 +1,39 @@
 <script setup lang="ts">
 import { inject, computed, Ref } from "vue";
 import { BreakpointHook } from "../../assets/interfaces/BreakpointType";
-import { VideoHook } from "../../assets/interfaces/VideoState";
+import VideoInjection from "../../assets/interfaces/VideoState";
 
 const breakpointStore = inject("breakpointStore") as BreakpointHook;
-const videoElement = inject("video") as VideoHook;
+const VidInjection = inject("video") as VideoInjection;
 const currentBreakpoint = inject("currentBreakpoint") as Ref<number | null>;
+const { playbackControls } = VidInjection;
 
 const existingBreakpoint = computed(() =>
   breakpointStore.breakpoints.value.find(
-    (b) => b.timeStamp === videoElement.currentTime.value
+    (b) => b.timeStamp === playbackControls.currentTime.value
   )
 );
 
+const handleClick = () => {
+  if (existingBreakpoint.value) {
+    editBreakpoint();
+  } else {
+    addBreakpoint();
+  }
+};
+
 const addBreakpoint = () => {
-  if (!videoElement.currentTime.value) return;
-  breakpointStore.createBreakpoint(videoElement.currentTime.value);
+  if (!playbackControls.currentTime.value) return;
+  breakpointStore.createBreakpoint(playbackControls.currentTime.value);
 };
 
 const editBreakpoint = () => {
-  if (!videoElement.currentTime.value) return;
-  currentBreakpoint.value = videoElement.currentTime.value;
+  if (!playbackControls.currentTime.value) return;
+  currentBreakpoint.value = playbackControls.currentTime.value;
 };
 </script>
 <template>
-  <button
-    class="breakpoint-button"
-    @click="existingBreakpoint ? editBreakpoint : addBreakpoint"
-  >
+  <button class="breakpoint-button" @click.stop="handleClick">
     {{ existingBreakpoint ? "Edit Breakpoint" : "Create Breakpoint" }}
   </button>
 </template>
