@@ -3,6 +3,11 @@ import { inject } from "vue";
 import VideoState from "../../assets/interfaces/VideoState";
 import VideoTimeline from "./VideoTimeline.vue";
 import { CurrentBreakpointInjection } from "../../assets/interfaces/BreakpointType";
+import SkipToStart from "../icons/SkipToStart.vue";
+import SkipToEnd from "../icons/SkipToEnd.vue";
+import PlayPause from "../icons/PlayPause.vue";
+import FastForward from "../icons/FastForward.vue";
+import Rewind from "../icons/Rewind.vue";
 
 defineProps<{ disabled: boolean }>();
 
@@ -57,24 +62,17 @@ const handlePlayPause = () => {
     />
     <div class="playback-controls">
       <div class="controls-container">
-        <i :class="`pi pi-step-backward-alt`" @click="skipToStart"></i>
-        <i
-          :class="`pi pi-backward ${
-            playbackDirection === false ? 'selected' : ''
-          }`"
+        <SkipToStart @click="skipToStart" />
+        <Rewind
+          :isRewinding="playbackDirection === false"
           @click="handleRewind"
-        ></i>
-        <i
-          :class="`pi ${isPlaying ? 'pi-pause' : 'pi-play'}`"
-          @click="handlePlayPause"
-        ></i>
-        <i
-          :class="`pi pi-forward ${
-            playbackDirection === true ? 'selected' : ''
-          }`"
+        />
+        <PlayPause :isPlaying="isPlaying !== null" @click="handlePlayPause" />
+        <FastForward
+          :isFastForwarding="playbackDirection === true"
           @click="handleFastForward"
-        ></i>
-        <i :class="`pi pi-step-forward-alt`" @click="skipToEnd"></i>
+        />
+        <SkipToEnd @click="skipToEnd"></SkipToEnd>
       </div>
     </div>
   </div>
@@ -94,6 +92,7 @@ const handlePlayPause = () => {
   display: flex;
   justify-content: center;
   align-items: center;
+  color: var(--title-color);
   gap: 8rem;
 }
 .controls-container i {
@@ -120,5 +119,17 @@ const handlePlayPause = () => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+</style>
+<style>
+.icon {
+  color: white;
+  height: 3.8rem;
+  width: 3.8rem;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.icon:hover {
+  color: var(--title-color);
 }
 </style>
