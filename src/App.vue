@@ -11,6 +11,7 @@ import useBreakpoint from "./components/store/hooks/useBreakpoint";
 
 const mode: Ref<"replay" | "analysis"> = ref("replay"); // for switching between analysis and replay modes
 const currentBreakpoint: Ref<number | null> = ref(null);
+const editing: Ref<null | "draw" | "trim" | "text" | "voice"> = ref(null);
 const videoElement = useTemplateRef("video-playback");
 const playbackControls = useVideo(videoElement);
 const breakpointStore = useBreakpoint();
@@ -35,6 +36,7 @@ provide("video", {
 });
 provide("breakpointStore", breakpointStore);
 provide("currentBreakpoint", currentBreakpoint);
+provide("editing", editing);
 </script>
 
 <template>

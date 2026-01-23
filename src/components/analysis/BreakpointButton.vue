@@ -10,8 +10,8 @@ const { playbackControls } = VidInjection;
 
 const existingBreakpoint = computed(() =>
   breakpointStore.breakpoints.value.find(
-    (b) => b.timeStamp === playbackControls.currentTime.value
-  )
+    (b) => b.timeStamp === playbackControls.currentTime.value,
+  ),
 );
 
 const handleClick = () => {
@@ -24,7 +24,10 @@ const handleClick = () => {
 
 const addBreakpoint = () => {
   if (!playbackControls.currentTime.value) return;
-  breakpointStore.createBreakpoint(playbackControls.currentTime.value);
+  const newBreakpoint = breakpointStore.createBreakpoint(
+    playbackControls.currentTime.value,
+  );
+  currentBreakpoint.value = newBreakpoint.timeStamp;
 };
 
 const editBreakpoint = () => {

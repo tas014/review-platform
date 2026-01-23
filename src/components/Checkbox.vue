@@ -1,18 +1,10 @@
 <script setup lang="ts">
-import { ref } from "vue";
 const props = defineProps<{
-  clickFn: () => void;
   isActive: boolean;
 }>();
-const active = ref(false);
-const toggle = () => {
-  active.value = !active.value;
-  props.clickFn();
-};
 </script>
 <template>
-  <div :class="`checkbox-wrapper-7 ${active ? 'active' : ''}`" @click="toggle">
-    <!-- <input class="tgl tgl-ios" id="cb2-7" type="checkbox" /> -->
+  <div :class="`checkbox-wrapper-7 ${props.isActive ? 'active' : ''}`">
     <label class="tgl-btn" for="cb2-7"></label>
   </div>
 </template>
@@ -58,9 +50,13 @@ const toggle = () => {
   left: 0;
   border-radius: var(--height);
   background: #fbfbfb;
-  transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-    padding 0.3s ease, margin 0.3s ease;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 4px 0 rgba(0, 0, 0, 0.08);
+  transition:
+    left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    padding 0.3s ease,
+    margin 0.3s ease;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.1),
+    0 4px 0 rgba(0, 0, 0, 0.08);
 }
 
 .checkbox-wrapper-7 .tgl-btn:before {

@@ -1,7 +1,7 @@
 <template>
   <div class="no-breakpoint-wrapper">
     <h1>No breakpoints detected</h1>
-    <p>Create a breakpoint to use the analysis tools</p>
+    <p>Create a breakpoint to use the analysis tools!</p>
   </div>
 </template>
 <style scoped>
@@ -18,6 +18,10 @@
   width: 100%;
   height: 100%;
   z-index: 2;
+}
+.no-breakpoint-wrapper h1,
+.no-breakpoint-wrapper p {
+  text-align: center;
 }
 h1 {
   font-size: var(--analysis-section-title-size);

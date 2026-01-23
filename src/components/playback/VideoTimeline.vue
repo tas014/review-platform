@@ -51,6 +51,7 @@ const handleTimeLineClick = (event: MouseEvent) => {
   // Calculate position as a percentage (0 to 1)
   const percent = (clickX - timelineRect.left) / timelineRect.width;
   props.skipToTime(percent);
+  currentBreakpoint.value = null;
   isSeeking.value = false;
 };
 
@@ -69,6 +70,7 @@ const handleDrag = (event: MouseEvent) => {
   // Clamp the percentage between 0 and 1
   percent = Math.min(1, Math.max(0, percent));
   props.skipToTime(percent);
+  currentBreakpoint.value = null;
 };
 
 const stopDrag = () => {

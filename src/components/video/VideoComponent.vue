@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, watch } from "vue";
+import { inject, Ref, watch } from "vue";
 import ModeState from "../../assets/interfaces/ModeState";
 import VideoState from "../../assets/interfaces/VideoState";
 import PlaybackControls from "../playback/PlaybackControls.vue";
@@ -8,6 +8,9 @@ import { selectVideo, videoName, videoUrl } from "../store/hooks/useFileUpload";
 const { mode } = inject("mode") as ModeState;
 const { playbackControls } = inject("video") as VideoState;
 const { isPlaying, updateVideoSrc } = playbackControls;
+const editing = inject("editing") as Ref<
+  null | "draw" | "trim" | "text" | "voice"
+>;
 
 watch(videoUrl, (newUrl) => {
   updateVideoSrc(newUrl);
@@ -27,7 +30,7 @@ watch(videoUrl, (newUrl) => {
         <slot name="video"></slot>
       </div>
       <div class="controls">
-        <PlaybackControls />
+        <PlaybackControls :disabled="editing !== null" />
       </div>
       <!-- Handle video here -->
     </div>

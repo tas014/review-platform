@@ -4,16 +4,16 @@ import DrawMode from "./analysis/DrawMode.vue";
 import TextMode from "./analysis/TextMode.vue";
 import VoiceMode from "./analysis/VoiceMode.vue";
 import NoBreakpointTemplate from "./analysis/NoBreakpointTemplate.vue";
-import { computed, inject } from "vue";
-import { BreakpointHook } from "../assets/interfaces/BreakpointType";
+import { computed, inject, Ref } from "vue";
+import { BreakpointHook, CurrentBreakpointInjection } from "../assets/interfaces/BreakpointType";
 
 const breakpointStore = inject("breakpointStore") as BreakpointHook;
 const hasBreakpoints = computed(() => breakpointStore.breakpoints.value.length > 0);
-
+const currentBreakpoint = inject("currentBreakpoint") as CurrentBreakpointInjection;
 </script>
 <template>
   <section class="wrapper">
-    <NoBreakpointTemplate v-if="!hasBreakpoints" />
+    <NoBreakpointTemplate v-if="!hasBreakpoints || !currentBreakpoint" />
     <div class="analysis-menu">
       <h1 class="analysis-main-title">Analysis Menu</h1>
       <div>
