@@ -20,6 +20,7 @@ const {
   progress,
   playbackDirection,
   transitionTime,
+  playbackSpeed,
   play,
   rewind,
   fastForward,
@@ -42,6 +43,7 @@ const handleRewind = () => {
 };
 
 const handlePlayPause = () => {
+  console.log(isPlaying.value);
   if (playbackDirection.value === null) {
     currentBreakpoint.value = null;
     return play();
@@ -65,11 +67,13 @@ const handlePlayPause = () => {
         <SkipToStart @click="skipToStart" />
         <Rewind
           :isRewinding="playbackDirection === false"
+          :rewindSpeed="playbackSpeed"
           @click="handleRewind"
         />
-        <PlayPause :isPlaying="isPlaying !== null" @click="handlePlayPause" />
+        <PlayPause :isPlaying="isPlaying" @click="handlePlayPause" />
         <FastForward
-          :isFastForwarding="playbackDirection === true"
+          :isFastForwarding="playbackDirection === true && playbackSpeed !== 1"
+          :fastForwardSpeed="playbackSpeed"
           @click="handleFastForward"
         />
         <SkipToEnd @click="skipToEnd"></SkipToEnd>
@@ -95,11 +99,6 @@ const handlePlayPause = () => {
   color: var(--title-color);
   gap: 8rem;
 }
-.controls-container i {
-  font-size: 3.8rem;
-  font-weight: bold;
-  cursor: pointer;
-}
 .disable-controls {
   position: absolute;
   box-sizing: content-box;
@@ -122,6 +121,11 @@ const handlePlayPause = () => {
 }
 </style>
 <style>
+@keyframes scale {
+  50% {
+    transform: scale(1.1);
+  }
+}
 .icon {
   color: white;
   height: 3.8rem;
@@ -131,5 +135,6 @@ const handlePlayPause = () => {
 }
 .icon:hover {
   color: var(--title-color);
+  animation: scale 0.3s ease-in-out;
 }
 </style>

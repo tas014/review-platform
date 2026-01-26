@@ -180,7 +180,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
 
   const _setPlayback = (
     speed: PlaybackSpeed = 1,
-    direction: Nullable<boolean> = true
+    direction: Nullable<boolean> = true,
   ) => {
     _playbackDirection.value = direction;
     _playbackSpeed.value = speed;
@@ -249,6 +249,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
     isPlaying: readonly(isPlaying),
     playbackDirection: readonly(_playbackDirection),
     transitionTime: `${updateTickrate / 1000}s`,
+    playbackSpeed: readonly(_playbackSpeed),
     fastForward,
     rewind,
     play,

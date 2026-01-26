@@ -13,6 +13,7 @@ type VideoHook = {
   isPlaying: Ref<boolean | null>;
   playbackDirection: Ref<boolean | null>;
   transitionTime: string;
+  playbackSpeed: Readonly<Ref<PlaybackSpeed>>;
   fastForward: (speed?: PlaybackSpeed) => void;
   rewind: (speed?: PlaybackSpeed) => void;
   play: () => void;

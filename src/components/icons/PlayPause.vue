@@ -1,9 +1,9 @@
 <script setup lang="ts">
-defineProps<{ isPlaying: boolean }>();
+defineProps<{ isPlaying: boolean | null }>();
 </script>
 <template>
   <svg
-    v-if="isPlaying"
+    v-if="!isPlaying"
     class="icon flat-color"
     fill="currentColor"
     width="800px"
