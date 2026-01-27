@@ -9,11 +9,6 @@
     viewBox="0 0 32 32"
     xml:space="preserve"
   >
-    <style type="text/css">
-      .sharpcorners_een {
-        fill: currentColor;
-      }
-    </style>
     <path
       class="sharpcorners_een"
       d="M23.621,13.328L7.657,29.293L2,30l0.707-5.657L18.672,8.379L23.621,13.328z M24.328,12.621
@@ -22,3 +17,8 @@
     />
   </svg>
 </template>
+<style scoped>
+.sharpcorners_een {
+  fill: currentColor;
+}
+</style>

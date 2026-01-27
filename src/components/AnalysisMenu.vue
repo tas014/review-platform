@@ -4,7 +4,7 @@ import DrawMode from "./analysis/DrawMode.vue";
 import TextMode from "./analysis/TextMode.vue";
 import VoiceMode from "./analysis/VoiceMode.vue";
 import NoBreakpointTemplate from "./analysis/NoBreakpointTemplate.vue";
-import { computed, inject, Ref } from "vue";
+import { computed, inject } from "vue";
 import { BreakpointHook, CurrentBreakpointInjection } from "../assets/interfaces/BreakpointType";
 
 const breakpointStore = inject("breakpointStore") as BreakpointHook;

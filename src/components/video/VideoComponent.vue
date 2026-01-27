@@ -4,10 +4,11 @@ import ModeState from "../../assets/interfaces/ModeState";
 import VideoState from "../../assets/interfaces/VideoState";
 import PlaybackControls from "../playback/PlaybackControls.vue";
 import { selectVideo, videoName, videoUrl } from "../store/hooks/useFileUpload";
+import VideoScreen from "./VideoScreen.vue";
 
 const { mode } = inject("mode") as ModeState;
 const { playbackControls } = inject("video") as VideoState;
-const { isPlaying, updateVideoSrc } = playbackControls;
+const { updateVideoSrc } = playbackControls;
 const editing = inject("editing") as Ref<
   null | "draw" | "trim" | "text" | "voice"
 >;
@@ -26,9 +27,11 @@ watch(videoUrl, (newUrl) => {
       </button>
     </span>
     <div :class="`video-wrapper ${mode}`">
-      <div :class="`video-container ${isPlaying ? 'playing' : ''}`">
-        <slot name="video"></slot>
-      </div>
+      <VideoScreen>
+        <template #video>
+          <slot name="video"></slot>
+        </template>
+      </VideoScreen>
       <div class="controls">
         <PlaybackControls :disabled="editing !== null" />
       </div>
@@ -66,14 +69,5 @@ watch(videoUrl, (newUrl) => {
 }
 .current-file-button:hover {
   background-color: var(--checkbox-green);
-}
-.video-container {
-  height: 70vh;
-  border-radius: 10px;
-  overflow: hidden;
-}
-.playing {
-  box-sizing: border-box;
-  border: solid 3px var(--light-green);
 }
 </style>
