@@ -1,14 +1,25 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import VoiceIcon from "../../icons/Voice.vue";
 import AudioWaveIcon from "../../icons/AudioWave.vue";
 
+const props = defineProps<{
+  x: number;
+  y: number;
+}>();
+
 // Assuming the model might store the audio file URL or some metadata
 const voiceData = defineModel<any>();
+
+const stylePosition = computed(() => ({
+  position: "absolute" as const,
+  left: `${props.x}%`,
+  top: `${props.y}%`,
+}));
 </script>
 
 <template>
-  <div class="voice-note">
+  <div class="voice-note" :style="stylePosition">
     <div class="icon-wrapper">
       <VoiceIcon class="voice-icon" />
     </div>

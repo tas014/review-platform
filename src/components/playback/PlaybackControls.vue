@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject } from "vue";
+import { inject, type Ref, computed, ref } from "vue";
 import VideoState from "../../assets/interfaces/VideoState";
 import VideoTimeline from "./VideoTimeline.vue";
 import { CurrentBreakpointInjection } from "../../assets/interfaces/BreakpointType";
@@ -9,18 +9,25 @@ import PlayPause from "../icons/PlayPause.vue";
 import FastForward from "../icons/FastForward.vue";
 import Rewind from "../icons/Rewind.vue";
 
-defineProps<{ disabled: boolean }>();
-
 const { playbackControls } = inject("video") as VideoState;
 const currentBreakpoint = inject(
   "currentBreakpoint",
 ) as CurrentBreakpointInjection;
+const editing = inject("editing") as Ref<
+  null | "draw" | "trim" | "text" | "voice"
+>;
+
+const disabled = computed(() => {
+  return editing.value !== null && editing.value !== "trim";
+});
+
 const {
   isPlaying,
   progress,
   playbackDirection,
   transitionTime,
   playbackSpeed,
+  totalDuration,
   play,
   rewind,
   fastForward,
@@ -28,7 +35,12 @@ const {
   skipToStart,
   skipToEnd,
   skipToTime,
+  setTrim, // Inject setTrim
 } = playbackControls;
+
+// Trim State
+const trimStart = ref(0);
+const trimEnd = ref(100);
 
 const handleFastForward = () => {
   if (playbackDirection.value === true) return fastForward("loop");
@@ -50,6 +62,25 @@ const handlePlayPause = () => {
   }
   pause();
 };
+
+const cancelTrim = () => {
+  trimStart.value = 0;
+  trimEnd.value = 100;
+  editing.value = null;
+};
+
+const confirmTrim = () => {
+  if (!totalDuration.value) return;
+  const startSeconds = (trimStart.value / 100) * totalDuration.value;
+  const endSeconds = (trimEnd.value / 100) * totalDuration.value;
+
+  setTrim(startSeconds, endSeconds);
+
+  // Reset after confirming
+  trimStart.value = 0;
+  trimEnd.value = 100;
+  editing.value = null;
+};
 </script>
 <template>
   <div class="wrapper">
@@ -61,8 +92,11 @@ const handlePlayPause = () => {
       :pause="pause"
       :progress="progress"
       :transition-time="transitionTime"
+      :video-duration="totalDuration ? totalDuration : 0"
+      v-model:trimStartPercent="trimStart"
+      v-model:trimEndPercent="trimEnd"
     />
-    <div class="playback-controls">
+    <div class="playback-controls" v-if="editing !== 'trim'">
       <div class="controls-container">
         <SkipToStart @click="skipToStart" />
         <Rewind
@@ -78,6 +112,10 @@ const handlePlayPause = () => {
         />
         <SkipToEnd @click="skipToEnd"></SkipToEnd>
       </div>
+    </div>
+    <div class="trim-actions" v-else>
+      <button class="trim-cancel" @click="cancelTrim">Cancel</button>
+      <button class="trim-confirm" @click="confirmTrim">Confirm</button>
     </div>
   </div>
 </template>
@@ -110,6 +148,38 @@ const handlePlayPause = () => {
   transform: translateY(-0.75rem);
   background-color: rgba(0, 0, 0, 0.7);
   cursor: not-allowed;
+}
+.trim-actions {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+}
+.trim-cancel,
+.trim-confirm {
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 1.6rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+.trim-cancel {
+  background-color: var(--danger-color);
+  color: white;
+}
+.trim-confirm {
+  background-color: var(--success-color);
+  color: white;
+}
+.trim-actions button:hover {
+  transform: scale(1.1);
+}
+.trim-cancel:hover {
+  background-color: var(--danger-hover-color);
+}
+.trim-confirm:hover {
+  background-color: var(--success-hover-color);
 }
 .fade-enter-active,
 .fade-leave-active {

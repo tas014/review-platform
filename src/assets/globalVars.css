@@ -15,6 +15,10 @@
   --breakpoint-button-text-color: #f3fdbb;
   --delete-breakpoints-inactive: #2a2a2a;
   --mode-switch-anim-duration: 0.3s;
+  --danger-color: #d62828;
+  --success-color: #2a9d8f;
+  --danger-hover-color: #d62828cc;
+  --success-hover-color: #2a9d8fcc;
 }
 
 html {

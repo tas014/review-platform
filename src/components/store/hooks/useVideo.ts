@@ -232,10 +232,36 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
     )
       return;
 
-    const newTime = _startTime.value + _totalDuration.value * percent;
+    // Fix: Calculate based on segment duration, not absolute totalDuration
+    const start = _startTime.value || 0;
+    const end = _totalDuration.value;
+    const segmentDuration = end - start;
+
+    const newTime = start + segmentDuration * percent;
     _videoElementRef.value.currentTime = newTime;
     _currentFrame.value = newTime;
     pause();
+  };
+
+  const setTrim = (start: number, end: number) => {
+    // start and end are relative to the current visible clip (which starts at _startTime)
+    const currentAbsoluteStart = _startTime.value || 0;
+
+    // Validations could be added here to ensure start < end, boundaries, etc.
+    const newStart = currentAbsoluteStart + start;
+    const newEnd = currentAbsoluteStart + end;
+
+    _customVideoStart.value = newStart;
+    _customVideoEnd.value = newEnd;
+
+    // Update current frame if we trimmed past the current position
+    if (_videoElementRef.value) {
+      const currentTime = _videoElementRef.value.currentTime;
+      if (currentTime < newStart || currentTime > newEnd) {
+        _videoElementRef.value.currentTime = newStart;
+        _currentFrame.value = newStart;
+      }
+    }
   };
 
   // --- Return the Public API ---
@@ -259,5 +285,6 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
     skipToTime,
     initializePlayback,
     updateVideoSrc,
+    setTrim,
   };
 }

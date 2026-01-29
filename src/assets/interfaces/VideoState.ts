@@ -23,6 +23,7 @@ type VideoHook = {
   skipToTime: (percent: number) => void;
   initializePlayback: () => void;
   updateVideoSrc: (newSrc: string | null) => void;
+  setTrim: (start: number, end: number) => void;
 };
 
 export default interface VideoInjection {

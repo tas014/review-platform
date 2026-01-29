@@ -6,12 +6,21 @@ import Breakpoint, {
 import VideoInjection from "../../assets/interfaces/VideoState";
 import TimelineHandle from "./TimelineHandle.vue";
 import ModeState from "../../assets/interfaces/ModeState";
+import TrimOverlay from "./TrimOverlay.vue";
 
 const props = defineProps<{
   skipToTime: (percent: number) => void;
-  pause: () => void;
   progress: number;
   transitionTime: string;
+  videoDuration: number;
+  pause: () => void;
+  trimStartPercent?: number; // Optional to avoid breaking if not passed immediately, but logic depends on it in trim mode
+  trimEndPercent?: number;
+}>();
+
+const emit = defineEmits<{
+  (e: "update:trimStartPercent", value: number): void;
+  (e: "update:trimEndPercent", value: number): void;
 }>();
 
 const breakpointStore = inject("breakpointStore") as BreakpointHook;
@@ -20,6 +29,23 @@ const { mode } = inject("mode") as ModeState;
 const VidInjection = inject("video") as VideoInjection;
 const { playbackControls } = VidInjection;
 const breakpoints = computed(() => breakpointStore.breakpoints.value);
+const { totalDuration: duration, currentTime } = playbackControls;
+const editing = inject("editing") as any;
+
+const progressBar = ref<HTMLElement | null>(null);
+const isHovering = ref(false);
+const hoverX = ref(0);
+
+// Computeds for v-model binding with TrimOverlay
+const localTrimStart = computed({
+  get: () => props.trimStartPercent ?? 0,
+  set: (val) => emit("update:trimStartPercent", val),
+});
+
+const localTrimEnd = computed({
+  get: () => props.trimEndPercent ?? 100,
+  set: (val) => emit("update:trimEndPercent", val),
+});
 
 const frameToPercentage = (frame: number) => {
   if (!playbackControls.totalDuration.value) return 0;
@@ -29,7 +55,6 @@ const frameToPercentage = (frame: number) => {
 const jumpToBreakpoint = (breakpoint: Breakpoint) => {
   if (!playbackControls.totalDuration.value) return;
   const percent = breakpoint.timeStamp / playbackControls.totalDuration.value;
-  console.log(percent);
   props.skipToTime(percent);
   currentBreakpoint.value = breakpoint.timeStamp;
   isSeeking.value = false;
@@ -96,9 +121,28 @@ onUnmounted(() => {
     ref="timelineContainer"
     @click="handleTimeLineClick"
   >
-    <div>
-      <TimelineHandle :is-seeking="isSeeking" :handle-drag="startDrag" />
+    <!-- Handle -->
+    <div v-if="editing !== 'trim'">
+      <TimelineHandle
+        :currentTime="currentTime"
+        :duration="duration"
+        :isHovering="isHovering"
+        :hoverX="hoverX"
+        :progressBar="progressBar"
+        :skipToTime="props.skipToTime"
+        :is-seeking="isSeeking"
+        :handle-drag="startDrag"
+      />
     </div>
+
+    <!-- TrimOverlay -->
+    <TrimOverlay
+      v-if="editing === 'trim'"
+      v-model:trimStartPercent="localTrimStart"
+      v-model:trimEndPercent="localTrimEnd"
+    />
+
+    <!-- Breakpoints -->
     <div
       v-if="breakpoints.length > 0 && mode === 'analysis'"
       v-for="breakpoint in breakpoints"
