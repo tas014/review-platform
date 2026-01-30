@@ -21,6 +21,7 @@ import {
   stopDrawing,
   redraw,
 } from "../../assets/utils/handleDraw";
+import { startDrag } from "../../assets/utils/handleDrag";
 
 const { playbackControls } = inject("video") as VideoState;
 const { isPlaying } = playbackControls;
@@ -39,7 +40,25 @@ const isOutside = ref(true);
 
 // Data
 const items = ref<(TextContent | VoiceContent)[]>([]);
+const itemRefs = ref<Record<number, any>>({});
 const vectors = ref<Vector[]>([]); // Current drawings
+
+// Dragging
+const setItemRef = (el: any, id: number) => {
+  if (el) {
+    itemRefs.value[id] = el;
+  }
+};
+
+const handleDragStart = (e: MouseEvent, item: TextContent | VoiceContent) => {
+  const component = itemRefs.value[item.id];
+  // component can be the component instance (with $el) or element itself depending on Vue version/setup
+  // With script setup and standard components, ref provides the instance.
+  const element = component?.$el || component;
+  if (element && container.value) {
+    startDrag(e, item, element, container.value); // Use utility
+  }
+};
 
 // Drawing state
 const isDrawing = ref(false);
@@ -179,15 +198,20 @@ const cursorStyle = computed(() => ({
     <template v-for="item in items" :key="item.id">
       <TextNote
         v-if="item.type === 'text'"
+        :ref="(el) => setItemRef(el, item.id)"
         v-model="(item as TextContent).content"
         :x="item.position.left"
         :y="item.position.top"
+        :dimensions="item.dimensions"
+        @dragStart="(e) => handleDragStart(e, item)"
       />
       <VoiceNote
         v-else-if="item.type === 'voice'"
+        :ref="(el) => setItemRef(el, item.id)"
         v-model="(item as VoiceContent).fileBlob"
         :x="item.position.left"
         :y="item.position.top"
+        @dragStart="(e) => handleDragStart(e, item)"
       />
     </template>
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import VoiceIcon from "../../icons/Voice.vue";
 import AudioWaveIcon from "../../icons/AudioWave.vue";
 
@@ -11,6 +11,10 @@ const props = defineProps<{
 // Assuming the model might store the audio file URL or some metadata
 const voiceData = defineModel<any>();
 
+const emit = defineEmits<{
+  (e: "dragStart", event: MouseEvent): void;
+}>();
+
 const stylePosition = computed(() => ({
   position: "absolute" as const,
   left: `${props.x}%`,
@@ -20,7 +24,7 @@ const stylePosition = computed(() => ({
 
 <template>
   <div class="voice-note" :style="stylePosition">
-    <div class="icon-wrapper">
+    <div class="icon-wrapper" @mousedown="$emit('dragStart', $event)">
       <VoiceIcon class="voice-icon" />
     </div>
     <div class="wave-wrapper">
@@ -46,6 +50,11 @@ const stylePosition = computed(() => ({
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: grab;
+}
+
+.icon-wrapper:active {
+  cursor: grabbing;
 }
 
 .voice-icon {
