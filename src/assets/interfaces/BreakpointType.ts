@@ -1,12 +1,14 @@
 import { Ref } from "vue";
 
+type ElementPosition = {
+  top: number;
+  left: number;
+};
+
 type BasicContent = {
   id: number;
   type: "text" | "voice" | "drawing";
-  position: {
-    top: number;
-    left: number;
-  };
+  position: ElementPosition;
   dimensions: {
     width: number;
     height: number;
@@ -23,7 +25,7 @@ interface VoiceContent extends BasicContent {
   duration: number;
 }
 
-type Position = {
+type Point = {
   x: number;
   y: number;
 };
@@ -33,7 +35,7 @@ type Dimensions = {
   height: number;
 };
 type Vector = {
-  line: Position[];
+  line: Point[];
   color: string;
   lineWidth: number;
   lineCap: "round" | "square" | "butt";
@@ -57,25 +59,26 @@ type BreakpointHook = {
   createTextContent: (
     timeStamp: number,
     content: string,
-    position: Position,
+    position: ElementPosition,
     dimensions: Dimensions,
   ) => void;
   createVoiceContent: (
     timeStamp: number,
     fileBlob: Blob,
-    position: Position,
+    position: ElementPosition,
     dimensions: Dimensions,
     duration: number,
   ) => void;
   createDrawingContent: (
     timeStamp: number,
     content: Vector[],
-    position: Position,
+    position: ElementPosition,
     dimensions: Dimensions,
   ) => void;
   setCurrentBreakpoint: (timeStamp: number | null) => void;
   removeBreakpoint: (timeStamp: number) => void;
   removeAllBreakpoints: () => void;
+  activeBreakpoint: Ref<Breakpoint | null>;
 };
 
 type CurrentBreakpointInjection = Ref<number | null>;
@@ -88,4 +91,6 @@ export type {
   Vector,
   BreakpointHook,
   CurrentBreakpointInjection,
+  ElementPosition,
+  Point,
 };

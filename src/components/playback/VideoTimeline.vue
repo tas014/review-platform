@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, computed, inject, Ref } from "vue";
+import { onMounted, onUnmounted, ref, computed, inject } from "vue";
 import Breakpoint, {
   BreakpointHook,
 } from "../../assets/interfaces/BreakpointType";
@@ -24,7 +24,6 @@ const emit = defineEmits<{
 }>();
 
 const breakpointStore = inject("breakpointStore") as BreakpointHook;
-const currentBreakpoint = inject("currentBreakpoint") as Ref<number | null>;
 const { mode } = inject("mode") as ModeState;
 const VidInjection = inject("video") as VideoInjection;
 const { playbackControls } = VidInjection;
@@ -35,6 +34,12 @@ const editing = inject("editing") as any;
 const progressBar = ref<HTMLElement | null>(null);
 const isHovering = ref(false);
 const hoverX = ref(0);
+
+// Proxy store activeBreakpoint to number | null for compatibility
+const currentBreakpoint = computed({
+  get: () => breakpointStore.activeBreakpoint.value?.timeStamp || null,
+  set: (val: number | null) => breakpointStore.setCurrentBreakpoint(val),
+});
 
 // Computeds for v-model binding with TrimOverlay
 const localTrimStart = computed({
@@ -76,7 +81,7 @@ const handleTimeLineClick = (event: MouseEvent) => {
   // Calculate position as a percentage (0 to 1)
   const percent = (clickX - timelineRect.left) / timelineRect.width;
   props.skipToTime(percent);
-  currentBreakpoint.value = null;
+  currentBreakpoint.value = null; // Deselect breakpoint
   isSeeking.value = false;
 };
 
@@ -95,7 +100,7 @@ const handleDrag = (event: MouseEvent) => {
   // Clamp the percentage between 0 and 1
   percent = Math.min(1, Math.max(0, percent));
   props.skipToTime(percent);
-  currentBreakpoint.value = null;
+  currentBreakpoint.value = null; // Deselect breakpoint
 };
 
 const stopDrag = () => {

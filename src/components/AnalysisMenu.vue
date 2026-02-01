@@ -5,15 +5,20 @@ import TextMode from "./analysis/TextMode.vue";
 import VoiceMode from "./analysis/VoiceMode.vue";
 import NoBreakpointTemplate from "./analysis/NoBreakpointTemplate.vue";
 import { computed, inject } from "vue";
-import { BreakpointHook, CurrentBreakpointInjection } from "../assets/interfaces/BreakpointType";
+import { BreakpointHook } from "../assets/interfaces/BreakpointType";
 
 const breakpointStore = inject("breakpointStore") as BreakpointHook;
 const hasBreakpoints = computed(() => breakpointStore.breakpoints.value.length > 0);
-const currentBreakpoint = inject("currentBreakpoint") as CurrentBreakpointInjection;
+const activeBreakpoint = breakpointStore.activeBreakpoint;
+const deleteBreakpoint = () => {
+  if (activeBreakpoint.value) {
+    breakpointStore.removeBreakpoint(activeBreakpoint.value.timeStamp);
+  }
+};
 </script>
 <template>
   <section class="wrapper">
-    <NoBreakpointTemplate v-if="!hasBreakpoints || !currentBreakpoint" />
+    <NoBreakpointTemplate v-if="!hasBreakpoints || !activeBreakpoint" />
     <div class="analysis-menu">
       <h1 class="analysis-main-title">Analysis Menu</h1>
       <div>
@@ -32,7 +37,7 @@ const currentBreakpoint = inject("currentBreakpoint") as CurrentBreakpointInject
       </div>
     </div>
     <div class="analysis-buttons">
-      <button class="delete-breakpoints btn">Delete All <br></br>Breakpoints</button>
+      <button class="delete-breakpoint btn" @click="deleteBreakpoint">Delete <br></br>Breakpoint</button>
       <button class="export-analysis btn">Export <br></br>Analysis File</button>
     </div>
   </section>
@@ -82,8 +87,13 @@ h3 {
 .export-analysis {
   background-color: var(--green);
 }
-.delete-breakpoints {
+.delete-breakpoint {
   background-color: var(--delete-breakpoints-inactive);
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+.delete-breakpoint:hover {
+  background-color: var(--danger-color);
 }
 .btn {
   color: #FFF;

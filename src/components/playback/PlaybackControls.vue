@@ -2,7 +2,7 @@
 import { inject, type Ref, computed, ref } from "vue";
 import VideoState from "../../assets/interfaces/VideoState";
 import VideoTimeline from "./VideoTimeline.vue";
-import { CurrentBreakpointInjection } from "../../assets/interfaces/BreakpointType";
+import { BreakpointHook } from "../../assets/interfaces/BreakpointType";
 import SkipToStart from "../icons/SkipToStart.vue";
 import SkipToEnd from "../icons/SkipToEnd.vue";
 import PlayPause from "../icons/PlayPause.vue";
@@ -10,9 +10,7 @@ import FastForward from "../icons/FastForward.vue";
 import Rewind from "../icons/Rewind.vue";
 
 const { playbackControls } = inject("video") as VideoState;
-const currentBreakpoint = inject(
-  "currentBreakpoint",
-) as CurrentBreakpointInjection;
+const breakpointStore = inject("breakpointStore") as BreakpointHook;
 const editing = inject("editing") as Ref<
   null | "draw" | "trim" | "text" | "voice"
 >;
@@ -45,19 +43,19 @@ const trimEnd = ref(100);
 const handleFastForward = () => {
   if (playbackDirection.value === true) return fastForward("loop");
   if (playbackDirection.value !== null) return fastForward();
-  currentBreakpoint.value = null;
+  breakpointStore.setCurrentBreakpoint(null);
 };
 
 const handleRewind = () => {
   if (playbackDirection.value === false) return rewind("loop");
   if (playbackDirection.value !== null) return rewind();
-  currentBreakpoint.value = null;
+  breakpointStore.setCurrentBreakpoint(null);
 };
 
 const handlePlayPause = () => {
   console.log(isPlaying.value);
   if (playbackDirection.value === null) {
-    currentBreakpoint.value = null;
+    breakpointStore.setCurrentBreakpoint(null);
     return play();
   }
   pause();

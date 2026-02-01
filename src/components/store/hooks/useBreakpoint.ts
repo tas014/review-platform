@@ -43,6 +43,7 @@ const useBreakpoint = () => {
     );
     if (timeStampExists) return;
     _state.breakpoints.push(newBreakpoint);
+    _state.activeBreakpoint = newBreakpoint;
     return newBreakpoint;
   };
 
@@ -177,6 +178,7 @@ const useBreakpoint = () => {
     setCurrentBreakpoint,
     removeBreakpoint,
     removeAllBreakpoints,
+    activeBreakpoint: toRef(_state, "activeBreakpoint"),
   };
 
   return exports;

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { inject, ref, computed, Ref, onMounted } from "vue";
+import { inject, ref, computed, Ref, onMounted, watch } from "vue";
 import type {
   TextContent,
   VoiceContent,
   Vector,
+  BreakpointHook,
 } from "../../assets/interfaces/BreakpointType";
 import VideoState from "../../assets/interfaces/VideoState";
 import DrawIcon from "../icons/Draw.vue";
@@ -13,12 +14,9 @@ import TextNote from "../analysis/elements/TextNote.vue";
 import VoiceNote from "../analysis/elements/VoiceNote.vue";
 
 // Utils
-import { addTextNote } from "../../assets/utils/handleText";
-import { addVoiceNote } from "../../assets/utils/handleVoice";
 import {
   startDrawing,
   continueDrawing,
-  stopDrawing,
   redraw,
 } from "../../assets/utils/handleDraw";
 import { startDrag } from "../../assets/utils/handleDrag";
@@ -28,6 +26,8 @@ const { isPlaying } = playbackControls;
 const editing = inject("editing") as Ref<
   null | "draw" | "trim" | "text" | "voice"
 >;
+const breakpointStore = inject("breakpointStore") as BreakpointHook;
+const activeBreakpoint = breakpointStore.activeBreakpoint;
 
 // State
 const container = ref<HTMLElement | null>(null);
@@ -39,9 +39,15 @@ const elementY = ref(0);
 const isOutside = ref(true);
 
 // Data
-const items = ref<(TextContent | VoiceContent)[]>([]);
 const itemRefs = ref<Record<number, any>>({});
-const vectors = ref<Vector[]>([]); // Current drawings
+
+// Computed for vectors to ensure reactivity
+const vectors = computed(() => {
+  if (activeBreakpoint.value && activeBreakpoint.value.drawingContent) {
+    return activeBreakpoint.value.drawingContent.content;
+  }
+  return [];
+});
 
 // Dragging
 const setItemRef = (el: any, id: number) => {
@@ -52,11 +58,9 @@ const setItemRef = (el: any, id: number) => {
 
 const handleDragStart = (e: MouseEvent, item: TextContent | VoiceContent) => {
   const component = itemRefs.value[item.id];
-  // component can be the component instance (with $el) or element itself depending on Vue version/setup
-  // With script setup and standard components, ref provides the instance.
   const element = component?.$el || component;
   if (element && container.value) {
-    startDrag(e, item, element, container.value); // Use utility
+    startDrag(e, item, element, container.value);
   }
 };
 
@@ -90,6 +94,15 @@ const localRedraw = () => {
   redraw(ctx.value, canvas.value, vectors.value, currentVector.value);
 };
 
+// Watch for breakpoint changes to redraw canvas
+watch(
+  () => activeBreakpoint.value,
+  () => {
+    localRedraw();
+  },
+  { deep: true },
+);
+
 const updateMousePosition = (e: MouseEvent) => {
   if (container.value) {
     const rect = container.value.getBoundingClientRect();
@@ -114,12 +127,13 @@ const onMouseEnter = () => {
 const onMouseLeave = () => {
   isOutside.value = true;
   if (isDrawing.value) {
-    stopDrawing(isDrawing, currentVector, vectors, localRedraw);
+    // Custom stop drawing logic to handle store interaction
+    finishDrawing();
   }
 };
 
 const onMouseDown = () => {
-  if (editing.value === "draw") {
+  if (editing.value === "draw" && activeBreakpoint.value) {
     startDrawing(
       elementX.value,
       elementY.value,
@@ -133,15 +147,69 @@ const onMouseDown = () => {
 
 const onMouseUp = () => {
   if (editing.value === "draw") {
-    stopDrawing(isDrawing, currentVector, vectors, localRedraw);
+    finishDrawing();
+  }
+};
+
+const finishDrawing = () => {
+  if (isDrawing.value && currentVector.value && activeBreakpoint.value) {
+    if (!activeBreakpoint.value.drawingContent) {
+      // Initialize drawing content if it doesn't exist
+      // We need to use store method or manual assignment if reactive
+      // Since we need to update the store, let's try to assign to the property directly if possible
+      // But activeBreakpoint is a Ref<Breakpoint>.
+      // We can create it via store method to be safe
+      breakpointStore.createDrawingContent(
+        activeBreakpoint.value.timeStamp,
+        [], // content starts empty, we push next
+        { top: 0, left: 0 },
+        { width: canvas.value?.width || 0, height: canvas.value?.height || 0 },
+      );
+    }
+
+    // Now push the vector
+    if (activeBreakpoint.value.drawingContent) {
+      activeBreakpoint.value.drawingContent.content.push(currentVector.value);
+    }
+
+    currentVector.value = null;
+    isDrawing.value = false;
+    localRedraw();
+  } else {
+    // If not in a breakpoint, we just clear drawing state
+    currentVector.value = null;
+    isDrawing.value = false;
+    localRedraw();
   }
 };
 
 const handleClick = (e: MouseEvent) => {
+  if (!container.value || !activeBreakpoint.value) return;
+
+  const rect = container.value.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const xPercent = Number(((x / rect.width) * 100).toFixed(2));
+  const yPercent = Number(((y / rect.height) * 100).toFixed(2));
+
+  const position = { left: xPercent, top: yPercent };
+  const dimensions = { width: 30, height: 20 };
+
   if (editing.value === "text") {
-    addTextNote(e, container.value, items);
+    breakpointStore.createTextContent(
+      activeBreakpoint.value.timeStamp,
+      "",
+      position,
+      dimensions,
+    );
   } else if (editing.value === "voice") {
-    addVoiceNote(e, container.value, items);
+    breakpointStore.createVoiceContent(
+      activeBreakpoint.value.timeStamp,
+      new Blob(), // Placeholder blob
+      position,
+      dimensions,
+      0,
+    );
   }
 };
 
@@ -170,6 +238,7 @@ const showCursor = computed(() => {
 const cursorStyle = computed(() => ({
   left: `${elementX.value}px`,
   top: `${elementY.value}px`,
+  display: activeBreakpoint.value ? "block" : "none", // Hide cursor if no breakpoint? user said: "no elements should be rendered". Maybe cursor is fine. But user said "no text, voice or drawings". Cursor is UI.
 }));
 </script>
 
@@ -195,24 +264,31 @@ const cursorStyle = computed(() => ({
     <canvas ref="canvas" class="drawing-canvas"></canvas>
 
     <!-- Notes -->
-    <template v-for="item in items" :key="item.id">
-      <TextNote
-        v-if="item.type === 'text'"
-        :ref="(el) => setItemRef(el, item.id)"
-        v-model="(item as TextContent).content"
-        :x="item.position.left"
-        :y="item.position.top"
-        :dimensions="item.dimensions"
-        @dragStart="(e) => handleDragStart(e, item)"
-      />
-      <VoiceNote
-        v-else-if="item.type === 'voice'"
-        :ref="(el) => setItemRef(el, item.id)"
-        v-model="(item as VoiceContent).fileBlob"
-        :x="item.position.left"
-        :y="item.position.top"
-        @dragStart="(e) => handleDragStart(e, item)"
-      />
+    <template v-if="activeBreakpoint">
+      <template v-if="activeBreakpoint.textContent">
+        <TextNote
+          v-for="item in activeBreakpoint.textContent"
+          :key="item.id"
+          :ref="(el) => setItemRef(el, item.id)"
+          v-model="(item as TextContent).content"
+          :x="item.position.left"
+          :y="item.position.top"
+          :dimensions="item.dimensions"
+          @dragStart="(e) => handleDragStart(e, item)"
+          @update:dimensions="(dims) => (item.dimensions = dims)"
+        />
+      </template>
+      <template v-if="activeBreakpoint.voiceContent">
+        <VoiceNote
+          v-for="item in activeBreakpoint.voiceContent"
+          :key="item.id"
+          :ref="(el) => setItemRef(el, item.id)"
+          v-model="(item as VoiceContent).fileBlob"
+          :x="item.position.left"
+          :y="item.position.top"
+          @dragStart="(e) => handleDragStart(e, item)"
+        />
+      </template>
     </template>
 
     <slot name="video"></slot>
