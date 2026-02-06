@@ -35,6 +35,7 @@ const container = ref<HTMLElement | null>(null);
 const canvas = ref<HTMLCanvasElement | null>(null);
 const ctx = ref<CanvasRenderingContext2D | null>(null);
 let resizeObserver: ResizeObserver | null = null;
+let rafId: number | null = null;
 
 const elementX = ref(0);
 const elementY = ref(0);
@@ -114,6 +115,9 @@ onUnmounted(() => {
   if (resizeObserver) {
     resizeObserver.disconnect();
   }
+  if (rafId !== null) {
+    cancelAnimationFrame(rafId);
+  }
 });
 
 const resizeCanvas = () => {
@@ -127,6 +131,17 @@ const resizeCanvas = () => {
 
 const localRedraw = () => {
   redraw(ctx.value, canvas.value, vectors.value, currentVector.value);
+};
+
+const performRedraw = () => {
+  rafId = null;
+  localRedraw();
+};
+
+const scheduleRedraw = () => {
+  if (rafId === null) {
+    rafId = requestAnimationFrame(performRedraw);
+  }
 };
 
 // Watch for breakpoint changes to redraw canvas
@@ -149,7 +164,7 @@ const updateMousePosition = (e: MouseEvent) => {
         elementX.value,
         elementY.value,
         currentVector,
-        localRedraw,
+        scheduleRedraw,
       );
     }
 
@@ -171,12 +186,6 @@ const performBufferedDeletion = (x: number, y: number) => {
     const el = component?.$el || component;
     if (el instanceof HTMLElement) {
       const rect = el.getBoundingClientRect();
-      // Check if point within rect (transforming mouse to global or rect to local?
-      // x/y are relative to container. rect is global.
-      // Easier to use global clientX/Y from event?
-      // updateMousePosition calculates relative X/Y.
-      // Let's use relative check:
-
       if (!container.value) continue;
       const containerRect = container.value.getBoundingClientRect();
       const elLeft = rect.left - containerRect.left;
@@ -188,11 +197,6 @@ const performBufferedDeletion = (x: number, y: number) => {
         y >= elTop &&
         y <= elTop + rect.height
       ) {
-        // Determine type based on props or id presence in activeBreakpoint lists
-        // We need to map ID back to type.
-        // A cleaner way is to store type in refs or check separate lists.
-        // We iterated itemRefs. Let's check matching ID in lists.
-
         if (
           activeBreakpoint.value?.textContent?.some((t) => t.id === Number(id))
         ) {
@@ -306,16 +310,6 @@ const handleClick = (e: MouseEvent) => {
   const dimensions = { width: 30, height: 20 };
 
   if (editing.value === "delete") {
-    // Click deletion is now also handled by drag/mousedown logic, but keeping the check unified or redundant is fine.
-    // Actually, handleClick fires AFTER mouseUp. If we deleted on mouseDown/Move, element might be gone.
-    // checkDrawingCollision(x, y); would delete it.
-    // Since we handle onMouseDown => delete, standard click might hit empty space.
-    // Let's refactor handleClick to use same function just in case, or just rely on mouse handlers.
-    // Relying on mouse handlers covers "Click" (since it involves mousedown).
-    // So we can remove the specialized block here?
-    // User requested "holding down left click", so drag-to-delete.
-    // Standard click is just a short drag.
-    // safe to leave empty or call check once.
     checkDrawingCollision(x, y);
     return;
   }
@@ -365,7 +359,7 @@ const showCursor = computed(() => {
 const cursorStyle = computed(() => ({
   left: `${elementX.value}px`,
   top: `${elementY.value}px`,
-  display: activeBreakpoint.value ? "block" : "none", // Hide cursor if no breakpoint? user said: "no elements should be rendered". Maybe cursor is fine. But user said "no text, voice or drawings". Cursor is UI.
+  display: activeBreakpoint.value ? "block" : "none",
 }));
 </script>
 

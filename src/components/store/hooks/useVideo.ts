@@ -16,7 +16,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
   const _playbackSpeedValues: PlaybackSpeed[] = [1, 2, 3, 4, 5, 10];
   const _customVideoEnd = ref<Nullable<number>>(null);
   const _customVideoStart = ref<Nullable<number>>(null);
-  const updateTickrate = 300;
+  let rafId: number | null = null;
 
   // --- Public Getters (Computed Properties) ---
   const currentFrame = readonly(_currentFrame);
@@ -127,6 +127,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
   watch(_playbackDirection, (newState) => {
     if (_videoElementRef.value === null || videoUrl.value === null) return;
     _clearAllIntervals();
+    _cancelLoop();
     switch (newState) {
       case true: // FORWARD (native playback)
         _videoElementRef.value.playbackRate = _playbackSpeed.value;
@@ -138,19 +139,8 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
             src: _videoElementRef.value?.currentSrc,
           });
         });
-        // Start the progress reporting interval
-        _intervalTracker = setInterval(() => {
-          if (!_videoElementRef.value) throw new Error("video ref is missing");
-          const currentTime = _videoElementRef.value.currentTime;
-          if (_customVideoEnd.value && currentTime >= _customVideoEnd.value) {
-            _currentFrame.value = _customVideoEnd.value;
-            return clearInterval(_intervalTracker);
-          }
-          _currentFrame.value = currentTime;
-          if (_totalDuration.value && currentTime >= _totalDuration.value) {
-            pause();
-          }
-        }, updateTickrate);
+        // Start the progress reporting loop
+        _loop();
         break;
 
       case false: // REWIND (tauri doesnt support negative playback so I use reverse seeking workaround)
@@ -185,6 +175,35 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
   ) => {
     _playbackDirection.value = direction;
     _playbackSpeed.value = speed;
+  };
+
+  const _cancelLoop = () => {
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  };
+
+  const _loop = () => {
+    if (!_videoElementRef.value) return;
+    const currentTime = _videoElementRef.value.currentTime;
+
+    if (_customVideoEnd.value && currentTime >= _customVideoEnd.value) {
+      _currentFrame.value = _customVideoEnd.value;
+      pause();
+      return;
+    }
+
+    _currentFrame.value = currentTime;
+
+    if (_totalDuration.value && currentTime >= _totalDuration.value) {
+      pause();
+      return;
+    }
+
+    if (_playbackDirection.value === true) {
+      rafId = requestAnimationFrame(_loop);
+    }
   };
 
   let _intervalTracker: undefined | number;
@@ -275,7 +294,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
     progress: readonly(_progressPercent),
     isPlaying: readonly(isPlaying),
     playbackDirection: readonly(_playbackDirection),
-    transitionTime: `${updateTickrate / 1000}s`,
+    transitionTime: `0s`,
     playbackSpeed: readonly(_playbackSpeed),
     fastForward,
     rewind,
