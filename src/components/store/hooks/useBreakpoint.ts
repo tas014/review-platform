@@ -154,6 +154,25 @@ const useBreakpoint = () => {
     _state.activeBreakpoint = null;
   };
 
+  const resetBreakpointState = () => {
+    removeAllBreakpoints();
+    _state.videoData = null;
+  };
+
+  const cleanupBreakpoints = (minTime: number, maxTime: number) => {
+    _state.breakpoints = _state.breakpoints.filter(
+      (bp) => bp.timeStamp >= minTime && bp.timeStamp <= maxTime,
+    );
+    // If the active breakpoint was removed, clear it
+    if (
+      _state.activeBreakpoint &&
+      (_state.activeBreakpoint.timeStamp < minTime ||
+        _state.activeBreakpoint.timeStamp > maxTime)
+    ) {
+      _state.activeBreakpoint = null;
+    }
+  };
+
   // private methods
 
   /* const _setCurrentId = (newId?: number) => {
@@ -178,6 +197,8 @@ const useBreakpoint = () => {
     setCurrentBreakpoint,
     removeBreakpoint,
     removeAllBreakpoints,
+    resetBreakpointState,
+    cleanupBreakpoints,
     activeBreakpoint: toRef(_state, "activeBreakpoint"),
   };
 

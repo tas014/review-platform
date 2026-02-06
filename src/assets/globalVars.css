@@ -1,3 +1,32 @@
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/fonts/Plus_Jakarta_Sans/PlusJakartaSans-Regular.ttf");
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/fonts/Plus_Jakarta_Sans/PlusJakartaSans-Bold.ttf");
+  font-weight: bold;
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/fonts/Plus_Jakarta_Sans/PlusJakartaSans-Italic.ttf");
+  font-style: italic;
+}
+@font-face {
+  font-family: "Space Mono";
+  src: url("/fonts/Space_Mono/SpaceMono-Regular.ttf");
+}
+@font-face {
+  font-family: "Space Mono";
+  src: url("/fonts/Space_Mono/SpaceMono-Bold.ttf");
+  font-weight: bold;
+}
+@font-face {
+  font-family: "Space Mono";
+  src: url("/fonts/Space_Mono/SpaceMono-Italic.ttf");
+  font-style: italic;
+}
+
 :root {
   --background: #3c3c3c;
   --green: #339f45;
@@ -19,10 +48,22 @@
   --success-color: #2a9d8f;
   --danger-hover-color: #d62828cc;
   --success-hover-color: #2a9d8fcc;
+  --plus-jakarta-sans: "Plus Jakarta Sans", sans-serif;
+  --space-mono: "Space Mono", monospace;
 }
 
 html {
   font-size: 62.5%;
+  font-family: var(--plus-jakarta-sans);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--space-mono);
 }
 
 body {

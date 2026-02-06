@@ -10,7 +10,8 @@ import useBreakpoint from "./components/store/hooks/useBreakpoint";
 /* import { invoke } from "@tauri-apps/api/core"; */
 
 const mode: Ref<"replay" | "analysis"> = ref("replay"); // for switching between analysis and replay modes
-const editing: Ref<null | "draw" | "trim" | "text" | "voice"> = ref(null);
+const editing: Ref<null | "draw" | "trim" | "text" | "voice" | "delete"> =
+  ref(null);
 const videoElement = useTemplateRef("video-playback");
 const playbackControls = useVideo(videoElement);
 const breakpointStore = useBreakpoint();
@@ -24,6 +25,7 @@ const toggleMode = () => {
 
 const updateVideoElement = () => {
   playbackControls.initializePlayback();
+  breakpointStore.resetBreakpointState();
 };
 provide("mode", {
   mode,

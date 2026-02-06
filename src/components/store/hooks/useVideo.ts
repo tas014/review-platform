@@ -41,7 +41,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
     const elapsedTime = _currentFrame.value - _startTime.value;
     if (segmentDuration > 0 && elapsedTime >= 0) {
       const rawPercentage = (elapsedTime / segmentDuration) * 100;
-      return Math.round(rawPercentage);
+      return Number(rawPercentage.toFixed(2));
     }
     // If the elapsed time is outside the segment bounds, return 0 or 100 depending on the case
     if (_currentFrame.value >= _totalDuration.value) return 100;
@@ -52,6 +52,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
   const initializePlayback = () => {
     if (!_videoElementRef.value) return;
     // CRITICAL STEP: forces _totalDuration (Dependency 1) to re-run and return a number on call. To be used with the @loadedmetadata event.
+    _customVideoStart.value = null;
     _customVideoEnd.value = _videoElementRef.value.duration;
     _currentFrame.value = _startTime.value;
   };

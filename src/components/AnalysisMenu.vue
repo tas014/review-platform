@@ -6,6 +6,7 @@ import VoiceMode from "./analysis/VoiceMode.vue";
 import NoBreakpointTemplate from "./analysis/NoBreakpointTemplate.vue";
 import { computed, inject } from "vue";
 import { BreakpointHook } from "../assets/interfaces/BreakpointType";
+import DeleteMode from "./analysis/DeleteMode.vue";
 
 const breakpointStore = inject("breakpointStore") as BreakpointHook;
 const hasBreakpoints = computed(() => breakpointStore.breakpoints.value.length > 0);
@@ -33,6 +34,7 @@ const deleteBreakpoint = () => {
           <DrawMode />
           <TextMode />
           <VoiceMode />
+          <DeleteMode />
         </ul>
       </div>
     </div>

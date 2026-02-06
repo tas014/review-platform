@@ -34,6 +34,7 @@ const {
   skipToEnd,
   skipToTime,
   setTrim, // Inject setTrim
+  videoStart,
 } = playbackControls;
 
 // Trim State
@@ -72,7 +73,14 @@ const confirmTrim = () => {
   const startSeconds = (trimStart.value / 100) * totalDuration.value;
   const endSeconds = (trimEnd.value / 100) * totalDuration.value;
 
+  // Calculate new absolute start/end BEFORE calling setTrim (which modifies videoStart)
+  const currentAbsoluteStart = videoStart.value || 0;
+  const newAbsoluteStart = currentAbsoluteStart + startSeconds;
+  const newAbsoluteEnd = currentAbsoluteStart + endSeconds;
+
   setTrim(startSeconds, endSeconds);
+
+  breakpointStore.cleanupBreakpoints(newAbsoluteStart, newAbsoluteEnd);
 
   // Reset after confirming
   trimStart.value = 0;

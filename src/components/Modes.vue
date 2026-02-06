@@ -45,9 +45,14 @@ header {
   grid-template-columns: 1fr 1fr;
   width: 40%;
 }
-.wrapper h1:not(.selected) {
+.wrapper h1 {
   font-size: 1em;
 }
+
+.mode-container:not(.selected) h1 {
+  font-weight: normal;
+}
+
 .mode-container {
   display: grid;
   place-content: center;

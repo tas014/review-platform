@@ -27,8 +27,13 @@ const breakpointStore = inject("breakpointStore") as BreakpointHook;
 const { mode } = inject("mode") as ModeState;
 const VidInjection = inject("video") as VideoInjection;
 const { playbackControls } = VidInjection;
-const breakpoints = computed(() => breakpointStore.breakpoints.value);
-const { totalDuration: duration, currentTime } = playbackControls;
+const breakpoints = computed(() => {
+  return breakpointStore.breakpoints.value.filter((bp) => {
+    const percent = Number(frameToPercentage(bp.timeStamp));
+    return percent >= 0 && percent <= 100;
+  });
+});
+const { totalDuration: duration, currentTime, videoStart } = playbackControls;
 const editing = inject("editing") as any;
 
 const progressBar = ref<HTMLElement | null>(null);
@@ -54,12 +59,21 @@ const localTrimEnd = computed({
 
 const frameToPercentage = (frame: number) => {
   if (!playbackControls.totalDuration.value) return 0;
-  return ((frame / playbackControls.totalDuration.value) * 100).toFixed(2);
+  const start = videoStart.value || 0;
+  const total = playbackControls.totalDuration.value;
+  const end = total;
+
+  const segmentDuration = end - start;
+  return (((frame - start) / segmentDuration) * 100).toFixed(2);
 };
 
 const jumpToBreakpoint = (breakpoint: Breakpoint) => {
   if (!playbackControls.totalDuration.value) return;
-  const percent = breakpoint.timeStamp / playbackControls.totalDuration.value;
+  const start = videoStart.value || 0;
+  const total = playbackControls.totalDuration.value;
+  const segmentDuration = total - start;
+
+  const percent = (breakpoint.timeStamp - start) / segmentDuration;
   props.skipToTime(percent);
   currentBreakpoint.value = breakpoint.timeStamp;
   isSeeking.value = false;
