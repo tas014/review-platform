@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Checkbox from "../Checkbox.vue";
 import { computed, inject, Ref } from "vue";
 import DeleteIcon from "../icons/Delete.vue";
 
@@ -18,16 +17,16 @@ const toggleDeleteMode = () => {
 };
 </script>
 <template>
-  <li @click="toggleDeleteMode" class="delete-mode-container">
-    <span class="tool-name" :class="{ toggled: isToggled }">Delete Mode</span>
+  <li
+    @click="toggleDeleteMode"
+    :class="{ 'selected-tool': isToggled }"
+    class="delete-mode-container"
+  >
+    <span class="tool-name">Delete</span>
     <DeleteIcon class="delete-icon" />
-    <Checkbox :isActive="isToggled" />
   </li>
 </template>
 <style scoped>
-.tool-name {
-  cursor: pointer;
-}
 .toggled {
   color: var(--green);
 }

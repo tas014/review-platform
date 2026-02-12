@@ -125,20 +125,21 @@ onUnmounted(() => {
   top: 0;
   width: 1rem;
   height: 100%;
-  background-color: var(--title-color);
+  color: var(--dark-text-color);
+  font-size: 2rem;
+  font-weight: bold;
   cursor: ew-resize;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
   pointer-events: auto; /* Enable interaction */
   z-index: 20;
   transform: translateX(-50%); /* Center handle on the point */
+  user-select: none;
 }
 
 .trim-start-handle:hover,
 .trim-end-handle:hover {
-  background-color: var(--green);
-  color: white;
+  color: var(--green);
 }
 </style>

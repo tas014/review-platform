@@ -16,16 +16,23 @@ const toggleTrimMode = () => {
 };
 </script>
 <template>
-  <li @click="toggleTrimMode">
+  <li @click="toggleTrimMode" class="trim-container">
     <span class="tool-name" :class="{ toggled: isToggled }">Trim Mode</span>
     <Checkbox :isActive="isToggled" />
   </li>
 </template>
 <style scoped>
-.tool-name {
+.trim-container {
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
-.toggled {
-  color: var(--green);
+.toggled,
+.trim-container:hover {
+  color: var(--title-color);
+}
+.tool-name {
+  transition: color 0.2s ease-in-out;
 }
 </style>

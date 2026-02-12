@@ -12,14 +12,11 @@ import TextIcon from "../icons/Text.vue";
 import VoiceIcon from "../icons/Voice.vue";
 import TextNote from "../analysis/elements/TextNote.vue";
 import VoiceNote from "../analysis/elements/VoiceNote.vue";
+import Drawing from "../analysis/elements/Drawing.vue";
 import DeleteIcon from "../icons/Delete.vue";
 
 // Utils
-import {
-  startDrawing,
-  continueDrawing,
-  redraw,
-} from "../../assets/utils/handleDraw";
+import { startDrawing, continueDrawing } from "../../assets/utils/handleDraw";
 import { startDrag } from "../../assets/utils/handleDrag";
 
 const { playbackControls } = inject("video") as VideoState;
@@ -32,10 +29,14 @@ const activeBreakpoint = breakpointStore.activeBreakpoint;
 
 // State
 const container = ref<HTMLElement | null>(null);
-const canvas = ref<HTMLCanvasElement | null>(null);
-const ctx = ref<CanvasRenderingContext2D | null>(null);
-let resizeObserver: ResizeObserver | null = null;
-let rafId: number | null = null;
+const drawingRef = refInstanceType(Drawing);
+
+// Helper to type the ref correctly
+function refInstanceType<T extends abstract new (...args: any) => any>(
+  component: T,
+) {
+  return ref<InstanceType<T> | null>(null);
+}
 
 const elementX = ref(0);
 const elementY = ref(0);
@@ -95,64 +96,6 @@ const currentVector = ref<Vector | null>(null);
 const strokeColor = "#FF0000";
 const lineWidth = 3;
 
-// Initialize canvas
-onMounted(() => {
-  if (canvas.value && container.value) {
-    ctx.value = canvas.value.getContext("2d");
-
-    // Initial resize
-    resizeCanvas();
-
-    // Observe container for size changes
-    resizeObserver = new ResizeObserver(() => {
-      resizeCanvas();
-    });
-    resizeObserver.observe(container.value);
-  }
-});
-
-onUnmounted(() => {
-  if (resizeObserver) {
-    resizeObserver.disconnect();
-  }
-  if (rafId !== null) {
-    cancelAnimationFrame(rafId);
-  }
-});
-
-const resizeCanvas = () => {
-  if (container.value && canvas.value) {
-    const rect = container.value.getBoundingClientRect();
-    canvas.value.width = rect.width;
-    canvas.value.height = rect.height;
-    localRedraw();
-  }
-};
-
-const localRedraw = () => {
-  redraw(ctx.value, canvas.value, vectors.value, currentVector.value);
-};
-
-const performRedraw = () => {
-  rafId = null;
-  localRedraw();
-};
-
-const scheduleRedraw = () => {
-  if (rafId === null) {
-    rafId = requestAnimationFrame(performRedraw);
-  }
-};
-
-// Watch for breakpoint changes to redraw canvas
-watch(
-  () => activeBreakpoint.value,
-  () => {
-    localRedraw();
-  },
-  { deep: true },
-);
-
 const updateMousePosition = (e: MouseEvent) => {
   if (container.value) {
     const rect = container.value.getBoundingClientRect();
@@ -160,11 +103,17 @@ const updateMousePosition = (e: MouseEvent) => {
     elementY.value = e.clientY - rect.top;
 
     if (editing.value === "draw" && isDrawing.value) {
+      // Normalize coordinates for storage
+      const normX = elementX.value / rect.width;
+      const normY = elementY.value / rect.height;
+
+      // We pass a dummy redraw function because Drawing.vue watches the vectors
+      // and schedules its own redraws.
       continueDrawing(
-        elementX.value,
-        elementY.value,
+        normX,
+        normY,
         currentVector,
-        scheduleRedraw,
+        () => {}, // No-op, reactive watcher handles it
       );
     }
 
@@ -212,36 +161,23 @@ const performBufferedDeletion = (x: number, y: number) => {
 };
 
 const checkDrawingCollision = (x: number, y: number) => {
-  if (activeBreakpoint.value?.drawingContent && ctx.value) {
-    const content = activeBreakpoint.value.drawingContent.content;
-    for (let i = content.length - 1; i >= 0; i--) {
-      const vector = content[i];
-      const path = new Path2D();
-      if (vector.line.length > 0) {
-        path.moveTo(vector.line[0].x, vector.line[0].y);
-        for (let j = 1; j < vector.line.length; j++) {
-          path.lineTo(vector.line[j].x, vector.line[j].y);
-        }
-      }
-      ctx.value.lineWidth = 10;
-      if (ctx.value.isPointInStroke(path, x, y)) {
-        activeBreakpoint.value.drawingContent.content.splice(i, 1);
-        localRedraw();
-        return; // Delete one at a time per frame is smoother visually? or maybe allowed to delete multiple.
-      }
+  if (activeBreakpoint.value?.drawingContent && drawingRef.value) {
+    const index = drawingRef.value.checkCollision(x, y);
+    if (index !== -1) {
+      activeBreakpoint.value.drawingContent.content.splice(index, 1);
     }
   }
 };
 
 const onMouseEnter = () => {
   isOutside.value = false;
+  // cursor logic handled by computed
 };
 
 const onMouseLeave = () => {
   isOutside.value = true;
   isDeleting.value = false;
   if (isDrawing.value) {
-    // Custom stop drawing logic to handle store interaction
     finishDrawing();
   }
 };
@@ -249,14 +185,17 @@ const onMouseLeave = () => {
 const onMouseDown = () => {
   if (editing.value === "delete") {
     isDeleting.value = true;
-    // Also perform immediate check
     performBufferedDeletion(elementX.value, elementY.value);
   }
 
-  if (editing.value === "draw" && activeBreakpoint.value) {
+  if (editing.value === "draw" && activeBreakpoint.value && container.value) {
+    const rect = container.value.getBoundingClientRect();
+    const normX = elementX.value / rect.width;
+    const normY = elementY.value / rect.height;
+
     startDrawing(
-      elementX.value,
-      elementY.value,
+      normX,
+      normY,
       strokeColor,
       lineWidth,
       isDrawing,
@@ -273,13 +212,17 @@ const onMouseUp = () => {
 };
 
 const finishDrawing = () => {
+  // If we have a vector in progress or we just came from isDrawing=true
   if (isDrawing.value && currentVector.value && activeBreakpoint.value) {
     if (!activeBreakpoint.value.drawingContent) {
+      // Dimensions are now somewhat irrelevant given normalization,
+      // but we maintain the shape of the data structure.
+      // Top/Left 0 is fine, Width/Height can be arbitrary or 100% since we scale.
       breakpointStore.createDrawingContent(
         activeBreakpoint.value.timeStamp,
-        [], // content starts empty, we push next
+        [],
         { top: 0, left: 0 },
-        { width: canvas.value?.width || 0, height: canvas.value?.height || 0 },
+        { width: 0, height: 0 }, // Unused in normalized system
       );
     }
 
@@ -289,11 +232,9 @@ const finishDrawing = () => {
 
     currentVector.value = null;
     isDrawing.value = false;
-    localRedraw();
   } else {
     currentVector.value = null;
     isDrawing.value = false;
-    localRedraw();
   }
 };
 
@@ -381,8 +322,13 @@ const cursorStyle = computed(() => ({
       <component :is="cursorIcon" class="icon" />
     </div>
 
-    <!-- Canvas for Drawing -->
-    <canvas ref="canvas" class="drawing-canvas"></canvas>
+    <!-- Drawing Component -->
+    <Drawing
+      v-if="activeBreakpoint"
+      ref="drawingRef"
+      :vectors="vectors"
+      :current-vector="currentVector"
+    />
 
     <!-- Notes -->
     <template v-if="activeBreakpoint">
@@ -447,15 +393,5 @@ const cursorStyle = computed(() => ({
   width: 24px;
   height: 24px;
   filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.8));
-}
-
-.drawing-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none; /* Let clicks pass through to container handlers */
-  z-index: 10;
 }
 </style>

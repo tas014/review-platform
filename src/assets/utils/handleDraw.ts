@@ -1,5 +1,5 @@
 import { Ref } from "vue";
-import type { Vector } from "../interfaces/BreakpointType";
+import type { Vector, Point } from "../interfaces/BreakpointType";
 
 const startDrawing = (
   x: number,
@@ -51,29 +51,38 @@ const redraw = (
   currentVector: Vector | null,
 ) => {
   if (!ctx || !canvas) return;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const width = canvas.width;
+  const height = canvas.height;
+
+  ctx.clearRect(0, 0, width, height);
 
   // Draw defined vectors
   vectors.forEach((vector) => {
-    drawVector(ctx, vector);
+    drawVector(ctx, vector, width, height);
   });
 
   // Draw vector in progress
   if (currentVector) {
-    drawVector(ctx, currentVector);
+    drawVector(ctx, currentVector, width, height);
   }
 };
 
-const drawVector = (ctx: CanvasRenderingContext2D, vector: Vector) => {
+const drawVector = (
+  ctx: CanvasRenderingContext2D,
+  vector: Vector,
+  width: number,
+  height: number,
+) => {
   if (vector.line.length < 2) return;
   ctx.beginPath();
   ctx.strokeStyle = vector.color;
-  ctx.lineWidth = vector.lineWidth;
+  ctx.lineWidth = vector.lineWidth; // Keep stroke width constant as requested
   ctx.lineCap = vector.lineCap;
 
-  ctx.moveTo(vector.line[0].x, vector.line[0].y);
+  // Scale coordinates: normalized (0-1) -> pixels
+  ctx.moveTo(vector.line[0].x * width, vector.line[0].y * height);
   for (let i = 1; i < vector.line.length; i++) {
-    ctx.lineTo(vector.line[i].x, vector.line[i].y);
+    ctx.lineTo(vector.line[i].x * width, vector.line[i].y * height);
   }
   ctx.stroke();
 };

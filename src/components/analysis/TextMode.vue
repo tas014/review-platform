@@ -17,13 +17,12 @@ const toggleTextMode = () => {
 };
 </script>
 <template>
-  <li>
-    <span
-      class="tool-name"
-      @click="toggleTextMode"
-      :class="{ toggled: isToggled }"
-      >Add Text Note</span
-    >
+  <li
+    @click="toggleTextMode"
+    :class="{ 'selected-tool': isToggled }"
+    class="text-mode-container"
+  >
+    <span class="tool-name">Text Note</span>
     <TextIcon class="text-icon" />
   </li>
 </template>

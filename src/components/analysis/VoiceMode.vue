@@ -17,13 +17,12 @@ const toggleVoiceMode = () => {
 };
 </script>
 <template>
-  <li>
-    <span
-      class="tool-name"
-      @click="toggleVoiceMode"
-      :class="{ toggled: isToggled }"
-      >Add Voice Note</span
-    >
+  <li
+    @click="toggleVoiceMode"
+    :class="{ 'selected-tool': isToggled }"
+    class="voice-mode-container"
+  >
+    <span class="tool-name">Voice Note</span>
     <VoiceIcon class="voice-icon" />
   </li>
 </template>

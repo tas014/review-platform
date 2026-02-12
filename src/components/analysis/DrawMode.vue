@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Checkbox from "../Checkbox.vue";
 import { computed, inject, Ref } from "vue";
 import DrawIcon from "../icons/Draw.vue";
 
@@ -18,10 +17,13 @@ const toggleDrawMode = () => {
 };
 </script>
 <template>
-  <li @click="toggleDrawMode" class="draw-mode-container">
-    <span class="tool-name" :class="{ toggled: isToggled }">Draw Mode</span>
+  <li
+    @click="toggleDrawMode"
+    :class="{ 'selected-tool': isToggled }"
+    class="draw-mode-container"
+  >
+    <span class="tool-name">Draw</span>
     <DrawIcon class="draw-icon" />
-    <Checkbox :isActive="isToggled" />
   </li>
 </template>
 <style scoped>

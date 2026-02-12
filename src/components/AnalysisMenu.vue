@@ -24,7 +24,7 @@ const deleteBreakpoint = () => {
       <h1 class="analysis-main-title">Analysis Menu</h1>
       <div>
         <h3 class="analysis-section-title">Edit</h3>
-        <ul class="tool-list">
+        <ul class="edit-list">
           <TrimMode />
         </ul>
       </div>
@@ -58,11 +58,9 @@ const deleteBreakpoint = () => {
   background-color: rgba(0, 0, 0, 0.4);
   border-left: solid 2px var(--light-green);
 }
-.tool-list {
+.tool-list, .edit-list {
   list-style: none;
   display: grid;
-  gap: 1rem;
-  margin-top: 1rem;
   padding-left: 0px;
 }
 h1,
@@ -119,11 +117,16 @@ h3 {
 }
 </style>
 <style>
-.tool-list li {
+.tool-list li, .edit-list li {
   display: flex;
   align-items: center;
-  padding-bottom: 1rem;
+  padding: 1.5rem 0.5rem;
   border-bottom: solid 1px whitesmoke;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+.tool-list li:hover, .selected-tool {
+  background-color: var(--light-green);
 }
 .tool-list span {
   margin-right: 1rem;
