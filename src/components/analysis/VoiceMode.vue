@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, inject, Ref } from "vue";
+import VoiceIcon from "../icons/Voice.vue";
 
 const editing = inject("editing") as Ref<
   null | "draw" | "trim" | "text" | "voice"
@@ -23,7 +24,7 @@ const toggleVoiceMode = () => {
       :class="{ toggled: isToggled }"
       >Add Voice Note</span
     >
-    <i class="pi pi-microphone"></i>
+    <VoiceIcon class="voice-icon" />
   </li>
 </template>
 <style scoped>
@@ -32,5 +33,9 @@ const toggleVoiceMode = () => {
 }
 .toggled {
   color: var(--green);
+}
+.voice-icon {
+  width: 2.5rem;
+  height: 2.5rem;
 }
 </style>
