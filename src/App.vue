@@ -38,6 +38,9 @@ provide("video", {
 });
 provide("breakpointStore", breakpointStore);
 provide("editing", editing);
+
+const activeColor = ref("red");
+provide("activeColor", activeColor);
 </script>
 
 <template>

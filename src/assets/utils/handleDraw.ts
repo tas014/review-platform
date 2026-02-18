@@ -1,5 +1,5 @@
 import { Ref } from "vue";
-import type { Vector, Point } from "../interfaces/BreakpointType";
+import type { Vector } from "../interfaces/BreakpointType";
 
 const startDrawing = (
   x: number,

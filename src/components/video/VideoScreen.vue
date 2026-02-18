@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref, computed, Ref, onMounted, onUnmounted, watch } from "vue";
+import { inject, ref, computed, Ref } from "vue";
 import type {
   TextContent,
   VoiceContent,
@@ -24,6 +24,7 @@ const { isPlaying } = playbackControls;
 const editing = inject("editing") as Ref<
   null | "draw" | "trim" | "text" | "voice" | "delete"
 >;
+const activeColor = inject("activeColor") as Ref<string>;
 const breakpointStore = inject("breakpointStore") as BreakpointHook;
 const activeBreakpoint = breakpointStore.activeBreakpoint;
 
@@ -33,7 +34,7 @@ const drawingRef = refInstanceType(Drawing);
 
 // Helper to type the ref correctly
 function refInstanceType<T extends abstract new (...args: any) => any>(
-  component: T,
+  _component: T,
 ) {
   return ref<InstanceType<T> | null>(null);
 }
@@ -103,7 +104,6 @@ const isDrawing = ref(false);
 const currentVector = ref<Vector | null>(null);
 
 // Settings
-const strokeColor = "#FF0000";
 const lineWidth = 3;
 
 const updateMousePosition = (e: MouseEvent) => {
@@ -206,7 +206,7 @@ const onMouseDown = () => {
     startDrawing(
       normX,
       normY,
-      strokeColor,
+      activeColor.value,
       lineWidth,
       isDrawing,
       currentVector,
@@ -329,7 +329,13 @@ const cursorStyle = computed(() => ({
     @click="handleClick"
   >
     <div v-if="showCursor" class="cursor-follower" :style="cursorStyle">
-      <component :is="cursorIcon" class="icon" />
+      <component
+        :is="cursorIcon"
+        class="icon"
+        :style="{
+          color: editing === 'draw' ? activeColor : 'white',
+        }"
+      />
     </div>
 
     <!-- Drawing Component -->
