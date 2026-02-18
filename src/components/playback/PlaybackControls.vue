@@ -70,15 +70,30 @@ const cancelTrim = () => {
 
 const confirmTrim = () => {
   if (!totalDuration.value) return;
-  const startSeconds = (trimStart.value / 100) * totalDuration.value;
-  const endSeconds = (trimEnd.value / 100) * totalDuration.value;
 
-  // Calculate new absolute start/end BEFORE calling setTrim (which modifies videoStart)
   const currentAbsoluteStart = videoStart.value || 0;
-  const newAbsoluteStart = currentAbsoluteStart + startSeconds;
-  const newAbsoluteEnd = currentAbsoluteStart + endSeconds;
+  // totalDuration is the absolute end time of the current segment
+  const currentAbsoluteEnd = totalDuration.value;
+  const segmentDuration = currentAbsoluteEnd - currentAbsoluteStart;
 
-  setTrim(startSeconds, endSeconds);
+  // Calculate relative offsets based on the *current segment duration*
+  const startOffset = (trimStart.value / 100) * segmentDuration;
+  const endOffset = (trimEnd.value / 100) * segmentDuration;
+
+  // Calculate new absolute start/end
+  const newAbsoluteStart = currentAbsoluteStart + startOffset;
+  // The end offset is relative to the start of the *current segment*, so we add it to currentAbsoluteStart
+  // However, `setTrim` likely expects the *end offset relative to the current segment start*.
+  // Let's look at `setTrim` in `useVideo`:
+  // const newStart = currentAbsoluteStart + start;
+  // const newEnd = currentAbsoluteStart + end;
+  // So `setTrim` expects `start` and `end` to be relative offsets from `currentAbsoluteStart`.
+
+  setTrim(startOffset, endOffset);
+
+  // cleanupBreakpoints expects absolute timestamps
+  // newAbsoluteEnd is calculated as start + endOffset because endOffset is relative to start
+  const newAbsoluteEnd = currentAbsoluteStart + endOffset;
 
   breakpointStore.cleanupBreakpoints(newAbsoluteStart, newAbsoluteEnd);
 

@@ -26,7 +26,8 @@ const audioPlayer = ref<HTMLAudioElement | null>(null);
 const audioUrl = ref<string | null>(null);
 const duration = ref(0);
 const currentTime = ref(0);
-const isExpanded = ref(true);
+const isCollapsed = defineModel<boolean>("isCollapsed", { default: false });
+const isVisible = computed(() => !isCollapsed.value);
 let recordingInterval: ReturnType<typeof setInterval> | null = null;
 const startPos = { x: 0, y: 0 };
 
@@ -52,15 +53,32 @@ const emit = defineEmits<{
   (e: "dragStart", event: MouseEvent): void;
 }>();
 
-const stylePosition = computed(() => ({
-  position: "absolute" as const,
-  left: `${props.x}%`,
-  top: `${props.y}%`,
-}));
+const isFlippedX = computed(() => props.x > 85);
+
+const stylePosition = computed(() => {
+  const style: Record<string, string> = {
+    position: "absolute",
+  };
+
+  if (isFlippedX.value) {
+    // Compensate for icon width (5rem) to keep the visual anchor point consistent
+    style.right = `calc(${100 - props.x}% - 5rem)`;
+    style.marginRight = "0";
+    style.maxWidth = `${props.x}%`;
+  } else {
+    style.left = `${props.x}%`;
+    style.marginLeft = "0";
+    style.maxWidth = `${100 - props.x}%`;
+  }
+
+  style.top = `${props.y}%`;
+
+  return style;
+});
 
 // Create URL from Blob when model changes
 const updateAudioUrl = () => {
-  // Revoke previous URL if exists
+  // Revoke previous URL if there is one
   if (audioUrl.value) {
     URL.revokeObjectURL(audioUrl.value);
     audioUrl.value = null;
@@ -88,12 +106,12 @@ const handleIconMouseDown = (event: MouseEvent) => {
 };
 
 const handleIconClick = () => {
-  // If position hasn't changed (much), consider it a click -> toggle
+  // If position hasn't changed, consider it a click -> toggle
   if (
-    Math.abs(props.x - startPos.x) < 0.1 &&
-    Math.abs(props.y - startPos.y) < 0.1
+    Math.abs(props.x - startPos.x) < 1.0 &&
+    Math.abs(props.y - startPos.y) < 1.0
   ) {
-    isExpanded.value = !isExpanded.value;
+    isCollapsed.value = !isCollapsed.value;
   }
 };
 
@@ -103,7 +121,6 @@ const startRecording = async () => {
     const recordingsDir = await join(appData, "voice_notes");
 
     // Ensure directory exists
-    // We use try/catch or check valid logic, but plugin-fs mkdir with recursive is easiest
     const dirExists = await exists("voice_notes", {
       baseDir: BaseDirectory.AppData,
     });
@@ -212,7 +229,7 @@ onUnmounted(() => {
   }
 });
 
-// Watch for changes in the model (e.g. initial load or new recording)
+// Watch for changes in the model
 watch(
   voiceData,
   () => {
@@ -223,17 +240,25 @@ watch(
 </script>
 
 <template>
-  <div class="voice-note" :style="stylePosition">
+  <div
+    class="voice-note"
+    :class="{ 'flipped-x': isFlippedX }"
+    :style="stylePosition"
+  >
     <div
-      class="icon-wrapper"
+      class="icon-wrapper drag-handle-container"
+      :class="isVisible ? 'active' : 'is-collapsed'"
       @mousedown="handleIconMouseDown"
       @click="handleIconClick"
     >
       <VoiceIcon class="voice-icon" />
     </div>
-    <div class="audio-container" v-if="isExpanded">
+    <div class="audio-container" v-if="isVisible">
       <div class="wave-wrapper">
-        <AudioWaveIcon class="wave-icon" />
+        <AudioWaveIcon
+          :isPlaying="isPlaying || isRecording"
+          class="wave-icon"
+        />
       </div>
       <span class="duration">{{ formattedDuration }}</span>
       <div class="recording-container">
@@ -261,6 +286,10 @@ watch(
   width: fit-content;
   gap: 0.5rem;
 }
+
+.voice-note.flipped-x {
+  flex-direction: row-reverse;
+}
 .audio-container {
   display: flex;
   align-items: center;
@@ -271,20 +300,35 @@ watch(
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 .icon-wrapper {
+  height: 5rem;
+  width: 5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: grab;
+  flex-shrink: 0;
 }
-
+.is-collapsed {
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 5rem;
+  color: var(--title-color);
+  transition: all 0.2s linear;
+}
+.is-collapsed:hover,
+.active {
+  background-color: var(--light-green);
+  color: white;
+}
+.active {
+  border-radius: 5rem;
+}
 .icon-wrapper:active {
   cursor: grabbing;
 }
-
 .voice-icon {
-  width: 3rem;
-  height: 3rem;
-  color: var(--title-color);
+  width: 4rem;
+  height: 4rem;
+
+  cursor: pointer;
 }
 
 .wave-wrapper {

@@ -1,5 +1,7 @@
 import { reactive, Reactive, readonly, toRef } from "vue";
-import Breakpoint from "../../../assets/interfaces/BreakpointType";
+import Breakpoint, {
+  BreakpointHook,
+} from "../../../assets/interfaces/BreakpointType";
 import {
   TextContent,
   VoiceContent,
@@ -41,7 +43,7 @@ const useBreakpoint = () => {
     const timeStampExists = _state.breakpoints.find(
       (bp) => bp.timeStamp === timeStamp,
     );
-    if (timeStampExists) return;
+    if (timeStampExists) removeBreakpoint(timeStamp);
     _state.breakpoints.push(newBreakpoint);
     _state.activeBreakpoint = newBreakpoint;
     return newBreakpoint;
@@ -56,6 +58,8 @@ const useBreakpoint = () => {
     content: string,
     position: Position,
     dimensions: Dimensions,
+    invertedX: boolean = false,
+    invertedY: boolean = false,
   ) => {
     const currentBreakpoint = _state.breakpoints.find(
       (bp) => bp.timeStamp === timeStamp,
@@ -68,6 +72,9 @@ const useBreakpoint = () => {
       content,
       position,
       dimensions,
+      invertedX,
+      invertedY,
+      isCollapsed: false,
     };
     if (!currentBreakpoint.textContent) {
       currentBreakpoint.textContent = [newTextContent];
@@ -95,6 +102,7 @@ const useBreakpoint = () => {
       duration,
       position,
       dimensions,
+      isCollapsed: false,
     };
     if (!currentBreakpoint.voiceContent) {
       currentBreakpoint.voiceContent = [newVoiceContent];
@@ -187,7 +195,7 @@ const useBreakpoint = () => {
     return currentId++;
   };
 
-  const exports = {
+  const exports: BreakpointHook = {
     breakpoints: readonly(toRef(_state, "breakpoints")),
     createBreakpoint,
     updateVideoData,

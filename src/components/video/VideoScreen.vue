@@ -63,7 +63,17 @@ const setItemRef = (el: any, id: number) => {
 const handleDragStart = (e: MouseEvent, item: TextContent | VoiceContent) => {
   if (editing.value === "delete") return;
   const component = itemRefs.value[item.id];
-  const element = component?.$el || component;
+  let element = component?.$el || component;
+
+  // For notes, we want to constrain dragging based on the handle, not the full expanded note,
+  // to allow the "flip" logic to work near boundaries without hitting an invisible wall.
+  if (element instanceof HTMLElement) {
+    const handle = element.querySelector(".drag-handle-container");
+    if (handle) {
+      element = handle;
+    }
+  }
+
   if (element && container.value) {
     startDrag(e, item, element, container.value);
   }
@@ -338,9 +348,15 @@ const cursorStyle = computed(() => ({
           :key="item.id"
           :ref="(el) => setItemRef(el, item.id)"
           v-model="(item as TextContent).content"
+          :isCollapsed="(item as TextContent).isCollapsed"
+          @update:isCollapsed="
+            (val) => ((item as TextContent).isCollapsed = val)
+          "
           :x="item.position.left"
           :y="item.position.top"
           :dimensions="item.dimensions"
+          v-model:invertedX="(item as TextContent).invertedX"
+          v-model:invertedY="(item as TextContent).invertedY"
           @dragStart="(e) => handleDragStart(e, item)"
           @update:dimensions="(dims) => (item.dimensions = dims)"
           @click.capture="deleteElement(item.id, 'text', $event)"
@@ -352,6 +368,10 @@ const cursorStyle = computed(() => ({
           :key="item.id"
           :ref="(el) => setItemRef(el, item.id)"
           v-model="(item as VoiceContent).fileBlob"
+          :isCollapsed="(item as VoiceContent).isCollapsed"
+          @update:isCollapsed="
+            (val) => ((item as VoiceContent).isCollapsed = val)
+          "
           :x="item.position.left"
           :y="item.position.top"
           @dragStart="(e) => handleDragStart(e, item)"

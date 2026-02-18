@@ -7,6 +7,7 @@ import AnalysisMenu from "./components/AnalysisMenu.vue";
 import { useVideo } from "./components/store/hooks/useVideo";
 import { videoUrl } from "./components/store/hooks/useFileUpload";
 import useBreakpoint from "./components/store/hooks/useBreakpoint";
+import type { BreakpointHook } from "./assets/interfaces/BreakpointType";
 /* import { invoke } from "@tauri-apps/api/core"; */
 
 const mode: Ref<"replay" | "analysis"> = ref("replay"); // for switching between analysis and replay modes
@@ -14,7 +15,7 @@ const editing: Ref<null | "draw" | "trim" | "text" | "voice" | "delete"> =
   ref(null);
 const videoElement = useTemplateRef("video-playback");
 const playbackControls = useVideo(videoElement);
-const breakpointStore = useBreakpoint();
+const breakpointStore = useBreakpoint() as BreakpointHook;
 const toggleMode = () => {
   if (mode.value === "analysis") {
     mode.value = "replay";

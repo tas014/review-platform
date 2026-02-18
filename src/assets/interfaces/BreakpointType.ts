@@ -1,4 +1,4 @@
-import { Ref } from "vue";
+import { Ref, DeepReadonly } from "vue";
 
 type ElementPosition = {
   top: number;
@@ -17,12 +17,16 @@ type BasicContent = {
 
 interface TextContent extends BasicContent {
   content: string;
+  invertedX?: boolean;
+  invertedY?: boolean;
+  isCollapsed?: boolean;
 }
 
 interface VoiceContent extends BasicContent {
   filename?: string;
   fileBlob?: Blob;
   duration: number;
+  isCollapsed?: boolean;
 }
 
 type Point = {
@@ -53,8 +57,8 @@ type Breakpoint = {
 };
 
 type BreakpointHook = {
-  breakpoints: Readonly<Ref<Breakpoint[]>>;
-  createBreakpoint: (timeStamp: number) => Breakpoint;
+  breakpoints: DeepReadonly<Ref<Breakpoint[]>>;
+  createBreakpoint: (timeStamp?: number) => Breakpoint;
   updateVideoData: (newData: string) => void;
   createTextContent: (
     timeStamp: number,
