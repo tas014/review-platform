@@ -45,12 +45,14 @@ const handleFastForward = () => {
   if (playbackDirection.value === true) return fastForward("loop");
   if (playbackDirection.value !== null) return fastForward();
   breakpointStore.setCurrentBreakpoint(null);
+  fastForward();
 };
 
 const handleRewind = () => {
   if (playbackDirection.value === false) return rewind("loop");
   if (playbackDirection.value !== null) return rewind();
   breakpointStore.setCurrentBreakpoint(null);
+  rewind();
 };
 
 const handlePlayPause = () => {

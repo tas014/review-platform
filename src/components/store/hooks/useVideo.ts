@@ -41,7 +41,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
     const elapsedTime = _currentFrame.value - _startTime.value;
     if (segmentDuration > 0 && elapsedTime >= 0) {
       const rawPercentage = (elapsedTime / segmentDuration) * 100;
-      return Number(rawPercentage.toFixed(2));
+      return rawPercentage;
     }
     // If the elapsed time is outside the segment bounds, return 0 or 100 depending on the case
     if (_currentFrame.value >= _totalDuration.value) return 100;
@@ -89,7 +89,8 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
 
   const play = () => {
     if (!_videoSrc.value) return;
-    if (_progressPercent.value === 100) skipToStart();
+    // If we are at the end (or very close), restart
+    if (_progressPercent.value >= 99.99) skipToStart();
     _setPlayback(1, true);
   };
 
@@ -123,49 +124,54 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
     _videoSrc.value = newSrc;
   };
 
-  // Watch for changes in `_playbackDirection` and update the video element
-  watch(_playbackDirection, (newState) => {
-    if (_videoElementRef.value === null || videoUrl.value === null) return;
-    _clearAllIntervals();
-    _cancelLoop();
-    switch (newState) {
-      case true: // FORWARD (native playback)
-        _videoElementRef.value.playbackRate = _playbackSpeed.value;
-        _videoElementRef.value.play().catch((e) => {
-          const err = _videoElementRef.value?.error;
-          console.error("Video playback failed:", e, {
-            code: err?.code,
-            message: err?.message,
-            src: _videoElementRef.value?.currentSrc,
-          });
-        });
-        // Start the progress reporting loop
-        _loop();
-        break;
+  // Watch for changes in playback state (direction or speed)
+  watch(
+    [_playbackDirection, _playbackSpeed],
+    ([newDirection, newSpeed], [oldDirection, oldSpeed]) => {
+      if (_videoElementRef.value === null || videoUrl.value === null) return;
 
-      case false: // REWIND (tauri doesnt support negative playback so I use reverse seeking workaround)
-        _videoElementRef.value.pause();
-        _playReverseSeek();
-        break;
+      // If nothing changed effectively (e.g. speed changed but we are paused), do minimal work
+      // checking strict equality for direction and speed
+      if (newDirection === oldDirection && newSpeed === oldSpeed) return;
 
-      case null: // PAUSED
-        _videoElementRef.value.pause();
-        _currentFrame.value = _videoElementRef.value.currentTime;
-        break;
-    }
-  });
+      _clearAllIntervals();
+      _cancelLoop();
 
-  // Watch for changes in playback speed and apply them to element
-  watch(_playbackSpeed, (newSpeed) => {
-    if (!_videoElementRef.value || !videoUrl.value) return;
-    if (_playbackDirection.value)
-      _videoElementRef.value.playbackRate = newSpeed;
-    if (_playbackDirection.value === false) _playReverseSeek(newSpeed);
-  });
+      switch (newDirection) {
+        case true: // FORWARD
+          if (newSpeed === 1) {
+            // Normal 1x playback uses native play
+            _videoElementRef.value.playbackRate = 1;
+            _videoElementRef.value.play().catch((e) => {
+              const err = _videoElementRef.value?.error;
+              console.error("Video playback failed:", e, {
+                code: err?.code,
+                message: err?.message,
+                src: _videoElementRef.value?.currentSrc,
+              });
+            });
+            // Start the progress reporting loop
+            _loop();
+          } else {
+            // Fast forward (>1x) uses manual seeking
+            _videoElementRef.value.pause();
+            _playManualSeek(newSpeed, true);
+          }
+          break;
 
-  watch(_progressPercent, (progress) => {
-    if (progress === 100) pause();
-  });
+        case false: // REWIND
+          _videoElementRef.value.pause();
+          _playManualSeek(newSpeed, false);
+          break;
+
+        case null: // PAUSED
+          _videoElementRef.value.pause();
+          _currentFrame.value = _videoElementRef.value.currentTime;
+          break;
+      }
+    },
+    { flush: "post" },
+  );
 
   // --- Private Utility Methods ---
 
@@ -213,7 +219,14 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
     }
   };
 
-  const _playReverseSeek = (rate: PlaybackSpeed = 1) => {
+  /**
+   * Manually seeks the video to simulate playback at a specific speed and direction.
+   * Used for Rewind (all speeds) and Fast Forward (>1x).
+   */
+  const _playManualSeek = (
+    rate: PlaybackSpeed = 1,
+    direction: boolean = false, // false = reverse, true = forward
+  ) => {
     const TARGET_FPS = 30;
     const INTERVAL_MS = 1000 / TARGET_FPS;
 
@@ -223,20 +236,40 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
       _videoElementRef.value.playbackRate = 1;
     }
     // reactive state for UI display
-    _playbackDirection.value = false;
+    _playbackDirection.value = direction;
     _playbackSpeed.value = rate;
 
     _intervalTracker = setInterval(() => {
       const video = _videoElementRef.value;
       if (!video) return;
-      // Check if we hit the start of the video or the trimStart
-      if (video.currentTime <= _startTime.value) {
-        video.currentTime = _startTime.value;
-        pause(); // Stop at the custom start point
-        return;
-      }
+
       const jumpSeconds = (rate * INTERVAL_MS) / 1000;
-      video.currentTime -= jumpSeconds;
+
+      if (!direction) {
+        // REWIND
+        if (video.currentTime <= _startTime.value) {
+          video.currentTime = _startTime.value;
+          pause(); // Stop at the custom start point
+          return;
+        }
+        video.currentTime -= jumpSeconds;
+      } else {
+        // FAST FORWARD
+        const endPoint =
+          _customVideoEnd.value || _totalDuration.value || video.duration;
+
+        const nextTime = video.currentTime + jumpSeconds;
+
+        if (nextTime >= endPoint) {
+          // GStreamer/WebKit can emit warnings if we seek exactly to or past the duration.
+          // Clamp to slightly before the end to be safe.
+          video.currentTime = Math.max(0, endPoint - 0.1);
+          pause();
+          return;
+        }
+        video.currentTime = nextTime;
+      }
+
       // update the reactive frame time
       _currentFrame.value = video.currentTime;
     }, INTERVAL_MS);
