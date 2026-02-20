@@ -5,15 +5,32 @@ import TextMode from "./analysis/TextMode.vue";
 import VoiceMode from "./analysis/VoiceMode.vue";
 import NoBreakpointTemplate from "./analysis/NoBreakpointTemplate.vue";
 import { computed, inject } from "vue";
-import { BreakpointHook } from "../assets/interfaces/BreakpointType";
+import Breakpoint, { BreakpointHook } from "../assets/interfaces/BreakpointType";
 import DeleteMode from "./analysis/DeleteMode.vue";
+import { exportAnalysisFile } from "../utils/exportAnalysis";
+import { videoUrl } from "./store/hooks/useFileUpload";
 
 const breakpointStore = inject("breakpointStore") as BreakpointHook;
+const videoStore = inject("video") as any;
 const hasBreakpoints = computed(() => breakpointStore.breakpoints.value.length > 0);
 const activeBreakpoint = breakpointStore.activeBreakpoint;
 const deleteBreakpoint = () => {
   if (activeBreakpoint.value) {
     breakpointStore.removeBreakpoint(activeBreakpoint.value.timeStamp);
+  }
+};
+
+const handleExport = async () => {
+  const isExported = await exportAnalysisFile(
+    videoUrl.value,
+    breakpointStore.breakpoints.value as unknown as Breakpoint[],
+    videoStore.playbackControls.videoStart.value,
+    videoStore.playbackControls.totalDuration.value
+  );
+  if (isExported) {
+    console.log("Analysis exported successfully!");
+  } else {
+    console.error("Analysis export failed.");
   }
 };
 </script>
@@ -40,7 +57,7 @@ const deleteBreakpoint = () => {
     </div>
     <div class="analysis-buttons">
       <button class="delete-breakpoint btn" @click="deleteBreakpoint">Delete <br></br>Breakpoint</button>
-      <button class="export-analysis btn">Export <br></br>Analysis File</button>
+      <button class="export-analysis btn" @click="handleExport">Export <br></br>Analysis File</button>
     </div>
   </section>
 </template>

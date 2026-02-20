@@ -181,6 +181,28 @@ const useBreakpoint = () => {
     }
   };
 
+  const loadBreakpointData = (breakpoints: Breakpoint[]) => {
+    _state.breakpoints = breakpoints;
+
+    // Update currentId based on the highest ID found in the imported data
+    // to avoid ID collisions when new items are added
+    let maxId = 0;
+    breakpoints.forEach((bp) => {
+      if (bp.textContent) {
+        bp.textContent.forEach((tc) => (maxId = Math.max(maxId, tc.id)));
+      }
+      if (bp.voiceContent) {
+        bp.voiceContent.forEach((vc) => (maxId = Math.max(maxId, vc.id)));
+      }
+      if (bp.drawingContent) {
+        maxId = Math.max(maxId, bp.drawingContent.id);
+      }
+    });
+    currentId = maxId + 1;
+
+    _state.activeBreakpoint = null;
+  };
+
   // private methods
 
   /* const _setCurrentId = (newId?: number) => {
@@ -207,6 +229,7 @@ const useBreakpoint = () => {
     removeAllBreakpoints,
     resetBreakpointState,
     cleanupBreakpoints,
+    loadBreakpointData,
     activeBreakpoint: toRef(_state, "activeBreakpoint"),
   };
 

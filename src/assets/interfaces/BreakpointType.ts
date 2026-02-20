@@ -84,6 +84,7 @@ type BreakpointHook = {
   removeAllBreakpoints: () => void;
   resetBreakpointState: () => void;
   cleanupBreakpoints: (minTime: number, maxTime: number) => void;
+  loadBreakpointData: (breakpoints: Breakpoint[]) => void;
   activeBreakpoint: Ref<Breakpoint | null>;
 };
 

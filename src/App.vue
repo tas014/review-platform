@@ -5,7 +5,7 @@ import VideoComponent from "./components/video/VideoComponent.vue";
 import VideoPlaceholder from "./components/video/VideoPlaceholder.vue";
 import AnalysisMenu from "./components/AnalysisMenu.vue";
 import { useVideo } from "./components/store/hooks/useVideo";
-import { videoUrl } from "./components/store/hooks/useFileUpload";
+import { videoUrl, analysisData } from "./components/store/hooks/useFileUpload";
 import useBreakpoint from "./components/store/hooks/useBreakpoint";
 import type { BreakpointHook } from "./assets/interfaces/BreakpointType";
 /* import { invoke } from "@tauri-apps/api/core"; */
@@ -26,7 +26,22 @@ const toggleMode = () => {
 
 const updateVideoElement = () => {
   playbackControls.initializePlayback();
-  breakpointStore.resetBreakpointState();
+
+  if (analysisData.value) {
+    breakpointStore.loadBreakpointData(analysisData.value.breakpoints);
+    if (
+      analysisData.value.videoStart !== null &&
+      analysisData.value.videoEnd !== null
+    ) {
+      playbackControls.setTrim(
+        analysisData.value.videoStart,
+        analysisData.value.videoEnd,
+      );
+    }
+    analysisData.value = null; // Clear to prevent re-applying
+  } else {
+    breakpointStore.resetBreakpointState();
+  }
 };
 provide("mode", {
   mode,
