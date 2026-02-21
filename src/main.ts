@@ -1,6 +1,5 @@
 import { createApp } from "vue";
 import App from "./App.vue";
-import "primeicons/primeicons.css";
 import { remove, readDir, exists, BaseDirectory } from "@tauri-apps/plugin-fs";
 
 const cleanupVoiceNotes = async () => {
