@@ -1,7 +1,7 @@
 <template>
   <div class="no-breakpoint-wrapper">
-    <h1>No breakpoints detected</h1>
-    <p>Create a breakpoint to use the analysis tools!</p>
+    <h1>No breakpoint detected</h1>
+    <p>Create or select a breakpoint to use the analysis tools!</p>
   </div>
 </template>
 <style scoped>

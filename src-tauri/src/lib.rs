@@ -30,7 +30,6 @@ fn start_video_server() {
             }
         };
         *SERVER_PORT.lock().unwrap() = port;
-        eprintln!("Video server listening on http://127.0.0.1:{}", port);
 
         for request in server.incoming_requests() {
             let url = request.url().to_string();

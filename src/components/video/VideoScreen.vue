@@ -32,13 +32,8 @@ const activeBreakpoint = breakpointStore.activeBreakpoint;
 // State
 const container = ref<HTMLElement | null>(null);
 
-const {
-  isDrawing,
-  currentVector,
-  drawingRef,
-  finishDrawing,
-  checkDrawingCollision,
-} = useVideoDrawing(activeBreakpoint, breakpointStore);
+const { isDrawing, currentVector, finishDrawing, checkDrawingCollision } =
+  useVideoDrawing(activeBreakpoint, breakpointStore);
 
 const {
   isDeleting,
@@ -70,8 +65,7 @@ const handleDragStart = (e: MouseEvent, item: TextContent | VoiceContent) => {
   const component = itemRefs.value[item.id] as any;
   let element = component && "$el" in component ? component.$el : component;
 
-  // For notes, we want to constrain dragging based on the handle, not the full expanded note,
-  // to allow the "flip" logic to work near boundaries without hitting an invisible wall.
+  // constrain dragging based on the handle, not the full expanded note
   if (element instanceof HTMLElement) {
     const handle = element.querySelector(".drag-handle-container");
     if (handle) {
@@ -98,8 +92,6 @@ const updateMousePosition = (e: MouseEvent) => {
       const normX = elementX.value / rect.width;
       const normY = elementY.value / rect.height;
 
-      // We pass a dummy redraw function because Drawing.vue watches the vectors
-      // and schedules its own redraws.
       continueDrawing(
         normX,
         normY,
@@ -267,16 +259,14 @@ const cursorStyle = computed(() => ({
                 : 'auto',
           }"
           :ref="(el) => setItemRef(el as any, item.id)"
-          v-model="(item as TextContent).content"
-          :isCollapsed="(item as TextContent).isCollapsed"
-          @update:isCollapsed="
-            (val) => ((item as TextContent).isCollapsed = val)
-          "
+          v-model="item.content"
+          :isCollapsed="item.isCollapsed"
+          @update:isCollapsed="(val) => (item.isCollapsed = val)"
           :x="item.position.left"
           :y="item.position.top"
           :dimensions="item.dimensions"
-          v-model:invertedX="(item as TextContent).invertedX"
-          v-model:invertedY="(item as TextContent).invertedY"
+          v-model:invertedX="item.invertedX"
+          v-model:invertedY="item.invertedY"
           @dragStart="(e) => handleDragStart(e, item)"
           @update:dimensions="(dims) => (item.dimensions = dims)"
           @click.capture="deleteElement(item.id, 'text', $event)"
@@ -293,11 +283,9 @@ const cursorStyle = computed(() => ({
                 : 'auto',
           }"
           :ref="(el) => setItemRef(el as any, item.id)"
-          v-model="(item as VoiceContent).fileBlob"
-          :isCollapsed="(item as VoiceContent).isCollapsed"
-          @update:isCollapsed="
-            (val) => ((item as VoiceContent).isCollapsed = val)
-          "
+          v-model="item.fileBlob"
+          :isCollapsed="item.isCollapsed"
+          @update:isCollapsed="(val) => (item.isCollapsed = val)"
           :x="item.position.left"
           :y="item.position.top"
           @dragStart="(e) => handleDragStart(e, item)"

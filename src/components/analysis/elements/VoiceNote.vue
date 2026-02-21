@@ -144,7 +144,6 @@ const startRecording = async () => {
     await pluginStart({
       outputPath: filePath,
     });
-    console.log("Recording started:", filePath);
     isRecording.value = true;
     duration.value = 0;
     currentTime.value = 0;
@@ -162,7 +161,6 @@ const startRecording = async () => {
 const stopRecording = async () => {
   try {
     const result = await pluginStop();
-    console.log("Recording stopped:", result);
     isRecording.value = false;
 
     if (recordingInterval) {
@@ -177,7 +175,6 @@ const stopRecording = async () => {
     // Update the model with the new Blob
     voiceData.value = audioBlob;
   } catch (error) {
-    console.error("Error stopping recording:", error);
     isRecording.value = false;
     if (recordingInterval) {
       clearInterval(recordingInterval);

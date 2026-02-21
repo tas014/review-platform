@@ -21,17 +21,12 @@ const deleteBreakpoint = () => {
 };
 
 const handleExport = async () => {
-  const isExported = await exportAnalysisFile(
+  await exportAnalysisFile(
     videoUrl.value,
     breakpointStore.breakpoints.value as unknown as Breakpoint[],
     videoStore.playbackControls.videoStart.value,
     videoStore.playbackControls.totalDuration.value
   );
-  if (isExported) {
-    console.log("Analysis exported successfully!");
-  } else {
-    console.error("Analysis export failed.");
-  }
 };
 </script>
 <template>

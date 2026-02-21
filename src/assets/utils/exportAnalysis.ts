@@ -13,7 +13,6 @@ export const exportAnalysisFile: AnalysisExportFunction = async (
   videoEnd,
 ): Promise<boolean> => {
   if (!videoUrl) {
-    console.error("No video loaded to export");
     return false;
   }
 

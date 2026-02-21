@@ -19,7 +19,6 @@ const cleanupVoiceNotes = async () => {
           await remove(`voice_notes/${entry.name}`, {
             baseDir: BaseDirectory.AppData,
           });
-          console.log(`Cleaned up temp audio file: ${entry.name}`);
         }
       }
     }

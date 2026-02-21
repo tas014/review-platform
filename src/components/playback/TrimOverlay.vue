@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onUnmounted } from "vue";
+import { startTrimDrag, cleanupTrimDrag } from "../../assets/utils/handleTrim";
 
 const props = defineProps<{
   trimStartPercent: number;
@@ -12,50 +13,29 @@ const emit = defineEmits<{
 }>();
 
 const container = ref<HTMLElement | null>(null);
-const isDraggingStart = ref(false);
-const isDraggingEnd = ref(false);
 
 const handleMouseDownStart = () => {
-  isDraggingStart.value = true;
-  document.addEventListener("mousemove", handleMouseMove);
-  document.addEventListener("mouseup", handleMouseUp);
+  startTrimDrag(
+    "start",
+    container.value,
+    props.trimStartPercent,
+    props.trimEndPercent,
+    emit,
+  );
 };
 
 const handleMouseDownEnd = () => {
-  isDraggingEnd.value = true;
-  document.addEventListener("mousemove", handleMouseMove);
-  document.addEventListener("mouseup", handleMouseUp);
-};
-
-const handleMouseMove = (e: MouseEvent) => {
-  if (!container.value) return;
-  const rect = container.value.getBoundingClientRect();
-  let percent = ((e.clientX - rect.left) / rect.width) * 100;
-
-  // Clamp 0-100
-  percent = Math.max(0, Math.min(100, percent));
-
-  if (isDraggingStart.value) {
-    // Prevent crossing end
-    percent = Math.min(percent, props.trimEndPercent - 1);
-    emit("update:trimStartPercent", percent);
-  } else if (isDraggingEnd.value) {
-    // Prevent crossing start
-    percent = Math.max(percent, props.trimStartPercent + 1);
-    emit("update:trimEndPercent", percent);
-  }
-};
-
-const handleMouseUp = () => {
-  isDraggingStart.value = false;
-  isDraggingEnd.value = false;
-  document.removeEventListener("mousemove", handleMouseMove);
-  document.removeEventListener("mouseup", handleMouseUp);
+  startTrimDrag(
+    "end",
+    container.value,
+    props.trimStartPercent,
+    props.trimEndPercent,
+    emit,
+  );
 };
 
 onUnmounted(() => {
-  document.removeEventListener("mousemove", handleMouseMove);
-  document.removeEventListener("mouseup", handleMouseUp);
+  cleanupTrimDrag();
 });
 </script>
 

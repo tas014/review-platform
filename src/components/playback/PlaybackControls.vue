@@ -59,7 +59,6 @@ const handleRewind = () => {
 
 const handlePlayPause = () => {
   if (!videoSrc.value) return;
-  console.log(isPlaying.value);
   if (playbackDirection.value === null) {
     breakpointStore.setCurrentBreakpoint(null);
     return play();

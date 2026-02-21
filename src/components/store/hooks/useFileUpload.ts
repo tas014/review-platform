@@ -73,7 +73,6 @@ const selectVideo = async () => {
 
           videoUrl.value = `http://127.0.0.1:${port}${encodeURI(tempVideoPath)}`;
           videoName.value = fileName;
-          console.log("Analysis loaded successfully");
         } else {
           throw new Error("Invalid .an archive: missing video file");
         }
@@ -81,10 +80,8 @@ const selectVideo = async () => {
         videoUrl.value = filePath;
         videoName.value = fileName;
         analysisData.value = null;
-        console.log("Video loaded successfully with URL:", videoUrl.value);
       }
     } else {
-      console.log("No file selected.");
       videoUrl.value = null;
       videoName.value = null;
       analysisData.value = null;
