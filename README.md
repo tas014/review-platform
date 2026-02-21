@@ -2,17 +2,17 @@
 
 This is a project made to help gamers review their games and theorize about creative solutions to their everyday in-game problems. Review your gameplay, use the analysis tools to better visualize your thoughts, and export them as analysis files to keep them or share with friends or coaches!
 
-## Required Dependencies
-
-- [nodejs and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-- [Visual Studio IDE](https://visualstudio.microsoft.com/downloads/):
-  - This app uses Tauri and Vue, and it needs some of the Visual Studio C++ dependencies in order to compile and build both the test environment and the build.
-
 ## Running the app
 
 Go to the releases section and download your preferred method of installing depending on your Operative system. This app works for Linux, MacOS and Windows!
 
-### Installing for developement
+## Installing for developement
+
+### Required Dependencies
+
+- [nodejs and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+- [Visual Studio IDE](https://visualstudio.microsoft.com/downloads/):
+  - This app uses Tauri and Vue, and it needs some of the Visual Studio C++ dependencies in order to compile and build both the test environment and the build.
 
 Clone the repository, run one of the following:
 
