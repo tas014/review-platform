@@ -10,7 +10,9 @@ This is a project made to help gamers review their games and theorize about crea
 
 ## Running the app
 
-### Installing
+Go to the releases section and download your preferred method of installing depending on your Operative system. This app works for Linux, MacOS and Windows!
+
+### Installing for developement
 
 Clone the repository, run one of the following:
 
@@ -32,4 +34,4 @@ Or run the build command with one of:
 
 ### Usage
 
-There's not a whole lot yet, there's only basic playback and file selection as well as basic mode switching. None of the Analysis tools do anything yet, it's just a template for future development. This app is intended to be used as a desktop application, so make sure you run a tauri dev environment or build instead of viewing it in the local browser port vue creates, since the file uploading won't work there.
+Select a video file to review or load an existing .an file, this will enable the playback controls and allow you to create breakpoints across the video timeline while in analysis mode. each breakpoint can have drawings, text and voice notes for you to visualize, explain and eventually store or share your gameplay analysis! In order to export an analysis file, simply create a breakpoint and click "export analysis file", and you will be prompted to save a .an file that will keep all the data you used for your gameplay analysis exactly as you made it!
