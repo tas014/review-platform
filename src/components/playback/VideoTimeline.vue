@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, computed, inject } from "vue";
-import Breakpoint, {
-  BreakpointHook,
-} from "../../assets/interfaces/BreakpointType";
+import { BreakpointHook } from "../../assets/interfaces/BreakpointType";
 import VideoInjection from "../../assets/interfaces/VideoState";
 import TimelineHandle from "./TimelineHandle.vue";
 import ModeState from "../../assets/interfaces/ModeState";
@@ -33,7 +31,12 @@ const breakpoints = computed(() => {
     return percent >= 0 && percent <= 100;
   });
 });
-const { totalDuration: duration, currentTime, videoStart } = playbackControls;
+const {
+  totalDuration: duration,
+  currentTime,
+  videoStart,
+  videoSrc,
+} = playbackControls;
 const editing = inject("editing") as any;
 
 const progressBar = ref<HTMLElement | null>(null);
@@ -67,15 +70,15 @@ const frameToPercentage = (frame: number) => {
   return (((frame - start) / segmentDuration) * 100).toFixed(2);
 };
 
-const jumpToBreakpoint = (breakpoint: Breakpoint) => {
+const jumpToBreakpoint = (timeStamp: number) => {
   if (!playbackControls.totalDuration.value) return;
   const start = videoStart.value || 0;
   const total = playbackControls.totalDuration.value;
   const segmentDuration = total - start;
 
-  const percent = (breakpoint.timeStamp - start) / segmentDuration;
+  const percent = (timeStamp - start) / segmentDuration;
   props.skipToTime(percent);
-  currentBreakpoint.value = breakpoint.timeStamp;
+  currentBreakpoint.value = timeStamp;
   isSeeking.value = false;
 };
 
@@ -87,26 +90,28 @@ const transitionTimeValue = computed(() => {
 });
 let isDragging = false;
 const handleTimeLineClick = (event: MouseEvent) => {
-  if (isDragging || !timelineContainer.value) return; // Ignore if click is part of a drag
+  if (isDragging || !timelineContainer.value || !videoSrc.value) return; // Ignore if click is part of a drag
   isSeeking.value = true;
   const timelineRect = timelineContainer.value.getBoundingClientRect();
   const clickX = event.clientX;
 
   // Calculate position as a percentage (0 to 1)
-  const percent = (clickX - timelineRect.left) / timelineRect.width;
+  let percent = (clickX - timelineRect.left) / timelineRect.width;
+  percent = Math.max(0, Math.min(1, percent));
   props.skipToTime(percent);
   currentBreakpoint.value = null; // Deselect breakpoint
   isSeeking.value = false;
 };
 
 const startDrag = () => {
+  if (!videoSrc.value) return;
   isDragging = true;
   isSeeking.value = true;
   props.pause(); // Pause video while dragging
 };
 
 const handleDrag = (event: MouseEvent) => {
-  if (!isDragging || !timelineContainer.value) return;
+  if (!isDragging || !timelineContainer.value || !videoSrc.value) return;
 
   const timelineRect = timelineContainer.value.getBoundingClientRect();
   let percent = (event.clientX - timelineRect.left) / timelineRect.width;
@@ -136,6 +141,7 @@ onUnmounted(() => {
 <template>
   <div
     class="playback-progress"
+    :class="{ 'not-allowed': !videoSrc }"
     :style="`--video-progress: ${progress}%; --transition-time: ${transitionTimeValue}`"
     ref="timelineContainer"
     @click="handleTimeLineClick"
@@ -168,7 +174,7 @@ onUnmounted(() => {
       :key="breakpoint.timeStamp"
       class="breakpoint"
       :style="`--video-position: ${frameToPercentage(breakpoint.timeStamp)}%`"
-      @click.stop="jumpToBreakpoint(breakpoint)"
+      @click.stop="jumpToBreakpoint(breakpoint.timeStamp)"
     ></div>
   </div>
 </template>
@@ -182,6 +188,9 @@ onUnmounted(() => {
   position: relative;
   z-index: 1;
   cursor: pointer;
+}
+.playback-progress.not-allowed {
+  cursor: not-allowed;
 }
 .playback-progress::before {
   content: "";

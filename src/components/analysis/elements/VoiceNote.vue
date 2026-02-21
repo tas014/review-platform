@@ -133,11 +133,11 @@ const startRecording = async () => {
 
     /* 
       Audio files are stored in the application data directory:
-      Linux: ~/.local/share/com.franc.review-platform/voice_notes/
-      macOS: ~/Library/Application Support/com.franc.review-platform/voice_notes/
-      Windows: %APPDATA%\com.franc.review-platform\voice_notes\
+      Linux: ~/.local/share/creative/voice_notes/
+      macOS: ~/Library/Application Support/creative/voice_notes/
+      Windows: %APPDATA%\creative\voice_notes\
       
-      These files persist until manually deleted.
+      This folder is cleared on app startup.
     */
     const filePath = await join(recordingsDir, `recording_${Date.now()}`);
 
@@ -359,7 +359,7 @@ watch(
 .duration {
   color: var(--text-color);
   font-size: 0.8em;
-  min-width: 3rem;
+  min-width: 5rem;
   text-align: center;
 }
 

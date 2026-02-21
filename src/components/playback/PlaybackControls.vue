@@ -33,15 +33,16 @@ const {
   skipToStart,
   skipToEnd,
   skipToTime,
-  setTrim, // Inject setTrim
+  setTrim,
   videoStart,
+  videoSrc,
 } = playbackControls;
 
-// Trim State
 const trimStart = ref(0);
 const trimEnd = ref(100);
 
 const handleFastForward = () => {
+  if (!videoSrc.value) return;
   if (playbackDirection.value === true) return fastForward("loop");
   if (playbackDirection.value !== null) return fastForward();
   breakpointStore.setCurrentBreakpoint(null);
@@ -49,6 +50,7 @@ const handleFastForward = () => {
 };
 
 const handleRewind = () => {
+  if (!videoSrc.value) return;
   if (playbackDirection.value === false) return rewind("loop");
   if (playbackDirection.value !== null) return rewind();
   breakpointStore.setCurrentBreakpoint(null);
@@ -56,6 +58,7 @@ const handleRewind = () => {
 };
 
 const handlePlayPause = () => {
+  if (!videoSrc.value) return;
   console.log(isPlaying.value);
   if (playbackDirection.value === null) {
     breakpointStore.setCurrentBreakpoint(null);
@@ -84,22 +87,12 @@ const confirmTrim = () => {
 
   // Calculate new absolute start/end
   const newAbsoluteStart = currentAbsoluteStart + startOffset;
-  // The end offset is relative to the start of the *current segment*, so we add it to currentAbsoluteStart
-  // However, `setTrim` likely expects the *end offset relative to the current segment start*.
-  // Let's look at `setTrim` in `useVideo`:
-  // const newStart = currentAbsoluteStart + start;
-  // const newEnd = currentAbsoluteStart + end;
-  // So `setTrim` expects `start` and `end` to be relative offsets from `currentAbsoluteStart`.
 
   setTrim(startOffset, endOffset);
 
-  // cleanupBreakpoints expects absolute timestamps
-  // newAbsoluteEnd is calculated as start + endOffset because endOffset is relative to start
   const newAbsoluteEnd = currentAbsoluteStart + endOffset;
 
   breakpointStore.cleanupBreakpoints(newAbsoluteStart, newAbsoluteEnd);
-
-  // Reset after confirming
   trimStart.value = 0;
   trimEnd.value = 100;
   editing.value = null;
@@ -119,27 +112,31 @@ const confirmTrim = () => {
       v-model:trimStartPercent="trimStart"
       v-model:trimEndPercent="trimEnd"
     />
-    <div class="playback-controls" v-if="editing !== 'trim'">
-      <div class="controls-container">
-        <SkipToStart @click="skipToStart" />
-        <Rewind
-          :isRewinding="playbackDirection === false"
-          :rewindSpeed="playbackSpeed"
-          @click="handleRewind"
-        />
-        <PlayPause :isPlaying="isPlaying" @click="handlePlayPause" />
-        <FastForward
-          :isFastForwarding="playbackDirection === true && playbackSpeed !== 1"
-          :fastForwardSpeed="playbackSpeed"
-          @click="handleFastForward"
-        />
-        <SkipToEnd @click="skipToEnd"></SkipToEnd>
+    <Transition name="fade" mode="out-in">
+      <div class="playback-controls" v-if="editing !== 'trim'">
+        <div class="controls-container" :class="{ 'not-allowed': !videoSrc }">
+          <SkipToStart @click="videoSrc ? skipToStart() : null" />
+          <Rewind
+            :isRewinding="playbackDirection === false"
+            :rewindSpeed="playbackSpeed"
+            @click="handleRewind"
+          />
+          <PlayPause :isPlaying="isPlaying" @click="handlePlayPause" />
+          <FastForward
+            :isFastForwarding="
+              playbackDirection === true && playbackSpeed !== 1
+            "
+            :fastForwardSpeed="playbackSpeed"
+            @click="handleFastForward"
+          />
+          <SkipToEnd @click="videoSrc ? skipToEnd() : null"></SkipToEnd>
+        </div>
       </div>
-    </div>
-    <div class="trim-actions" v-else>
-      <button class="trim-cancel" @click="cancelTrim">Cancel</button>
-      <button class="trim-confirm" @click="confirmTrim">Confirm</button>
-    </div>
+      <div class="trim-actions" v-else>
+        <button class="trim-cancel" @click="cancelTrim">Cancel</button>
+        <button class="trim-confirm" @click="confirmTrim">Confirm</button>
+      </div>
+    </Transition>
   </div>
 </template>
 <style scoped>
@@ -229,5 +226,12 @@ const confirmTrim = () => {
 .icon:hover {
   color: var(--title-color);
   animation: scale 0.3s ease-in-out;
+}
+.not-allowed .icon {
+  cursor: not-allowed !important;
+}
+.not-allowed .icon:hover {
+  color: white !important;
+  animation: none !important;
 }
 </style>

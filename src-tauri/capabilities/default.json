@@ -13,29 +13,55 @@
     {
       "identifier": "fs:allow-read-file",
       "allow": [
-        { "path": "$APP_DATA/**" },
-        { "path": "/home/tas/.local/share/com.franc.review-platform/**" }
+        { "path": "$APPDATA" },
+        { "path": "$APPDATA/*" },
+        { "path": "$APPDATA/**" },
+        { "path": "$TEMP/**" }
       ]
     },
     {
       "identifier": "fs:allow-write-file",
       "allow": [
-        { "path": "$APP_DATA/**" },
-        { "path": "/home/tas/.local/share/com.franc.review-platform/**" }
+        { "path": "$APPDATA" },
+        { "path": "$APPDATA/*" },
+        { "path": "$APPDATA/**" },
+        { "path": "$TEMP/**" }
       ]
     },
     {
       "identifier": "fs:allow-exists",
       "allow": [
-        { "path": "$APP_DATA/**" },
-        { "path": "/home/tas/.local/share/com.franc.review-platform/**" }
+        { "path": "$APPDATA" },
+        { "path": "$APPDATA/*" },
+        { "path": "$APPDATA/**" },
+        { "path": "$TEMP/**" }
       ]
     },
     {
       "identifier": "fs:allow-mkdir",
       "allow": [
-        { "path": "$APP_DATA/**" },
-        { "path": "/home/tas/.local/share/com.franc.review-platform/**" }
+        { "path": "$APPDATA" },
+        { "path": "$APPDATA/*" },
+        { "path": "$APPDATA/**" },
+        { "path": "$TEMP/**" }
+      ]
+    },
+    {
+      "identifier": "fs:allow-read-dir",
+      "allow": [
+        { "path": "$APPDATA" },
+        { "path": "$APPDATA/*" },
+        { "path": "$APPDATA/**" },
+        { "path": "$TEMP/**" }
+      ]
+    },
+    {
+      "identifier": "fs:allow-remove",
+      "allow": [
+        { "path": "$APPDATA" },
+        { "path": "$APPDATA/*" },
+        { "path": "$APPDATA/**" },
+        { "path": "$TEMP/**" }
       ]
     }
   ]

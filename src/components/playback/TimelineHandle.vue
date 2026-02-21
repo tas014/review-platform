@@ -11,6 +11,7 @@ const props = defineProps<{
 
 const { mode } = inject("mode") as ModeState;
 const { playbackControls, videoElement } = inject("video") as VideoInjection;
+const { videoSrc } = playbackControls;
 
 const showBreakpointButton = computed(() => {
   const renderCondition =
@@ -25,7 +26,11 @@ const showBreakpointButton = computed(() => {
 </script>
 <template>
   <div class="progress-wrapper">
-    <div @mousedown.prevent="handleDrag" class="progress-circle"></div>
+    <div
+      @mousedown.prevent="handleDrag"
+      class="progress-circle"
+      :class="{ 'not-allowed': !videoSrc }"
+    ></div>
     <BreakpointButton v-if="showBreakpointButton" />
   </div>
 </template>
@@ -54,5 +59,14 @@ const showBreakpointButton = computed(() => {
 }
 .progress-circle:active {
   cursor: grabbing;
+}
+.progress-circle.not-allowed {
+  cursor: not-allowed;
+}
+.progress-circle.not-allowed:hover {
+  background-color: var(--light-green);
+}
+.progress-circle.not-allowed:active {
+  cursor: not-allowed;
 }
 </style>

@@ -8,6 +8,7 @@
     height="800px"
     viewBox="0 0 32 32"
     xml:space="preserve"
+    class="outline"
   >
     <path
       class="sharpcorners_een"
@@ -20,5 +21,9 @@
 <style scoped>
 .sharpcorners_een {
   fill: currentColor;
+}
+.outline,
+.sharpcorners_een {
+  transition: all 0.2s linear;
 }
 </style>

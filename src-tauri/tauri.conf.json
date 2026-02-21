@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "review-platform",
+  "productName": "Creative!",
   "version": "0.1.0",
-  "identifier": "com.franc.review-platform",
+  "identifier": "creative",
   "build": {
     "beforeDevCommand": "yarn dev",
     "devUrl": "http://localhost:1420",
@@ -12,9 +12,12 @@
   "app": {
     "windows": [
       {
-        "title": "review-platform",
-        "width": 800,
-        "height": 600
+        "title": "Creative!",
+        "width": 1280,
+        "height": 720,
+        "minWidth": 1280,
+        "minHeight": 720,
+        "maximized": true
       }
     ],
     "security": {

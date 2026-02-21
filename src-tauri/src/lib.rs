@@ -110,12 +110,14 @@ fn start_video_server() {
             }
 
             // Cap chunk size to 4MB for safety
-            let max_chunk_size = 4 * 1024 * 1024;
-            if (end - start + 1) > max_chunk_size {
-                end = start + max_chunk_size - 1;
+            let mut chunk_len = (end - start + 1) as usize;
+            if status_code == 206 {
+                let max_chunk_size = 4 * 1024 * 1024;
+                if (end - start + 1) > max_chunk_size {
+                    end = start + max_chunk_size - 1;
+                    chunk_len = (end - start + 1) as usize;
+                }
             }
-
-            let chunk_len = (end - start + 1) as usize;
 
             let mut file = file;
             if let Err(_) = file.seek(SeekFrom::Start(start)) {

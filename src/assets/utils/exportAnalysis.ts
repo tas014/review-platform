@@ -1,19 +1,16 @@
 import JSZip from "jszip";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
-import Breakpoint from "../assets/interfaces/BreakpointType";
+import type {
+  AnalysisExportData,
+  AnalysisExportFunction,
+} from "../interfaces/AnalysisFileData";
 
-interface AnalysisExportData {
-  breakpoints: Breakpoint[];
-  videoStart: number | null;
-  videoEnd: number | null;
-}
-
-export const exportAnalysisFile = async (
-  videoUrl: string | null,
-  breakpoints: Breakpoint[],
-  videoStart: number | null,
-  videoEnd: number | null,
+export const exportAnalysisFile: AnalysisExportFunction = async (
+  videoUrl,
+  breakpoints,
+  videoStart,
+  videoEnd,
 ): Promise<boolean> => {
   if (!videoUrl) {
     console.error("No video loaded to export");
@@ -23,21 +20,17 @@ export const exportAnalysisFile = async (
   try {
     const zip = new JSZip();
 
-    // 1. Fetch the video blob
+    // Fetch the video blob
     const response = await fetch(videoUrl);
     if (!response.ok) throw new Error("Failed to fetch video file");
     const videoBlob = await response.blob();
 
-    // Determine video extension from mime type or URL
+    // Determine video extension from mime type or URL and add to zip
     let extension = "mp4";
     if (videoBlob.type === "video/webm") extension = "webm";
-    // We can also try to parse from the URL if needed, but blob type is safer for HTTP URLs
-
-    // Add video to zip
     zip.file(`video.${extension}`, videoBlob);
 
     // Deep clone the breakpoints so we don't mutate the app state
-    // We cannot use JSON.parse(JSON.stringify()) here because it destroys the Blobs before we can extract them
     const clonedBreakpoints = breakpoints.map((bp) => ({
       ...bp,
       textContent: bp.textContent
@@ -49,9 +42,8 @@ export const exportAnalysisFile = async (
       drawingContent: bp.drawingContent ? { ...bp.drawingContent } : undefined,
     }));
 
-    // 2. Extract audio blobs and prepare JSON data
+    // Extract audio blobs and prepare JSON data
     const audioFolder = zip.folder("audio");
-
     clonedBreakpoints.forEach((bp) => {
       if (bp.voiceContent) {
         bp.voiceContent.forEach((vc) => {
@@ -60,10 +52,8 @@ export const exportAnalysisFile = async (
             const filename = `voice_${vc.id}.webm`;
             vc.filename = filename;
 
-            // Add the actual binary audio data to the zip
+            // Add the actual binary audio data to the zip and delete the blob from the JSON payload since it cannot be serialized
             audioFolder.file(filename, vc.fileBlob);
-
-            // Delete the blob from the JSON payload since it cannot be serialized
             delete vc.fileBlob;
           }
         });
@@ -79,12 +69,12 @@ export const exportAnalysisFile = async (
     // Add data to zip
     zip.file("data.json", JSON.stringify(exportData, null, 2));
 
-    // 3. Generate the zip file blob
+    // Generate the zip file blob
     const zipBlob = await zip.generateAsync({ type: "blob" });
     const arrayBuffer = await zipBlob.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
 
-    // 4. Prompt user to save the file
+    // Prompt user to save the file
     const savePath = await save({
       filters: [
         {
@@ -100,7 +90,7 @@ export const exportAnalysisFile = async (
       return false;
     }
 
-    // 5. Write the file to disk using Tauri FS plugin
+    // Write the file to disk using Tauri FS plugin
     await writeFile(savePath, uint8Array);
 
     return true;

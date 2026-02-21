@@ -37,4 +37,9 @@ const toggleTextMode = () => {
   width: 2.5rem;
   height: 2.5rem;
 }
+.text-mode-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
 </style>

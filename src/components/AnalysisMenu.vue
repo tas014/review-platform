@@ -7,7 +7,7 @@ import NoBreakpointTemplate from "./analysis/NoBreakpointTemplate.vue";
 import { computed, inject } from "vue";
 import Breakpoint, { BreakpointHook } from "../assets/interfaces/BreakpointType";
 import DeleteMode from "./analysis/DeleteMode.vue";
-import { exportAnalysisFile } from "../utils/exportAnalysis";
+import { exportAnalysisFile } from "../assets/utils/exportAnalysis";
 import { videoUrl } from "./store/hooks/useFileUpload";
 
 const breakpointStore = inject("breakpointStore") as BreakpointHook;
@@ -103,6 +103,11 @@ h3 {
 }
 .export-analysis {
   background-color: var(--green);
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+.export-analysis:hover {
+  background-color: var(--light-green);
 }
 .delete-breakpoint {
   background-color: var(--delete-breakpoints-inactive);
@@ -145,9 +150,7 @@ h3 {
 .tool-list li:hover, .selected-tool {
   background-color: var(--light-green);
 }
-.tool-list span {
-  margin-right: 1rem;
-}
+
 .tool-name {
   font-size: var(--mode-size);
 }

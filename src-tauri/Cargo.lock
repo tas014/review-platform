@@ -688,6 +688,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "creative"
+version = "0.1.0"
+dependencies = [
+ "mime_guess",
+ "once_cell",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-audio-recorder",
+ "tauri-plugin-dialog",
+ "tauri-plugin-fs",
+ "tauri-plugin-opener",
+ "tiny_http",
+ "urlencoding",
+]
+
+[[package]]
 name = "crossbeam-channel"
 version = "0.5.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3308,24 +3326,6 @@ dependencies = [
  "wasm-bindgen-futures",
  "wasm-streams",
  "web-sys",
-]
-
-[[package]]
-name = "review-platform"
-version = "0.1.0"
-dependencies = [
- "mime_guess",
- "once_cell",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-audio-recorder",
- "tauri-plugin-dialog",
- "tauri-plugin-fs",
- "tauri-plugin-opener",
- "tiny_http",
- "urlencoding",
 ]
 
 [[package]]

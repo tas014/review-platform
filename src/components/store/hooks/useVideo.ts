@@ -89,8 +89,17 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
 
   const play = () => {
     if (!_videoSrc.value) return;
-    // If we are at the end (or very close), restart
-    if (_progressPercent.value >= 99.99) skipToStart();
+    // If we are within 0.5s of the end (accommodating FF boundaries), restart
+    const isNearEnd =
+      _totalDuration.value &&
+      _currentFrame.value !== null &&
+      _totalDuration.value - _currentFrame.value <= 0.5;
+    if (isNearEnd) {
+      if (_videoElementRef.value !== null && videoUrl.value !== null) {
+        _videoElementRef.value.currentTime = _startTime.value;
+        _currentFrame.value = _startTime.value;
+      }
+    }
     _setPlayback(1, true);
   };
 
@@ -100,6 +109,8 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
   };
 
   const skipToEnd = () => {
+    _clearAllIntervals();
+    _cancelLoop();
     if (!_videoSrc.value) return;
     if (
       _videoElementRef.value === null ||
@@ -113,6 +124,8 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
   };
 
   const skipToStart = () => {
+    _clearAllIntervals();
+    _cancelLoop();
     if (!_videoSrc.value) return;
     if (_videoElementRef.value === null || videoUrl.value === null) return;
     _videoElementRef.value.currentTime = _startTime.value;
@@ -166,7 +179,9 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
 
         case null: // PAUSED
           _videoElementRef.value.pause();
-          _currentFrame.value = _videoElementRef.value.currentTime;
+          if (!_videoElementRef.value.seeking) {
+            _currentFrame.value = _videoElementRef.value.currentTime;
+          }
           break;
       }
     },
@@ -192,9 +207,22 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
 
   const _loop = () => {
     if (!_videoElementRef.value) return;
+
+    if (_videoElementRef.value.seeking) {
+      if (_playbackDirection.value === true) {
+        rafId = requestAnimationFrame(_loop);
+      }
+      return;
+    }
+
     const currentTime = _videoElementRef.value.currentTime;
 
-    if (_customVideoEnd.value && currentTime >= _customVideoEnd.value) {
+    // Only pause if the video is actually playing normally, not if it's currently seeking back to the start
+    if (
+      !_videoElementRef.value.seeking &&
+      _customVideoEnd.value &&
+      currentTime >= _customVideoEnd.value
+    ) {
       _currentFrame.value = _customVideoEnd.value;
       pause();
       return;
@@ -202,7 +230,12 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
 
     _currentFrame.value = currentTime;
 
-    if (_totalDuration.value && currentTime >= _totalDuration.value) {
+    // Only pause if the video is actually playing normally, not if it's currently seeking back to the start
+    if (
+      !_videoElementRef.value.seeking &&
+      _totalDuration.value &&
+      currentTime >= _totalDuration.value
+    ) {
       pause();
       return;
     }
@@ -216,6 +249,7 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
   const _clearAllIntervals = () => {
     if (_intervalTracker) {
       clearInterval(_intervalTracker);
+      _intervalTracker = undefined;
     }
   };
 
@@ -240,6 +274,12 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
     _playbackSpeed.value = rate;
 
     _intervalTracker = setInterval(() => {
+      // Ghost interval check: if the reactive state no longer matches our intended direction, die quietly
+      if (_playbackDirection.value !== direction) {
+        _clearAllIntervals();
+        return;
+      }
+
       const video = _videoElementRef.value;
       if (!video) return;
 
@@ -248,7 +288,9 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
       if (!direction) {
         // REWIND
         if (video.currentTime <= _startTime.value) {
+          _clearAllIntervals();
           video.currentTime = _startTime.value;
+          _currentFrame.value = _startTime.value;
           pause(); // Stop at the custom start point
           return;
         }
@@ -263,7 +305,10 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
         if (nextTime >= endPoint) {
           // GStreamer/WebKit can emit warnings if we seek exactly to or past the duration.
           // Clamp to slightly before the end to be safe.
-          video.currentTime = Math.max(0, endPoint - 0.1);
+          _clearAllIntervals();
+          const targetTime = Math.max(0, endPoint - 0.1);
+          video.currentTime = targetTime;
+          _currentFrame.value = targetTime;
           pause();
           return;
         }
@@ -276,6 +321,8 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
   };
 
   const skipToTime = (percent: number) => {
+    _clearAllIntervals();
+    _cancelLoop();
     if (percent < 0 || percent > 1)
       throw new Error("Percentage must be a number between 0 and 1.");
     if (

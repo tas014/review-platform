@@ -1,15 +1,10 @@
 import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { ref } from "vue";
-import { basename } from "@tauri-apps/api/path";
+import { basename, tempDir, join } from "@tauri-apps/api/path";
+import { writeFile } from "@tauri-apps/plugin-fs";
 import JSZip from "jszip";
-import Breakpoint from "../../../assets/interfaces/BreakpointType";
-
-export interface AnalysisExportData {
-  breakpoints: Breakpoint[];
-  videoStart: number | null;
-  videoEnd: number | null;
-}
+import type { AnalysisExportData } from "../../../assets/interfaces/AnalysisFileData";
 
 const analysisData = ref<null | AnalysisExportData>(null);
 
@@ -35,10 +30,7 @@ const selectVideo = async () => {
       // Get the ephemeral port from the backend
       const port = await invoke<number>("get_video_server_port");
 
-      // Construct local HTTP URL
-      // We must encode the path BUT on Linux/Unix absolute paths start with /
-      // so it becomes http://127.0.0.1:PORT//home/user/...
-      // tiny_http will see path as "//home/user/..." and we decode it.
+      // Construct local HTTP URL (Linux/Unix absolute paths start with / so it becomes http://127.0.0.1:PORT//home/user/...)
       const filePath = `http://127.0.0.1:${port}${encodeURI(selected)}`;
       const fileName = await basename(selected);
 
@@ -74,9 +66,12 @@ const selectVideo = async () => {
           f.name.startsWith("video."),
         );
         if (videoFile) {
-          const videoBlob = await videoFile.async("blob");
-          const videoObjUrl = URL.createObjectURL(videoBlob);
-          videoUrl.value = videoObjUrl;
+          const videoUint8Array = await videoFile.async("uint8array");
+          const systemTempDir = await tempDir();
+          const tempVideoPath = await join(systemTempDir, videoFile.name);
+          await writeFile(tempVideoPath, videoUint8Array);
+
+          videoUrl.value = `http://127.0.0.1:${port}${encodeURI(tempVideoPath)}`;
           videoName.value = fileName;
           console.log("Analysis loaded successfully");
         } else {
@@ -91,6 +86,7 @@ const selectVideo = async () => {
     } else {
       console.log("No file selected.");
       videoUrl.value = null;
+      videoName.value = null;
       analysisData.value = null;
     }
   } catch (error) {

@@ -76,6 +76,11 @@ body {
 }
 
 @media (max-width: 1350px) {
+  :root {
+    --analysis-title-size: 3rem;
+    --analysis-section-title-size: 2.2rem;
+    --mode-size: 2rem;
+  }
   body {
     height: fit-content;
     min-height: 100vw;
