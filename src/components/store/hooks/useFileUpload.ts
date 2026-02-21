@@ -11,6 +11,13 @@ const analysisData = ref<null | AnalysisExportData>(null);
 const videoUrl = ref<null | string>(null);
 const videoName = ref<null | string>(null);
 
+// Helper to safely convert OS paths to URL paths (handles Windows C:\... absolute paths)
+const buildAssetUrl = (port: number, absolutePath: string) => {
+  const cleanPath = absolutePath.replace(/\\/g, "/");
+  const urlPath = cleanPath.startsWith("/") ? cleanPath : `/${cleanPath}`;
+  return `http://127.0.0.1:${port}${encodeURI(urlPath)}`;
+};
+
 const selectVideo = async () => {
   try {
     // Tauri Dialog API opens the file selection window
@@ -30,8 +37,8 @@ const selectVideo = async () => {
       // Get the ephemeral port from the backend
       const port = await invoke<number>("get_video_server_port");
 
-      // Construct local HTTP URL (Linux/Unix absolute paths start with / so it becomes http://127.0.0.1:PORT//home/user/...)
-      const filePath = `http://127.0.0.1:${port}${encodeURI(selected)}`;
+      // Construct local HTTP URL
+      const filePath = buildAssetUrl(port, selected);
       const fileName = await basename(selected);
 
       if (fileName.endsWith(".an")) {
@@ -71,7 +78,7 @@ const selectVideo = async () => {
           const tempVideoPath = await join(systemTempDir, videoFile.name);
           await writeFile(tempVideoPath, videoUint8Array);
 
-          videoUrl.value = `http://127.0.0.1:${port}${encodeURI(tempVideoPath)}`;
+          videoUrl.value = buildAssetUrl(port, tempVideoPath);
           videoName.value = fileName;
         } else {
           throw new Error("Invalid .an archive: missing video file");
