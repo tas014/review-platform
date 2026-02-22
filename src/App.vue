@@ -98,6 +98,8 @@ provide("activeColor", activeColor);
   background-color: black;
   width: 100%;
   height: 100%;
+  position: relative;
+  z-index: 0;
 }
 </style>
 <style>

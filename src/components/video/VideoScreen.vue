@@ -228,6 +228,8 @@ const cursorStyle = computed(() => ({
     @mouseup="onMouseUp"
     @click="handleClick"
   >
+    <slot name="video"></slot>
+
     <div v-if="showCursor" class="cursor-follower" :style="cursorStyle">
       <component
         :is="cursorIcon"
@@ -287,8 +289,6 @@ const cursorStyle = computed(() => ({
         />
       </template>
     </template>
-
-    <slot name="video"></slot>
   </div>
 </template>
 
@@ -298,6 +298,7 @@ const cursorStyle = computed(() => ({
   border-radius: 10px;
   overflow: hidden;
   position: relative;
+  z-index: 1;
 }
 
 .playing {
