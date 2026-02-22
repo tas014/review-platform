@@ -253,10 +253,7 @@ const cursorStyle = computed(() => ({
           v-for="item in activeBreakpoint.textContent"
           :key="item.id"
           :style="{
-            pointerEvents:
-              editing === 'text' || editing === 'voice' || editing === 'draw'
-                ? 'none'
-                : 'auto',
+            pointerEvents: editing !== null ? 'none' : 'auto',
           }"
           :ref="(el) => setItemRef(el as any, item.id)"
           v-model="item.content"
@@ -277,10 +274,7 @@ const cursorStyle = computed(() => ({
           v-for="item in activeBreakpoint.voiceContent"
           :key="item.id"
           :style="{
-            pointerEvents:
-              editing === 'text' || editing === 'voice' || editing === 'draw'
-                ? 'none'
-                : 'auto',
+            pointerEvents: editing !== null ? 'none' : 'auto',
           }"
           :ref="(el) => setItemRef(el as any, item.id)"
           v-model="item.fileBlob"
