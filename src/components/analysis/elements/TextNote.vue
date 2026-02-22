@@ -284,6 +284,7 @@ onUnmounted(() => {
   gap: 1rem;
   width: var(--text-width);
   height: var(--text-height);
+  z-index: 10;
 }
 
 .flipped-x {

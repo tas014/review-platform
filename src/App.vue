@@ -97,7 +97,7 @@ provide("activeColor", activeColor);
 .video {
   background-color: black;
   width: 100%;
-  height: 75vh;
+  height: 100%;
 }
 </style>
 <style>

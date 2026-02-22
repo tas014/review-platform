@@ -282,6 +282,7 @@ watch(
   align-items: center;
   width: fit-content;
   gap: 0.5rem;
+  z-index: 10;
 }
 
 .voice-note.flipped-x {
