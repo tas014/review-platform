@@ -177,6 +177,7 @@ const handleClick = (e: MouseEvent) => {
       position,
       dimensions,
     );
+    editing.value = null;
   } else if (editing.value === "voice") {
     breakpointStore.createVoiceContent(
       activeBreakpoint.value.timeStamp,
@@ -185,6 +186,7 @@ const handleClick = (e: MouseEvent) => {
       dimensions,
       0,
     );
+    editing.value = null;
   }
 };
 
@@ -224,7 +226,11 @@ const cursorStyle = computed(() => ({
     ref="container"
     :class="[
       'video-container',
-      { playing: isPlaying, 'custom-cursor': showCursor },
+      {
+        playing: isPlaying,
+        'custom-cursor': showCursor,
+        'is-trimming': editing === 'trim',
+      },
     ]"
     @mousemove="updateMousePosition"
     @mouseenter="onMouseEnter"
@@ -304,6 +310,23 @@ const cursorStyle = computed(() => ({
   overflow: hidden;
   position: relative;
   z-index: 1;
+}
+
+.video-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0);
+  pointer-events: none;
+  z-index: 2; /* Sits above the video but below notes/trim handles */
+  transition: background-color 1s ease;
+}
+
+.is-trimming::after {
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 .playing {

@@ -343,7 +343,13 @@ export function useVideo(initialSrc: VideoRef = ref(null)): VideoHook {
     pause();
   };
 
-  const setTrim = (start: number, end: number) => {
+  const setTrim = (start: number | null, end: number | null) => {
+    if (start === null || end === null) {
+      _customVideoStart.value = null;
+      _customVideoEnd.value = null;
+      return;
+    }
+
     // start and end are relative to the current visible clip (which starts at _startTime)
     const currentAbsoluteStart = _startTime.value || 0;
 

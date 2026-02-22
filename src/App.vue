@@ -18,6 +18,7 @@ const breakpointStore = useBreakpoint() as BreakpointHook;
 const toggleMode = () => {
   if (mode.value === "analysis") {
     mode.value = "replay";
+    editing.value = null;
   } else {
     mode.value = "analysis";
   }
@@ -25,6 +26,10 @@ const toggleMode = () => {
 
 const updateVideoElement = () => {
   playbackControls.initializePlayback();
+
+  // Always wipe previous breakpoints and trims when a new video/file is loaded
+  breakpointStore.resetBreakpointState();
+  playbackControls.setTrim(null, null);
 
   if (analysisData.value) {
     breakpointStore.loadBreakpointData(analysisData.value.breakpoints);
@@ -38,8 +43,6 @@ const updateVideoElement = () => {
       );
     }
     analysisData.value = null; // Clear to prevent re-applying
-  } else {
-    breakpointStore.resetBreakpointState();
   }
 };
 provide("mode", {
