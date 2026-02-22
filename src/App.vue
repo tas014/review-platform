@@ -5,7 +5,11 @@ import VideoComponent from "./components/video/VideoComponent.vue";
 import VideoPlaceholder from "./components/video/VideoPlaceholder.vue";
 import AnalysisMenu from "./components/AnalysisMenu.vue";
 import { useVideo } from "./components/store/hooks/useVideo";
-import { videoUrl, analysisData } from "./components/store/hooks/useFileUpload";
+import {
+  videoUrl,
+  analysisData,
+  isLoading,
+} from "./components/store/hooks/useFileUpload";
 import useBreakpoint from "./components/store/hooks/useBreakpoint";
 import type { BreakpointHook } from "./assets/interfaces/BreakpointType";
 
@@ -61,6 +65,10 @@ provide("activeColor", activeColor);
 </script>
 
 <template>
+  <div v-if="isLoading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Loading file...</p>
+  </div>
   <Modes />
   <main class="container">
     <div
@@ -130,6 +138,38 @@ provide("activeColor", activeColor);
 @media (max-width: 1350px) {
   .container {
     height: fit-content;
+  }
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  color: white;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--light-green);
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

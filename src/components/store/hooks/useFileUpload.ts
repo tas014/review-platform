@@ -10,6 +10,7 @@ const analysisData = ref<null | AnalysisExportData>(null);
 
 const videoUrl = ref<null | string>(null);
 const videoName = ref<null | string>(null);
+const isLoading = ref<boolean>(false);
 
 // Helper to safely convert OS paths to URL paths (handles Windows C:\... absolute paths)
 const buildAssetUrl = (port: number, absolutePath: string) => {
@@ -34,6 +35,9 @@ const selectVideo = async () => {
 
     // Check if the user selected a file
     if (typeof selected === "string") {
+      isLoading.value = true;
+      videoUrl.value = null; // Unmount current video so the new one triggers @loadedmetadata
+
       // Get the ephemeral port from the backend
       const port = await invoke<number>("get_video_server_port");
 
@@ -89,13 +93,14 @@ const selectVideo = async () => {
         analysisData.value = null;
       }
     } else {
-      videoUrl.value = null;
-      videoName.value = null;
-      analysisData.value = null;
+      // User canceled the file selection, so we retain the current file on screen.
+      return;
     }
   } catch (error) {
     console.error("Error opening file dialog or converting path:", error);
+  } finally {
+    isLoading.value = false;
   }
 };
 
-export { videoUrl, videoName, analysisData, selectVideo };
+export { videoUrl, videoName, analysisData, isLoading, selectVideo };
