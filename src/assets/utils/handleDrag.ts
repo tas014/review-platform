@@ -32,7 +32,6 @@ export const startDrag = (
   draggedElement: HTMLElement,
   container: HTMLElement,
 ) => {
-  e.preventDefault();
   e.stopPropagation();
 
   const containerRect = container.getBoundingClientRect();

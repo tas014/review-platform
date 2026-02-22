@@ -318,7 +318,7 @@ const cursorStyle = computed(() => ({
 
 .cursor-follower {
   position: absolute;
-  pointer-events: none;
+  pointer-events: none !important;
   color: white;
   transform: translate(-50%, -50%); /* Center the icon on cursor */
   z-index: 100;

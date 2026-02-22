@@ -123,7 +123,8 @@ defineExpose({
   left: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none; /* Pass events through by default, parent handles interaction if needed or we add handlers here */
+  pointer-events: none !important; /* Force pass-through to fix Windows WebView2 masking */
+  z-index: 5;
 }
 
 .drawing-canvas {

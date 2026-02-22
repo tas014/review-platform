@@ -41,8 +41,8 @@ const handleIconMouseDown = (event: MouseEvent) => {
 const handleIconClick = () => {
   // If position hasn't changed (much), consider it a click -> toggle
   if (
-    Math.abs(props.x - startPos.x) < 0.1 &&
-    Math.abs(props.y - startPos.y) < 0.1
+    Math.abs(props.x - startPos.x) < 1.0 &&
+    Math.abs(props.y - startPos.y) < 1.0
   ) {
     isCollapsed.value = !isCollapsed.value;
   }
