@@ -100,6 +100,7 @@ provide("activeColor", activeColor);
   height: 100%;
   position: relative;
   z-index: 0;
+  pointer-events: none;
 }
 </style>
 <style>

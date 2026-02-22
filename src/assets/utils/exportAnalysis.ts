@@ -1,6 +1,6 @@
 import JSZip from "jszip";
 import { save } from "@tauri-apps/plugin-dialog";
-import { writeFile } from "@tauri-apps/plugin-fs";
+import { writeFile, readFile } from "@tauri-apps/plugin-fs";
 import type {
   AnalysisExportData,
   AnalysisExportFunction,
@@ -19,14 +19,21 @@ export const exportAnalysisFile: AnalysisExportFunction = async (
   try {
     const zip = new JSZip();
 
-    // Fetch the video blob
-    const response = await fetch(videoUrl);
-    if (!response.ok) throw new Error("Failed to fetch video file");
-    const videoBlob = await response.blob();
+    // Parse the local path from the asset URL
+    const urlObj = new URL(videoUrl);
+    let localPath = decodeURIComponent(urlObj.pathname);
 
-    // Determine video extension from mime type or URL and add to zip
-    let extension = "mp4";
-    if (videoBlob.type === "video/webm") extension = "webm";
+    // Windows absolute paths getting prefixed with / (e.g., /C:/Users/...)
+    if (localPath.match(/^\/[a-zA-Z]:\//)) {
+      localPath = localPath.substring(1);
+    }
+
+    // Read video directly from disk instead of fetch() to avoid CORS bounds
+    const videoUint8Array = await readFile(localPath);
+    const videoBlob = new Blob([videoUint8Array]);
+
+    // Determine video extension from the file path
+    const extension = localPath.split(".").pop()?.toLowerCase() || "mp4";
     zip.file(`video.${extension}`, videoBlob);
 
     // Deep clone the breakpoints so we don't mutate the app state

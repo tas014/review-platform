@@ -32,8 +32,13 @@ const activeBreakpoint = breakpointStore.activeBreakpoint;
 // State
 const container = ref<HTMLElement | null>(null);
 
-const { isDrawing, currentVector, finishDrawing, checkDrawingCollision } =
-  useVideoDrawing(activeBreakpoint, breakpointStore);
+const {
+  isDrawing,
+  currentVector,
+  drawingRef,
+  finishDrawing,
+  checkDrawingCollision,
+} = useVideoDrawing(activeBreakpoint, breakpointStore);
 
 const {
   isDeleting,
