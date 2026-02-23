@@ -6,6 +6,10 @@ This is a project made to help gamers review their games and theorize about crea
 
 Go to the releases section and download your preferred method of installing depending on your Operative system. This app works for Linux, MacOS and Windows!
 
+**On macOS:**
+This application is not signed, so macOS will quarantine it by default and display an error message. In order to run the app on mac, run the following command:
+`sudo xattr -r -d com.apple.quarantine /path/to/YourApp.app`
+
 ## Installing for developement
 
 ### Required Dependencies
