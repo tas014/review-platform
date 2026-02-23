@@ -60,7 +60,7 @@ const editBreakpoint = () => {
 .breakpoint-button::after {
   content: "";
   position: absolute;
-  top: 2%;
+  top: 3%;
   left: 50%;
   transform: translateX(-50%) translateY(-100%);
   border-left: 1rem solid transparent;

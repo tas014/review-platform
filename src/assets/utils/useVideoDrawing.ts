@@ -1,10 +1,11 @@
 import { ref, type Ref } from "vue";
 import type Breakpoint from "../interfaces/BreakpointType";
 import type { Vector } from "../interfaces/BreakpointType";
+import type { BreakpointHook } from "../interfaces/BreakpointType";
 
 export function useVideoDrawing(
   activeBreakpoint: Ref<Breakpoint | null>,
-  breakpointStore: any,
+  breakpointStore: BreakpointHook,
 ) {
   const isDrawing = ref(false);
   const currentVector = ref<Vector | null>(null);

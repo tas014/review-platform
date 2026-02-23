@@ -4,8 +4,9 @@ import {
   startRecording as pluginStart,
   stopRecording as pluginStop,
 } from "tauri-plugin-audio-recorder-api";
-import { readFile, mkdir, exists, BaseDirectory } from "@tauri-apps/plugin-fs";
+import { mkdir, exists, BaseDirectory } from "@tauri-apps/plugin-fs";
 import { join, appDataDir } from "@tauri-apps/api/path";
+import { invoke } from "@tauri-apps/api/core";
 import VoiceIcon from "../../icons/Voice.vue";
 import AudioWaveIcon from "../../icons/AudioWave.vue";
 import PlayPause from "../../icons/PlayPause.vue";
@@ -168,9 +169,15 @@ const stopRecording = async () => {
       recordingInterval = null;
     }
 
-    // Read the file content
-    const content = await readFile(result.filePath);
-    const audioBlob = new Blob([content], { type: "audio/wav" });
+    // Read the file content safely using standard fetch and the local media server
+    const port = await invoke<number>("get_video_server_port");
+    const cleanPath = result.filePath.replace(/\\/g, "/");
+    const urlPath = cleanPath.startsWith("/") ? cleanPath : `/${cleanPath}`;
+    const url = `http://127.0.0.1:${port}${encodeURI(urlPath)}`;
+
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Failed to fetch recording");
+    const audioBlob = await response.blob();
 
     // Update the model with the new Blob
     voiceData.value = audioBlob;

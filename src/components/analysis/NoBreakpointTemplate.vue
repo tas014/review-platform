@@ -12,7 +12,7 @@
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.95);
   top: 0%;
   left: 0%;
   width: 100%;
@@ -22,12 +22,13 @@
 .no-breakpoint-wrapper h1,
 .no-breakpoint-wrapper p {
   text-align: center;
+  max-width: 90%;
 }
 h1 {
   font-size: var(--analysis-section-title-size);
 }
 p {
   font-size: var(--mode-size);
-  color: rgb(100, 100, 100);
+  color: rgb(145, 145, 145);
 }
 </style>

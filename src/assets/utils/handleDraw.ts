@@ -87,4 +87,47 @@ const drawVector = (
   ctx.stroke();
 };
 
-export { startDrawing, continueDrawing, stopDrawing, redraw, drawVector };
+const checkCollision = (
+  ctx: CanvasRenderingContext2D | null,
+  canvas: HTMLCanvasElement | null,
+  vectors: Vector[],
+  x: number,
+  y: number,
+): number => {
+  if (!ctx || !canvas) return -1;
+  const width = canvas.width;
+  const height = canvas.height;
+
+  // Check in reverse order (topmost first)
+  for (let i = vectors.length - 1; i >= 0; i--) {
+    const vector = vectors[i];
+    const path = new Path2D();
+
+    if (vector.line.length > 0) {
+      path.moveTo(vector.line[0].x * width, vector.line[0].y * height);
+      for (let j = 1; j < vector.line.length; j++) {
+        path.lineTo(vector.line[j].x * width, vector.line[j].y * height);
+      }
+    }
+
+    // Use a wider line width for easier selection
+    const originalLineWidth = ctx.lineWidth;
+    ctx.lineWidth = Math.max(10, vector.lineWidth * 2);
+    const isHit = ctx.isPointInStroke(path, x, y);
+    ctx.lineWidth = originalLineWidth; // Restore (though we redraw anyway)
+
+    if (isHit) {
+      return i;
+    }
+  }
+  return -1;
+};
+
+export {
+  startDrawing,
+  continueDrawing,
+  stopDrawing,
+  redraw,
+  drawVector,
+  checkCollision,
+};

@@ -15,11 +15,11 @@ const { videoSrc } = playbackControls;
 
 const showBreakpointButton = computed(() => {
   const renderCondition =
-    !playbackControls.currentTime.value ||
     playbackControls.isPlaying.value ||
     mode.value !== "analysis" ||
     videoElement.value?.src === null ||
-    props.isSeeking;
+    props.isSeeking ||
+    videoElement.value?.readyState === 0;
 
   return !renderCondition;
 });

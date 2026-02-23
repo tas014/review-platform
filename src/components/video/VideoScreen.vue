@@ -4,7 +4,9 @@ import type {
   TextContent,
   VoiceContent,
   BreakpointHook,
+  Vector,
 } from "../../assets/interfaces/BreakpointType";
+import type { SelectedTool } from "../../assets/interfaces/ModeState";
 import VideoState from "../../assets/interfaces/VideoState";
 import DrawIcon from "../icons/Draw.vue";
 import TextIcon from "../icons/Text.vue";
@@ -22,9 +24,7 @@ import { useVideoElements } from "../../assets/utils/useVideoElements";
 
 const { playbackControls } = inject("video") as VideoState;
 const { isPlaying } = playbackControls;
-const editing = inject("editing") as Ref<
-  null | "draw" | "trim" | "text" | "voice" | "delete"
->;
+const editing = inject("editing") as SelectedTool;
 const activeColor = inject("activeColor") as Ref<string>;
 const breakpointStore = inject("breakpointStore") as BreakpointHook;
 const activeBreakpoint = breakpointStore.activeBreakpoint;
@@ -58,16 +58,18 @@ const elementY = ref(0);
 const isOutside = ref(true);
 
 // Computed for vectors to ensure reactivity
+const EMPTY_VECTORS: Vector[] = [];
+
 const vectors = computed(() => {
   if (activeBreakpoint.value && activeBreakpoint.value.drawingContent) {
     return activeBreakpoint.value.drawingContent.content;
   }
-  return [];
+  return EMPTY_VECTORS;
 });
 
 const handleDragStart = (e: MouseEvent, item: TextContent | VoiceContent) => {
   if (editing.value === "delete") return;
-  const component = itemRefs.value[item.id] as any;
+  const component = itemRefs.value[item.id];
   let element = component && "$el" in component ? component.$el : component;
 
   // constrain dragging based on the handle, not the full expanded note

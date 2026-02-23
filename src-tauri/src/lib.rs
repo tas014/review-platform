@@ -52,6 +52,21 @@ fn start_video_server() {
             #[cfg(not(target_os = "windows"))]
             let path = &path; // On Linux, the URL path IS the file path if it starts with /
 
+            let method = request.method().clone();
+            if method == tiny_http::Method::Options {
+                let headers = vec![
+                    tiny_http::Header::from_bytes("Access-Control-Allow-Origin", "*").unwrap(),
+                    tiny_http::Header::from_bytes("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS").unwrap(),
+                    tiny_http::Header::from_bytes("Access-Control-Allow-Headers", "*").unwrap(),
+                ];
+                let mut response = tiny_http::Response::empty(204);
+                for header in headers {
+                    response = response.with_header(header);
+                }
+                let _ = request.respond(response);
+                continue;
+            }
+
             let file = match File::open(path) {
                 Ok(f) => f,
                 Err(e) => {

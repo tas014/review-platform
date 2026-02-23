@@ -1,6 +1,6 @@
 import JSZip from "jszip";
 import { save } from "@tauri-apps/plugin-dialog";
-import { writeFile, readFile } from "@tauri-apps/plugin-fs";
+import { writeFile } from "@tauri-apps/plugin-fs";
 import type {
   AnalysisExportData,
   AnalysisExportFunction,
@@ -28,9 +28,10 @@ export const exportAnalysisFile: AnalysisExportFunction = async (
       localPath = localPath.substring(1);
     }
 
-    // Read video directly from disk instead of fetch() to avoid CORS bounds
-    const videoUint8Array = await readFile(localPath);
-    const videoBlob = new Blob([videoUint8Array]);
+    // Fetch the video directly using the internal local asset server instead of explicit FS paths
+    const response = await fetch(videoUrl);
+    if (!response.ok) throw new Error("Failed to fetch video for export");
+    const videoBlob = await response.blob();
 
     // Determine video extension from the file path
     const extension = localPath.split(".").pop()?.toLowerCase() || "mp4";

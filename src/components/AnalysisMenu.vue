@@ -6,17 +6,21 @@ import VoiceMode from "./analysis/VoiceMode.vue";
 import NoBreakpointTemplate from "./analysis/NoBreakpointTemplate.vue";
 import { computed, inject } from "vue";
 import Breakpoint, { BreakpointHook } from "../assets/interfaces/BreakpointType";
+import VideoState from "../assets/interfaces/VideoState";
+import type {SelectedTool} from "../assets/interfaces/ModeState"
 import DeleteMode from "./analysis/DeleteMode.vue";
 import { exportAnalysisFile } from "../assets/utils/exportAnalysis";
 import { videoUrl } from "./store/hooks/useFileUpload";
 
 const breakpointStore = inject("breakpointStore") as BreakpointHook;
-const videoStore = inject("video") as any;
+const videoStore = inject("video") as VideoState;
+const editing = inject("editing") as SelectedTool;
 const hasBreakpoints = computed(() => breakpointStore.breakpoints.value.length > 0);
 const activeBreakpoint = breakpointStore.activeBreakpoint;
 const deleteBreakpoint = () => {
   if (activeBreakpoint.value) {
     breakpointStore.removeBreakpoint(activeBreakpoint.value.timeStamp);
+    editing.value = null;
   }
 };
 

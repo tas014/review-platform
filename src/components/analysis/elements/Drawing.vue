@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from "vue";
 import type { Vector } from "../../../assets/interfaces/BreakpointType";
-import { redraw } from "../../../assets/utils/handleDraw";
+import { redraw, checkCollision } from "../../../assets/utils/handleDraw";
 
 const props = defineProps<{
   vectors: Vector[];
@@ -79,33 +79,7 @@ defineExpose({
   canvas,
   container,
   checkCollision: (x: number, y: number): number => {
-    if (!ctx.value || !canvas.value) return -1;
-    const width = canvas.value.width;
-    const height = canvas.value.height;
-
-    // Check in reverse order (topmost first)
-    for (let i = props.vectors.length - 1; i >= 0; i--) {
-      const vector = props.vectors[i];
-      const path = new Path2D();
-
-      if (vector.line.length > 0) {
-        path.moveTo(vector.line[0].x * width, vector.line[0].y * height);
-        for (let j = 1; j < vector.line.length; j++) {
-          path.lineTo(vector.line[j].x * width, vector.line[j].y * height);
-        }
-      }
-
-      // Use a wider line width for easier selection
-      const originalLineWidth = ctx.value.lineWidth;
-      ctx.value.lineWidth = Math.max(10, vector.lineWidth * 2);
-      const isHit = ctx.value.isPointInStroke(path, x, y);
-      ctx.value.lineWidth = originalLineWidth; // Restore (though we redraw anyway)
-
-      if (isHit) {
-        return i;
-      }
-    }
-    return -1;
+    return checkCollision(ctx.value, canvas.value, props.vectors, x, y);
   },
 });
 </script>

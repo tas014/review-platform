@@ -2,7 +2,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { ref } from "vue";
 import { basename, tempDir, join } from "@tauri-apps/api/path";
-import { writeFile, readFile } from "@tauri-apps/plugin-fs";
+import { writeFile } from "@tauri-apps/plugin-fs";
 import JSZip from "jszip";
 import type { AnalysisExportData } from "../../../assets/interfaces/AnalysisFileData";
 
@@ -28,7 +28,7 @@ const selectVideo = async () => {
       filters: [
         {
           name: "Video or Analysis",
-          extensions: ["mp4", "webm", "mov", "an"],
+          extensions: ["mp4", "webm", "mov", "an", "anal"],
         },
       ],
     });
@@ -45,9 +45,11 @@ const selectVideo = async () => {
       const filePath = buildAssetUrl(port, selected);
       const fileName = await basename(selected);
 
-      if (fileName.endsWith(".an")) {
-        // Read the .an zip file directly from disk using Tauri FS to bypass Windows CORS restrictions
-        const zipFileBytes = await readFile(selected);
+      if (fileName.endsWith(".an") || fileName.endsWith(".anal")) {
+        // Fetch the .an zip file using the local server to avoid OS file reading restrictions
+        const response = await fetch(filePath);
+        if (!response.ok) throw new Error("Failed to fetch .an archive");
+        const zipFileBytes = new Uint8Array(await response.arrayBuffer());
         const zip = await JSZip.loadAsync(zipFileBytes);
 
         const dataJsonFile = zip.file("data.json");

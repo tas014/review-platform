@@ -12,10 +12,10 @@ import {
 } from "./components/store/hooks/useFileUpload";
 import useBreakpoint from "./components/store/hooks/useBreakpoint";
 import type { BreakpointHook } from "./assets/interfaces/BreakpointType";
+import type { SelectedTool } from "./assets/interfaces/ModeState";
 
 const mode: Ref<"replay" | "analysis"> = ref("replay"); // for switching between analysis and replay modes
-const editing: Ref<null | "draw" | "trim" | "text" | "voice" | "delete"> =
-  ref(null);
+const editing: SelectedTool = ref(null);
 const videoElement = useTemplateRef("video-playback");
 const playbackControls = useVideo(videoElement);
 const breakpointStore = useBreakpoint() as BreakpointHook;

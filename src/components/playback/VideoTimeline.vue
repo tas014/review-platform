@@ -3,7 +3,7 @@ import { onMounted, onUnmounted, ref, computed, inject } from "vue";
 import { BreakpointHook } from "../../assets/interfaces/BreakpointType";
 import VideoInjection from "../../assets/interfaces/VideoState";
 import TimelineHandle from "./TimelineHandle.vue";
-import ModeState from "../../assets/interfaces/ModeState";
+import ModeState, { SelectedTool } from "../../assets/interfaces/ModeState";
 import TrimOverlay from "./TrimOverlay.vue";
 
 const props = defineProps<{
@@ -31,17 +31,8 @@ const breakpoints = computed(() => {
     return percent >= 0 && percent <= 100;
   });
 });
-const {
-  totalDuration: duration,
-  currentTime,
-  videoStart,
-  videoSrc,
-} = playbackControls;
-const editing = inject("editing") as any;
-
-const progressBar = ref<HTMLElement | null>(null);
-const isHovering = ref(false);
-const hoverX = ref(0);
+const { videoStart, videoSrc } = playbackControls;
+const editing = inject("editing") as SelectedTool;
 
 // Proxy store activeBreakpoint to number | null for compatibility
 const currentBreakpoint = computed({
@@ -148,16 +139,7 @@ onUnmounted(() => {
   >
     <!-- Handle -->
     <div v-if="editing !== 'trim'">
-      <TimelineHandle
-        :currentTime="currentTime"
-        :duration="duration"
-        :isHovering="isHovering"
-        :hoverX="hoverX"
-        :progressBar="progressBar"
-        :skipToTime="props.skipToTime"
-        :is-seeking="isSeeking"
-        :handle-drag="startDrag"
-      />
+      <TimelineHandle :is-seeking="isSeeking" :handle-drag="startDrag" />
     </div>
 
     <!-- TrimOverlay -->

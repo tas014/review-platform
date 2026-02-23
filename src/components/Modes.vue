@@ -52,7 +52,6 @@ const selected = computed(() => {
 </template>
 <style scoped>
 header {
-  height: 5vh;
   color: #cdd8c3;
   display: flex;
   justify-content: center;
