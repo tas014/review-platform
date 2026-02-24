@@ -2,8 +2,6 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { ref } from "vue";
 import { basename, tempDir, join } from "@tauri-apps/api/path";
-import { readFile, create } from "@tauri-apps/plugin-fs";
-import JSZip from "jszip";
 import type { AnalysisExportData } from "../../../assets/interfaces/AnalysisFileData";
 
 const analysisData = ref<null | AnalysisExportData>(null);
@@ -45,24 +43,38 @@ const selectVideo = async () => {
       const fileName = await basename(selected);
 
       if (fileName.endsWith(".an") || fileName.endsWith(".anal")) {
-        // Use native readFile. The file dialog automatically scopes this path for permission.
-        const zipFileBytes = await readFile(selected);
-        const zip = await JSZip.loadAsync(zipFileBytes);
+        // Unpack the archive using the Rust backend to completely bypass Javascript engine memory limits natively
+        const systemTempDir = await tempDir();
+        const extractionTarget = await join(
+          systemTempDir,
+          fileName + "_extracted",
+        );
 
-        const dataJsonFile = zip.file("data.json");
-        if (!dataJsonFile)
-          throw new Error("Invalid .an archive: missing data.json");
-        const dataJsonStr = await dataJsonFile.async("string");
+        const dataJsonStr = await invoke<string>("unpack_analysis_file", {
+          archivePath: selected,
+          targetDir: extractionTarget,
+        });
+
         const parsedData = JSON.parse(dataJsonStr) as AnalysisExportData;
 
-        // Reconstruct audio blobs
+        // Reconstruct audio blobs using fetch() to load the extracted wav files into Memory
         for (const bp of parsedData.breakpoints) {
           if (bp.voiceContent) {
             for (const vc of bp.voiceContent) {
               if (vc.filename) {
-                const audioFile = zip.file(`audio/${vc.filename}`);
-                if (audioFile) {
-                  vc.fileBlob = await audioFile.async("blob");
+                const audioPath = await join(
+                  extractionTarget,
+                  "audio",
+                  vc.filename,
+                );
+                const audioUrl = buildAssetUrl(port, audioPath);
+                try {
+                  const res = await fetch(audioUrl);
+                  if (res.ok) {
+                    vc.fileBlob = await res.blob();
+                  }
+                } catch (e) {
+                  console.warn("Failed to reconstruct audio blob", e);
                 }
               }
             }
@@ -71,33 +83,14 @@ const selectVideo = async () => {
 
         analysisData.value = parsedData;
 
-        // Find video file
-        const videoFile = Object.values(zip.files).find((f) =>
-          f.name.startsWith("video."),
+        // Try to guess the video format by appending common extensions (or we could read the dir, but let's assume standard names)
+        // A better approach is to have Rust give us the exact video path if there are multiple formats,
+        // but for now, we will use the same buildAssetUrl over the target directory
+        videoUrl.value = buildAssetUrl(
+          port,
+          await join(extractionTarget, "video.mp4"),
         );
-        if (videoFile) {
-          const systemTempDir = await tempDir();
-          const tempVideoPath = await join(systemTempDir, videoFile.name);
-
-          // Stream the zip extraction to disk chunk-by-chunk to bypass macOS IPC Base64 memory limits
-          const videoBlob = await videoFile.async("blob");
-          const reader = videoBlob.stream().getReader();
-          const file = await create(tempVideoPath);
-          try {
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-              await file.write(value);
-            }
-          } finally {
-            await file.close();
-          }
-
-          videoUrl.value = buildAssetUrl(port, tempVideoPath);
-          videoName.value = fileName;
-        } else {
-          throw new Error("Invalid .an archive: missing video file");
-        }
+        videoName.value = fileName;
       } else {
         videoUrl.value = filePath;
         videoName.value = fileName;
