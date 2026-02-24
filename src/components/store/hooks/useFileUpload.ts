@@ -1,3 +1,4 @@
+import { readDir } from "@tauri-apps/plugin-fs";
 import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { ref } from "vue";
@@ -83,12 +84,19 @@ const selectVideo = async () => {
 
         analysisData.value = parsedData;
 
-        // Try to guess the video format by appending common extensions (or we could read the dir, but let's assume standard names)
-        // A better approach is to have Rust give us the exact video path if there are multiple formats,
-        // but for now, we will use the same buildAssetUrl over the target directory
+        // Dynamically find the exact video file name instead of assuming .mp4
+        const entries = await readDir(extractionTarget);
+        const videoEntry = entries.find(
+          (e) => e.name && e.name.startsWith("video."),
+        );
+
+        if (!videoEntry || !videoEntry.name) {
+          throw new Error("No video file found in .an archive.");
+        }
+
         videoUrl.value = buildAssetUrl(
           port,
-          await join(extractionTarget, "video.mp4"),
+          await join(extractionTarget, videoEntry.name),
         );
         videoName.value = fileName;
       } else {
