@@ -47,7 +47,7 @@ fn start_video_server() {
 
             // Handle path (windows vs linux)
             #[cfg(target_os = "windows")]
-            let path = path.trim_start_matches('/');
+            let path = path.strip_prefix('/').unwrap_or(&path);
 
             #[cfg(not(target_os = "windows"))]
             let path = &path; // On Linux, the URL path IS the file path if it starts with /

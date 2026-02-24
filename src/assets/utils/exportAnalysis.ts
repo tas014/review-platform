@@ -21,12 +21,7 @@ export const exportAnalysisFile: AnalysisExportFunction = async (
 
     // Parse the local path from the asset URL
     const urlObj = new URL(videoUrl);
-    let localPath = decodeURIComponent(urlObj.pathname);
-
-    // Windows absolute paths getting prefixed with / (e.g., /C:/Users/...)
-    if (localPath.match(/^\/[a-zA-Z]:\//)) {
-      localPath = localPath.substring(1);
-    }
+    const localPath = decodeURIComponent(urlObj.pathname);
 
     // Fetch the video directly using the internal local asset server instead of explicit FS paths
     const response = await fetch(videoUrl);
