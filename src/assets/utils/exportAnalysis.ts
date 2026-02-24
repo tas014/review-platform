@@ -21,7 +21,11 @@ export const exportAnalysisFile: AnalysisExportFunction = async (
 
     // Parse the local path from the asset URL
     const urlObj = new URL(videoUrl);
-    const localPath = decodeURIComponent(urlObj.pathname);
+    const localPath = urlObj.searchParams.get("path");
+
+    if (!localPath) {
+      throw new Error("Invalid video URL: missing path parameter");
+    }
 
     // Fetch the video directly using the internal local asset server instead of explicit FS paths
     const response = await fetch(videoUrl);

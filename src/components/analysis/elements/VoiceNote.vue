@@ -171,12 +171,7 @@ const stopRecording = async () => {
 
     // Read the file content safely using standard fetch and the local media server
     const port = await invoke<number>("get_video_server_port");
-    const urlPath = result.filePath
-      .split(/[\\/]/)
-      .map(encodeURIComponent)
-      .join("/");
-    const fullPath = urlPath.startsWith("/") ? urlPath : `/${urlPath}`;
-    const url = `http://127.0.0.1:${port}${fullPath}`;
+    const url = `http://127.0.0.1:${port}/?path=${encodeURIComponent(result.filePath)}`;
 
     const response = await fetch(url);
     if (!response.ok) throw new Error("Failed to fetch recording");

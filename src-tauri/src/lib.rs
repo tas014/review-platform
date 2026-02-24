@@ -32,26 +32,6 @@ fn start_video_server() {
         *SERVER_PORT.lock().unwrap() = port;
 
         for request in server.incoming_requests() {
-            let url = request.url().to_string();
-            // Tiny_http URL includes the leading slash, e.g., "/home/user/..."
-            // We need to parse it correctly.
-
-            // Decode URL
-            let path = match urlencoding::decode(&url) {
-                Ok(p) => p.into_owned(),
-                Err(_) => {
-                    let _ = request.respond(tiny_http::Response::empty(400));
-                    continue;
-                }
-            };
-
-            // Handle path (windows vs linux)
-            #[cfg(target_os = "windows")]
-            let path = path.strip_prefix('/').unwrap_or(&path);
-
-            #[cfg(not(target_os = "windows"))]
-            let path = &path; // On Linux, the URL path IS the file path if it starts with /
-
             let method = request.method().clone();
             if method == tiny_http::Method::Options {
                 let headers = vec![
@@ -67,7 +47,26 @@ fn start_video_server() {
                 continue;
             }
 
-            let file = match File::open(path) {
+            let url = request.url().to_string();
+            
+            // Extract the path from the query parameter 
+            let path_encoded = if let Some(idx) = url.find("?path=") {
+                &url[idx + 6..]
+            } else {
+                let _ = request.respond(tiny_http::Response::empty(400));
+                continue;
+            };
+
+            // Decode URL
+            let path = match urlencoding::decode(path_encoded) {
+                Ok(p) => p.into_owned(),
+                Err(_) => {
+                    let _ = request.respond(tiny_http::Response::empty(400));
+                    continue;
+                }
+            };
+
+            let file = match File::open(&path) {
                 Ok(f) => f,
                 Err(e) => {
                     eprintln!("Failed to open file: {}", e);
@@ -84,7 +83,7 @@ fn start_video_server() {
                 }
             };
 
-            let mime_type = mime_guess::from_path(path)
+            let mime_type = mime_guess::from_path(&path)
                 .first_or_octet_stream()
                 .to_string();
 

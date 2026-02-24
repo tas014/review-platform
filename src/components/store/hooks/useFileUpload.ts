@@ -14,9 +14,8 @@ const isLoading = ref<boolean>(false);
 
 // Helper to safely convert OS paths to URL paths (handles Windows C:\... absolute paths)
 const buildAssetUrl = (port: number, absolutePath: string) => {
-  const urlPath = absolutePath.split(/[\\/]/).map(encodeURIComponent).join("/");
-  const fullPath = urlPath.startsWith("/") ? urlPath : `/${urlPath}`;
-  return `http://127.0.0.1:${port}${fullPath}`;
+  const url = `http://127.0.0.1:${port}/?path=${encodeURIComponent(absolutePath)}`;
+  return url;
 };
 
 const selectVideo = async () => {
