@@ -39,7 +39,7 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libasound2-dev
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libasound2-dev gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav
 
       - name: install frontend dependencies
         run: yarn install
@@ -47,6 +47,7 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GSTREAMER_PLUGINS: "core;playback;audio;video;alsa;pbtypes;libav;pulseaudio;good;ugly;bad"
         with:
           tagName: v__VERSION__ # the action replaces __VERSION__ from tauri.conf.json
           releaseName: "App v__VERSION__"
