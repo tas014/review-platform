@@ -63,6 +63,16 @@
         { "path": "$APPDATA/**" },
         { "path": "$TEMP/**" }
       ]
+    },
+    {
+      "identifier": "fs:allow-create",
+      "allow": [
+        { "path": "$APPDATA" },
+        { "path": "$APPDATA/*" },
+        { "path": "$APPDATA/**" },
+        { "path": "$TEMP/**" },
+        { "path": "**" }
+      ]
     }
   ]
 }

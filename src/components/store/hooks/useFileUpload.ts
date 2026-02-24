@@ -2,7 +2,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { ref } from "vue";
 import { basename, tempDir, join } from "@tauri-apps/api/path";
-import { writeFile } from "@tauri-apps/plugin-fs";
+import { readFile, create } from "@tauri-apps/plugin-fs";
 import JSZip from "jszip";
 import type { AnalysisExportData } from "../../../assets/interfaces/AnalysisFileData";
 
@@ -45,10 +45,8 @@ const selectVideo = async () => {
       const fileName = await basename(selected);
 
       if (fileName.endsWith(".an") || fileName.endsWith(".anal")) {
-        // Fetch the .an zip file using the local server to avoid OS file reading restrictions
-        const response = await fetch(filePath);
-        if (!response.ok) throw new Error("Failed to fetch .an archive");
-        const zipFileBytes = new Uint8Array(await response.arrayBuffer());
+        // Use native readFile. The file dialog automatically scopes this path for permission.
+        const zipFileBytes = await readFile(selected);
         const zip = await JSZip.loadAsync(zipFileBytes);
 
         const dataJsonFile = zip.file("data.json");
@@ -78,10 +76,22 @@ const selectVideo = async () => {
           f.name.startsWith("video."),
         );
         if (videoFile) {
-          const videoUint8Array = await videoFile.async("uint8array");
           const systemTempDir = await tempDir();
           const tempVideoPath = await join(systemTempDir, videoFile.name);
-          await writeFile(tempVideoPath, videoUint8Array);
+
+          // Stream the zip extraction to disk chunk-by-chunk to bypass macOS IPC Base64 memory limits
+          const videoBlob = await videoFile.async("blob");
+          const reader = videoBlob.stream().getReader();
+          const file = await create(tempVideoPath);
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              await file.write(value);
+            }
+          } finally {
+            await file.close();
+          }
 
           videoUrl.value = buildAssetUrl(port, tempVideoPath);
           videoName.value = fileName;

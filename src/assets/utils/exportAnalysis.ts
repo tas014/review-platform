@@ -1,6 +1,6 @@
 import JSZip from "jszip";
 import { save } from "@tauri-apps/plugin-dialog";
-import { writeFile } from "@tauri-apps/plugin-fs";
+import { create, readFile } from "@tauri-apps/plugin-fs";
 import type {
   AnalysisExportData,
   AnalysisExportFunction,
@@ -27,10 +27,10 @@ export const exportAnalysisFile: AnalysisExportFunction = async (
       throw new Error("Invalid video URL: missing path parameter");
     }
 
-    // Fetch the video directly using the internal local asset server instead of explicit FS paths
-    const response = await fetch(videoUrl);
-    if (!response.ok) throw new Error("Failed to fetch video for export");
-    const videoBlob = await response.blob();
+    // Read the video directly using the native filesystem plugin instead of fetch.
+    // This resolves WebView2 memory limits on Windows for large files.
+    const videoUint8Array = await readFile(localPath);
+    const videoBlob = new Blob([videoUint8Array]);
 
     // Determine video extension from the file path
     const extension = localPath.split(".").pop()?.toLowerCase() || "mp4";
@@ -77,8 +77,6 @@ export const exportAnalysisFile: AnalysisExportFunction = async (
 
     // Generate the zip file blob
     const zipBlob = await zip.generateAsync({ type: "blob" });
-    const arrayBuffer = await zipBlob.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
 
     // Prompt user to save the file
     const savePath = await save({
@@ -96,8 +94,18 @@ export const exportAnalysisFile: AnalysisExportFunction = async (
       return false;
     }
 
-    // Write the file to disk using Tauri FS plugin
-    await writeFile(savePath, uint8Array);
+    // Stream the file to disk using Tauri FS plugin to prevent IPC memory exhaustion
+    const reader = zipBlob.stream().getReader();
+    const file = await create(savePath);
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        await file.write(value);
+      }
+    } finally {
+      await file.close();
+    }
 
     return true;
   } catch (error) {

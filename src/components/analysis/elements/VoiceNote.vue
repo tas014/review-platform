@@ -169,7 +169,7 @@ const stopRecording = async () => {
       recordingInterval = null;
     }
 
-    // Read the file content safely using standard fetch and the local media server
+    // Fetch the audio stream over localhost to optimize Mac IPC
     const port = await invoke<number>("get_video_server_port");
     const url = `http://127.0.0.1:${port}/?path=${encodeURIComponent(result.filePath)}`;
 
