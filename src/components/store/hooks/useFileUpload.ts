@@ -1,20 +1,25 @@
 import { readDir } from "@tauri-apps/plugin-fs";
 import { open } from "@tauri-apps/plugin-dialog";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, convertFileSrc } from "@tauri-apps/api/core";
+import { type } from "@tauri-apps/plugin-os";
 import { ref } from "vue";
 import { basename, tempDir, join } from "@tauri-apps/api/path";
 import type { AnalysisExportData } from "../../../assets/interfaces/AnalysisFileData";
 
 const analysisData = ref<null | AnalysisExportData>(null);
 
+const videoPath = ref<null | string>(null);
 const videoUrl = ref<null | string>(null);
 const videoName = ref<null | string>(null);
 const isLoading = ref<boolean>(false);
 
-// Helper to safely convert OS paths to URL paths (handles Windows C:\... absolute paths)
 const buildAssetUrl = (port: number, absolutePath: string) => {
-  const url = `http://127.0.0.1:${port}/?path=${encodeURIComponent(absolutePath)}`;
-  return url;
+  if (type() === "linux") {
+    const url = `http://127.0.0.1:${port}/?path=${encodeURIComponent(absolutePath)}`;
+    return url;
+  } else {
+    return convertFileSrc(absolutePath);
+  }
 };
 
 const selectVideo = async () => {
@@ -94,12 +99,12 @@ const selectVideo = async () => {
           throw new Error("No video file found in .an archive.");
         }
 
-        videoUrl.value = buildAssetUrl(
-          port,
-          await join(extractionTarget, videoEntry.name),
-        );
+        const exactVideoPath = await join(extractionTarget, videoEntry.name);
+        videoPath.value = exactVideoPath;
+        videoUrl.value = buildAssetUrl(port, exactVideoPath);
         videoName.value = fileName;
       } else {
+        videoPath.value = selected;
         videoUrl.value = filePath;
         videoName.value = fileName;
         analysisData.value = null;
@@ -115,4 +120,4 @@ const selectVideo = async () => {
   }
 };
 
-export { videoUrl, videoName, analysisData, isLoading, selectVideo };
+export { videoUrl, videoPath, videoName, analysisData, isLoading, selectVideo };

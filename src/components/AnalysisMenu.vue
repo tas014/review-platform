@@ -10,7 +10,7 @@ import VideoState from "../assets/interfaces/VideoState";
 import type {SelectedTool} from "../assets/interfaces/ModeState"
 import DeleteMode from "./analysis/DeleteMode.vue";
 import { exportAnalysisFile } from "../assets/utils/exportAnalysis";
-import { videoUrl } from "./store/hooks/useFileUpload";
+import { videoPath } from "./store/hooks/useFileUpload";
 
 const breakpointStore = inject("breakpointStore") as BreakpointHook;
 const videoStore = inject("video") as VideoState;
@@ -26,7 +26,7 @@ const deleteBreakpoint = () => {
 
 const handleExport = async () => {
   await exportAnalysisFile(
-    videoUrl.value,
+    videoPath.value,
     breakpointStore.breakpoints.value as unknown as Breakpoint[],
     videoStore.playbackControls.videoStart.value,
     videoStore.playbackControls.totalDuration.value

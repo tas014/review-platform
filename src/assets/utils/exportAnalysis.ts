@@ -8,23 +8,17 @@ import type {
 } from "../interfaces/AnalysisFileData";
 
 export const exportAnalysisFile: AnalysisExportFunction = async (
-  videoUrl,
+  videoPath,
   breakpoints,
   videoStart,
   videoEnd,
 ): Promise<boolean> => {
-  if (!videoUrl) {
+  if (!videoPath) {
     return false;
   }
 
   try {
-    // Parse the local path from the asset URL
-    const urlObj = new URL(videoUrl);
-    const localPath = urlObj.searchParams.get("path");
-
-    if (!localPath) {
-      throw new Error("Invalid video URL: missing path parameter");
-    }
+    const localPath = videoPath;
 
     // Deep clone the breakpoints so we don't mutate the app state
     const clonedBreakpoints = breakpoints.map((bp) => ({
