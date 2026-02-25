@@ -51,7 +51,7 @@ jobs:
       - name: install frontend dependencies
         run: yarn install
 
-      - uses: tauri-apps/tauri-action@v2
+      - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GSTREAMER_PLUGINS: "core;playback;audio;video;alsa;pbtypes;libav;pulseaudio;good;ugly;bad"
