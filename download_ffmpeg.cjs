@@ -1,6 +1,7 @@
 const ffbinaries = require("ffbinaries");
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 
 const platforms = {
   "linux-64": "ffmpeg-x86_64-unknown-linux-gnu",
@@ -15,7 +16,7 @@ if (!fs.existsSync("src-tauri/binaries")) {
 
 async function downloadAll() {
   for (const [p, filename] of Object.entries(platforms)) {
-    const tempDir = path.join("/tmp", p);
+    const tempDir = path.join(os.tmpdir(), "ffbinaries", p);
     await new Promise((resolve, reject) => {
       ffbinaries.downloadBinaries(
         ["ffmpeg"],
