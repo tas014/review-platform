@@ -18,7 +18,11 @@ const buildAssetUrl = (port: number, absolutePath: string) => {
     const url = `http://127.0.0.1:${port}/?path=${encodeURIComponent(absolutePath)}`;
     return url;
   } else {
-    return convertFileSrc(absolutePath);
+    // Windows WebView2 requires `http://asset.localhost/` formatting to bypass strict CORS
+    const assetUrl = convertFileSrc(absolutePath);
+    return type() === "windows"
+      ? assetUrl.replace("asset://localhost/", "http://asset.localhost/")
+      : assetUrl;
   }
 };
 
