@@ -6,6 +6,8 @@ import {
 } from "tauri-plugin-audio-recorder-api";
 import { invoke, convertFileSrc } from "@tauri-apps/api/core";
 import { type } from "@tauri-apps/plugin-os";
+import { mkdir, exists, BaseDirectory } from "@tauri-apps/plugin-fs";
+import { join, appDataDir } from "@tauri-apps/api/path";
 import VoiceIcon from "../../icons/Voice.vue";
 import AudioWaveIcon from "../../icons/AudioWave.vue";
 import PlayPause from "../../icons/PlayPause.vue";
@@ -117,7 +119,23 @@ const handleIconClick = () => {
 
 const startRecording = async () => {
   try {
-    await pluginStart({ outputPath: "" });
+    const appData = await appDataDir();
+    const recordingsDir = await join(appData, "voice_notes");
+
+    // Ensure directory exists
+    const dirExists = await exists("voice_notes", {
+      baseDir: BaseDirectory.AppData,
+    });
+    if (!dirExists) {
+      await mkdir("voice_notes", {
+        baseDir: BaseDirectory.AppData,
+        recursive: true,
+      });
+    }
+
+    const filePath = await join(recordingsDir, `recording_${Date.now()}.wav`);
+
+    await pluginStart({ outputPath: filePath });
 
     isRecording.value = true;
     duration.value = 0;
