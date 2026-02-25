@@ -37,7 +37,7 @@ export const exportAnalysisFile: AnalysisExportFunction = async (
       finalVideoPath = await join(systemTempDir, trimmedFilename);
 
       const trimDuration = videoEnd - videoStart;
-      const command = Command.sidecar("binaries/ffmpeg", [
+      const command = Command.sidecar("binaries/creative-ffmpeg", [
         "-ss",
         videoStart.toString(),
         "-i",

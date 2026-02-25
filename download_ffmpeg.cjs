@@ -3,10 +3,10 @@ const fsPromises = require("fs").promises;
 const path = require("path");
 
 const platforms = {
-  "win32-x64": "ffmpeg-x86_64-pc-windows-msvc.exe",
-  "linux-x64": "ffmpeg-x86_64-unknown-linux-gnu",
-  "darwin-x64": "ffmpeg-x86_64-apple-darwin",
-  "darwin-arm64": "ffmpeg-aarch64-apple-darwin",
+  "win32-x64": "creative-ffmpeg-x86_64-pc-windows-msvc.exe",
+  "linux-x64": "creative-ffmpeg-x86_64-unknown-linux-gnu",
+  "darwin-x64": "creative-ffmpeg-x86_64-apple-darwin",
+  "darwin-arm64": "creative-ffmpeg-aarch64-apple-darwin",
 };
 
 if (!fs.existsSync("src-tauri/binaries")) {
