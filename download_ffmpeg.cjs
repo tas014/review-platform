@@ -17,6 +17,7 @@ if (!fs.existsSync("src-tauri/binaries")) {
 async function downloadAll() {
   for (const [p, filename] of Object.entries(platforms)) {
     const tempDir = path.join(os.tmpdir(), "ffbinaries", p);
+    fs.mkdirSync(tempDir, { recursive: true });
     await new Promise((resolve, reject) => {
       ffbinaries.downloadBinaries(
         ["ffmpeg"],
