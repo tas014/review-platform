@@ -141,7 +141,7 @@ const startRecording = async () => {
       
       This folder is cleared on app startup.
     */
-    const filePath = await join(recordingsDir, `recording_${Date.now()}`);
+    const filePath = await join(recordingsDir, `recording_${Date.now()}.wav`);
 
     await pluginStart({
       outputPath: filePath,
@@ -170,9 +170,9 @@ const stopRecording = async () => {
       recordingInterval = null;
     }
 
-    // Fetch the audio stream over localhost (Linux) or Tauri Asset Protocol (Windows/macOS)
+    // Fetch the audio stream over localhost (Linux/macOS) or Tauri Asset Protocol (Windows)
     let url: string;
-    if (type() === "linux") {
+    if (type() !== "windows") {
       const port = await invoke<number>("get_video_server_port");
       url = `http://127.0.0.1:${port}/?path=${encodeURIComponent(result.filePath)}`;
     } else {

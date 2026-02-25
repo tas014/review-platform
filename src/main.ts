@@ -1,6 +1,7 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import { remove, readDir, exists, BaseDirectory } from "@tauri-apps/plugin-fs";
+import { join } from "@tauri-apps/api/path";
 
 const cleanupVoiceNotes = async () => {
   try {
@@ -15,7 +16,8 @@ const cleanupVoiceNotes = async () => {
 
       for (const entry of entries) {
         if (entry.isFile) {
-          await remove(`voice_notes/${entry.name}`, {
+          const filePath = await join("voice_notes", entry.name);
+          await remove(filePath, {
             baseDir: BaseDirectory.AppData,
           });
         }

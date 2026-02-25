@@ -1,4 +1,4 @@
-import { create, exists, mkdir } from "@tauri-apps/plugin-fs";
+import { create, exists, mkdir, BaseDirectory } from "@tauri-apps/plugin-fs";
 import { join, appDataDir } from "@tauri-apps/api/path";
 import { invoke } from "@tauri-apps/api/core";
 import { Command } from "@tauri-apps/plugin-shell";
@@ -26,14 +26,16 @@ export const exportAnalysisFile: AnalysisExportFunction = async (
     const appData = await appDataDir();
     const systemTempDir = await join(appData, "temp");
 
-    if (!(await exists(systemTempDir))) {
-      await mkdir(systemTempDir, { recursive: true });
+    const tempDirExists = await exists("temp", {
+      baseDir: BaseDirectory.AppData,
+    });
+    if (!tempDirExists) {
+      await mkdir("temp", { baseDir: BaseDirectory.AppData, recursive: true });
     }
 
     // Check if we need to trim the video
     if (videoStart !== null && videoEnd !== null && videoEnd > videoStart) {
-      const extension = videoPath.split(".").pop() || "mp4";
-      const trimmedFilename = `trimmed_${Date.now()}.${extension}`;
+      const trimmedFilename = `trimmed_${Date.now()}.mp4`;
       finalVideoPath = await join(systemTempDir, trimmedFilename);
 
       const trimDuration = videoEnd - videoStart;
@@ -44,8 +46,16 @@ export const exportAnalysisFile: AnalysisExportFunction = async (
         videoPath,
         "-t",
         trimDuration.toString(),
-        "-c",
-        "copy",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "ultrafast",
+        "-crf",
+        "25",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "128k",
         "-y",
         finalVideoPath,
       ]);
@@ -90,7 +100,7 @@ export const exportAnalysisFile: AnalysisExportFunction = async (
       if (bp.voiceContent) {
         for (const vc of bp.voiceContent) {
           if (vc.fileBlob) {
-            const filename = `voice_${vc.id}.webm`;
+            const filename = `voice_${vc.id}.wav`;
             vc.filename = filename;
 
             const tempWavePath = await join(systemTempDir, filename);

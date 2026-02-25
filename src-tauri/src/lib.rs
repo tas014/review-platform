@@ -7,22 +7,22 @@ use std::thread;
 use zip::write::SimpleFileOptions;
 
 // Global storage for the server port
-#[cfg(target_os = "linux")]
+#[cfg(not(target_os = "windows"))]
 static SERVER_PORT: Lazy<Mutex<u16>> = Lazy::new(|| Mutex::new(0));
 
-#[cfg(target_os = "linux")]
+#[cfg(not(target_os = "windows"))]
 #[tauri::command]
 fn get_video_server_port() -> u16 {
     *SERVER_PORT.lock().unwrap()
 }
 
-#[cfg(not(target_os = "linux"))]
+#[cfg(target_os = "windows")]
 #[tauri::command]
 fn get_video_server_port() -> u16 {
     0
 }
 
-#[cfg(target_os = "linux")]
+#[cfg(not(target_os = "windows"))]
 fn start_video_server() {
     thread::spawn(move || {
         let server = match tiny_http::Server::http("127.0.0.1:0") {
@@ -267,7 +267,7 @@ fn pack_analysis_file(
     Ok(())
 }
 
-#[cfg(not(target_os = "linux"))]
+#[cfg(target_os = "windows")]
 fn start_video_server() {}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

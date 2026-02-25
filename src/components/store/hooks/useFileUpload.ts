@@ -1,4 +1,4 @@
-import { readDir, exists, mkdir } from "@tauri-apps/plugin-fs";
+import { readDir, exists, mkdir, BaseDirectory } from "@tauri-apps/plugin-fs";
 import { open } from "@tauri-apps/plugin-dialog";
 import { invoke, convertFileSrc } from "@tauri-apps/api/core";
 import { type } from "@tauri-apps/plugin-os";
@@ -14,7 +14,7 @@ const videoName = ref<null | string>(null);
 const pendingProcess = ref<string | null>(null);
 
 const buildAssetUrl = (port: number, absolutePath: string) => {
-  if (type() === "linux") {
+  if (type() !== "windows") {
     const url = `http://127.0.0.1:${port}/?path=${encodeURIComponent(absolutePath)}`;
     return url;
   } else {
@@ -57,8 +57,14 @@ const selectVideo = async () => {
         const appData = await appDataDir();
         const systemTempDir = await join(appData, "temp");
 
-        if (!(await exists(systemTempDir))) {
-          await mkdir(systemTempDir, { recursive: true });
+        const tempDirExists = await exists("temp", {
+          baseDir: BaseDirectory.AppData,
+        });
+        if (!tempDirExists) {
+          await mkdir("temp", {
+            baseDir: BaseDirectory.AppData,
+            recursive: true,
+          });
         }
 
         const extractionTarget = await join(
