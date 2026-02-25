@@ -4,8 +4,6 @@ import {
   startRecording as pluginStart,
   stopRecording as pluginStop,
 } from "tauri-plugin-audio-recorder-api";
-import { mkdir, exists, BaseDirectory } from "@tauri-apps/plugin-fs";
-import { join, appDataDir } from "@tauri-apps/api/path";
 import { invoke, convertFileSrc } from "@tauri-apps/api/core";
 import { type } from "@tauri-apps/plugin-os";
 import VoiceIcon from "../../icons/Voice.vue";
@@ -119,33 +117,8 @@ const handleIconClick = () => {
 
 const startRecording = async () => {
   try {
-    const appData = await appDataDir();
-    const recordingsDir = await join(appData, "voice_notes");
+    await pluginStart({ outputPath: "" });
 
-    // Ensure directory exists
-    const dirExists = await exists("voice_notes", {
-      baseDir: BaseDirectory.AppData,
-    });
-    if (!dirExists) {
-      await mkdir("voice_notes", {
-        baseDir: BaseDirectory.AppData,
-        recursive: true,
-      });
-    }
-
-    /* 
-      Audio files are stored in the application data directory:
-      Linux: ~/.local/share/creative/voice_notes/
-      macOS: ~/Library/Application Support/creative/voice_notes/
-      Windows: %APPDATA%\creative\voice_notes\
-      
-      This folder is cleared on app startup.
-    */
-    const filePath = await join(recordingsDir, `recording_${Date.now()}.wav`);
-
-    await pluginStart({
-      outputPath: filePath,
-    });
     isRecording.value = true;
     duration.value = 0;
     currentTime.value = 0;
