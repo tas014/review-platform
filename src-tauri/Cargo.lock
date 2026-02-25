@@ -4356,8 +4356,6 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-audio-recorder"
 version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3db454f3a4be1322505a1f0c0e60cfe3e4109abeb60e0bb555ff1a98d78de826"
 dependencies = [
  "cpal",
  "hound",

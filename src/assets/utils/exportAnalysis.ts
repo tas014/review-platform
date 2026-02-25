@@ -100,7 +100,11 @@ export const exportAnalysisFile: AnalysisExportFunction = async (
       if (bp.voiceContent) {
         for (const vc of bp.voiceContent) {
           if (vc.fileBlob) {
-            const filename = `voice_${vc.id}.wav`;
+            let ext = "webm";
+            if (vc.fileBlob.type.includes("mp4")) ext = "mp4";
+            else if (vc.fileBlob.type.includes("ogg")) ext = "ogg";
+
+            const filename = `voice_${vc.id}.${ext}`;
             vc.filename = filename;
 
             const tempWavePath = await join(systemTempDir, filename);

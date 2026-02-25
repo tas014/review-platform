@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, onUnmounted, watch } from "vue";
+import { invoke } from "@tauri-apps/api/core";
+import { mkdir, exists, BaseDirectory } from "@tauri-apps/plugin-fs";
+import { join, appDataDir } from "@tauri-apps/api/path";
 import {
   startRecording as pluginStart,
   stopRecording as pluginStop,
 } from "tauri-plugin-audio-recorder-api";
-import { invoke, convertFileSrc } from "@tauri-apps/api/core";
-import { type } from "@tauri-apps/plugin-os";
-import { mkdir, exists, BaseDirectory } from "@tauri-apps/plugin-fs";
-import { join, appDataDir } from "@tauri-apps/api/path";
 import VoiceIcon from "../../icons/Voice.vue";
 import AudioWaveIcon from "../../icons/AudioWave.vue";
 import PlayPause from "../../icons/PlayPause.vue";
@@ -133,10 +132,12 @@ const startRecording = async () => {
       });
     }
 
-    const filePath = await join(recordingsDir, `recording_${Date.now()}.wav`);
+    const filePath = await join(recordingsDir, `recording_${Date.now()}`);
 
-    await pluginStart({ outputPath: filePath });
-
+    await pluginStart({
+      outputPath: filePath,
+    });
+    console.log("Recording started:", filePath);
     isRecording.value = true;
     duration.value = 0;
     currentTime.value = 0;
@@ -154,6 +155,7 @@ const startRecording = async () => {
 const stopRecording = async () => {
   try {
     const result = await pluginStop();
+    console.log("Recording stopped:", result);
     isRecording.value = false;
 
     if (recordingInterval) {
@@ -161,18 +163,9 @@ const stopRecording = async () => {
       recordingInterval = null;
     }
 
-    // Fetch the audio stream over localhost (Linux/macOS) or Tauri Asset Protocol (Windows)
-    let url: string;
-    if (type() !== "windows") {
-      const port = await invoke<number>("get_video_server_port");
-      url = `http://127.0.0.1:${port}/?path=${encodeURIComponent(result.filePath)}`;
-    } else {
-      const assetUrl = convertFileSrc(result.filePath);
-      url =
-        type() === "windows"
-          ? assetUrl.replace("asset://localhost/", "http://asset.localhost/")
-          : assetUrl;
-    }
+    // Fetch the audio stream over localhost to optimize Mac IPC
+    const port = await invoke<number>("get_video_server_port");
+    const url = `http://127.0.0.1:${port}/?path=${encodeURIComponent(result.filePath)}`;
 
     const response = await fetch(url);
     if (!response.ok) throw new Error("Failed to fetch recording");
@@ -181,6 +174,7 @@ const stopRecording = async () => {
     // Update the model with the new Blob
     voiceData.value = audioBlob;
   } catch (error) {
+    console.error("Error stopping recording:", error);
     isRecording.value = false;
     if (recordingInterval) {
       clearInterval(recordingInterval);
