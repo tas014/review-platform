@@ -13,24 +13,34 @@ if (!fs.existsSync("src-tauri/binaries")) {
   fs.mkdirSync("src-tauri/binaries", { recursive: true });
 }
 
-Object.entries(platforms).forEach(([p, filename]) => {
-  const tempDir = path.join("/tmp", p);
-  ffbinaries.downloadBinaries(
-    ["ffmpeg"],
-    { platform: p, destination: tempDir },
-    (err, data) => {
-      if (err) {
-        console.error("Failed on " + p, err);
-        return;
-      }
-      const src = path.join(
-        tempDir,
-        p === "windows-64" ? "ffmpeg.exe" : "ffmpeg",
+async function downloadAll() {
+  for (const [p, filename] of Object.entries(platforms)) {
+    const tempDir = path.join("/tmp", p);
+    await new Promise((resolve, reject) => {
+      ffbinaries.downloadBinaries(
+        ["ffmpeg"],
+        { platform: p, destination: tempDir },
+        (err, data) => {
+          if (err) {
+            console.error("Failed on " + p, err);
+            return reject(err);
+          }
+          const src = path.join(
+            tempDir,
+            p === "windows-64" ? "ffmpeg.exe" : "ffmpeg",
+          );
+          const dest = path.join("src-tauri", "binaries", filename);
+          fs.copyFileSync(src, dest);
+          fs.chmodSync(dest, 0o755);
+          console.log("Successfully saved to " + dest);
+          resolve();
+        },
       );
-      const dest = path.join("src-tauri", "binaries", filename);
-      fs.copyFileSync(src, dest);
-      fs.chmodSync(dest, 0o755);
-      console.log("Successfully saved to " + dest);
-    },
-  );
+    });
+  }
+}
+
+downloadAll().catch((err) => {
+  console.error(err);
+  process.exit(1);
 });
