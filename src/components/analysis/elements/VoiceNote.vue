@@ -6,7 +6,8 @@ import {
 } from "tauri-plugin-audio-recorder-api";
 import { mkdir, exists, BaseDirectory } from "@tauri-apps/plugin-fs";
 import { join, appDataDir } from "@tauri-apps/api/path";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, convertFileSrc } from "@tauri-apps/api/core";
+import { type } from "@tauri-apps/plugin-os";
 import VoiceIcon from "../../icons/Voice.vue";
 import AudioWaveIcon from "../../icons/AudioWave.vue";
 import PlayPause from "../../icons/PlayPause.vue";
@@ -169,9 +170,18 @@ const stopRecording = async () => {
       recordingInterval = null;
     }
 
-    // Fetch the audio stream over localhost to optimize Mac IPC
-    const port = await invoke<number>("get_video_server_port");
-    const url = `http://127.0.0.1:${port}/?path=${encodeURIComponent(result.filePath)}`;
+    // Fetch the audio stream over localhost (Linux) or Tauri Asset Protocol (Windows/macOS)
+    let url: string;
+    if (type() === "linux") {
+      const port = await invoke<number>("get_video_server_port");
+      url = `http://127.0.0.1:${port}/?path=${encodeURIComponent(result.filePath)}`;
+    } else {
+      const assetUrl = convertFileSrc(result.filePath);
+      url =
+        type() === "windows"
+          ? assetUrl.replace("asset://localhost/", "http://asset.localhost/")
+          : assetUrl;
+    }
 
     const response = await fetch(url);
     if (!response.ok) throw new Error("Failed to fetch recording");
