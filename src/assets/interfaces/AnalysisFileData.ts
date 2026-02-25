@@ -11,6 +11,7 @@ type AnalysisExportFunction = (
   breakpoints: Breakpoint[],
   videoStart: number | null,
   videoEnd: number | null,
+  savePath: string | null,
 ) => Promise<boolean>;
 
 export type { AnalysisExportData, AnalysisExportFunction };

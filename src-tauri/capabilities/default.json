@@ -73,6 +73,17 @@
         { "path": "$TEMP/**" },
         { "path": "**" }
       ]
+    },
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "binaries/ffmpeg",
+          "cmd": "",
+          "args": true,
+          "sidecar": true
+        }
+      ]
     }
   ]
 }

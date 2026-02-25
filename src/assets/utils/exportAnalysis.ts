@@ -1,7 +1,7 @@
-import { save } from "@tauri-apps/plugin-dialog";
-import { create } from "@tauri-apps/plugin-fs";
-import { tempDir, join } from "@tauri-apps/api/path";
+import { create, exists, mkdir } from "@tauri-apps/plugin-fs";
+import { join, appDataDir } from "@tauri-apps/api/path";
 import { invoke } from "@tauri-apps/api/core";
+import { Command } from "@tauri-apps/plugin-shell";
 import type {
   AnalysisExportData,
   AnalysisExportFunction,
@@ -12,13 +12,55 @@ export const exportAnalysisFile: AnalysisExportFunction = async (
   breakpoints,
   videoStart,
   videoEnd,
+  savePath,
 ): Promise<boolean> => {
   if (!videoPath) {
     return false;
   }
 
   try {
-    const localPath = videoPath;
+    let finalVideoPath = videoPath;
+    let finalVideoStart = videoStart;
+    let finalVideoEnd = videoEnd;
+
+    const appData = await appDataDir();
+    const systemTempDir = await join(appData, "temp");
+
+    if (!(await exists(systemTempDir))) {
+      await mkdir(systemTempDir, { recursive: true });
+    }
+
+    // Check if we need to trim the video
+    if (videoStart !== null && videoEnd !== null && videoEnd > videoStart) {
+      const extension = videoPath.split(".").pop() || "mp4";
+      const trimmedFilename = `trimmed_${Date.now()}.${extension}`;
+      finalVideoPath = await join(systemTempDir, trimmedFilename);
+
+      const trimDuration = videoEnd - videoStart;
+      const command = Command.sidecar("binaries/ffmpeg", [
+        "-ss",
+        videoStart.toString(),
+        "-i",
+        videoPath,
+        "-t",
+        trimDuration.toString(),
+        "-c",
+        "copy",
+        "-y",
+        finalVideoPath,
+      ]);
+
+      const output = await command.execute();
+
+      if (output.code !== 0) {
+        console.error("FFmpeg Error:", output.stderr);
+        throw new Error("FFmpeg failed to trim video.");
+      }
+
+      // Zero-out the bounds for the JSON payload since the video is literally cut to those bounds
+      finalVideoStart = null;
+      finalVideoEnd = videoEnd - videoStart;
+    }
 
     // Deep clone the breakpoints so we don't mutate the app state
     const clonedBreakpoints = breakpoints.map((bp) => ({
@@ -32,9 +74,15 @@ export const exportAnalysisFile: AnalysisExportFunction = async (
       drawingContent: bp.drawingContent ? { ...bp.drawingContent } : undefined,
     }));
 
+    // If trimmed, shift their timestamps to 0
+    if (videoStart !== null && videoEnd !== null && videoEnd > videoStart) {
+      clonedBreakpoints.forEach((bp) => {
+        bp.timeStamp = bp.timeStamp - videoStart;
+      });
+    }
+
     // Extract audio local paths and prepare JSON data
     const audioPaths: Record<string, string> = {};
-    const systemTempDir = await tempDir();
 
     // We must write all VoiceNote blobs to physical disk temp files first because Rust ZipWriter
     // can only read from absolute file paths, not JS Memory blobs.
@@ -63,30 +111,14 @@ export const exportAnalysisFile: AnalysisExportFunction = async (
 
     const exportData: AnalysisExportData = {
       breakpoints: clonedBreakpoints,
-      videoStart,
-      videoEnd,
+      videoStart: finalVideoStart,
+      videoEnd: finalVideoEnd,
     };
-
-    // Prompt user to save the file
-    const savePath = await save({
-      filters: [
-        {
-          name: "Analysis File",
-          extensions: ["an"],
-        },
-      ],
-      defaultPath: "my_analysis.an",
-    });
-
-    if (!savePath) {
-      // User canceled the dialog
-      return false;
-    }
 
     // Zip using native Rust bindings with absolute file paths mapping perfectly bypassing all RAM limitations
     await invoke("pack_analysis_file", {
       savePath: savePath,
-      videoPath: localPath,
+      videoPath: finalVideoPath,
       dataJson: JSON.stringify(exportData, null, 2),
       audioPaths: audioPaths,
     });

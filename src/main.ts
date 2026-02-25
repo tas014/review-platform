@@ -26,7 +26,25 @@ const cleanupVoiceNotes = async () => {
   }
 };
 
+const cleanupTempData = async () => {
+  try {
+    const dirExists = await exists("temp", {
+      baseDir: BaseDirectory.AppData,
+    });
+
+    if (dirExists) {
+      await remove("temp", {
+        baseDir: BaseDirectory.AppData,
+        recursive: true,
+      });
+    }
+  } catch (error) {
+    console.error("Failed to cleanup temp data on startup:", error);
+  }
+};
+
 // Run cleanup asynchronously
 cleanupVoiceNotes();
+cleanupTempData();
 
 createApp(App).mount("#app");

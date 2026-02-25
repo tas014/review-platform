@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Tauri Binaries
+src-tauri/binaries/
+package-lock.json

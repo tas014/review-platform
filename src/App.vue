@@ -8,7 +8,7 @@ import { useVideo } from "./components/store/hooks/useVideo";
 import {
   videoUrl,
   analysisData,
-  isLoading,
+  pendingProcess,
 } from "./components/store/hooks/useFileUpload";
 import useBreakpoint from "./components/store/hooks/useBreakpoint";
 import type { BreakpointHook } from "./assets/interfaces/BreakpointType";
@@ -65,9 +65,9 @@ provide("activeColor", activeColor);
 </script>
 
 <template>
-  <div v-if="isLoading" class="loading-overlay">
+  <div v-if="pendingProcess" class="loading-overlay">
     <div class="spinner"></div>
-    <p>Loading file...</p>
+    <p>{{ pendingProcess }}</p>
   </div>
   <Modes />
   <main class="container">

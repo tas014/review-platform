@@ -13,9 +13,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: "macos-latest" # For .dmg
-          - platform: "ubuntu-22.04" # For .deb and .AppImage
-          - platform: "windows-latest" # For .msi and .exe
+          - platform: "macos-latest"
+            target: "x86_64-apple-darwin"
+          - platform: "macos-latest"
+            target: "aarch64-apple-darwin"
+          - platform: "ubuntu-22.04"
+            target: "x86_64-unknown-linux-gnu"
+          - platform: "windows-latest"
+            target: "x86_64-pc-windows-msvc"
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -29,6 +34,8 @@ jobs:
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
@@ -44,13 +51,14 @@ jobs:
       - name: install frontend dependencies
         run: yarn install
 
-      - uses: tauri-apps/tauri-action@v0
+      - uses: tauri-apps/tauri-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GSTREAMER_PLUGINS: "core;playback;audio;video;alsa;pbtypes;libav;pulseaudio;good;ugly;bad"
         with:
           tagName: v__VERSION__ # the action replaces __VERSION__ from tauri.conf.json
-          releaseName: "App v__VERSION__"
+          releaseName: "Creative v__VERSION__"
           releaseBody: "See the assets below to download."
           releaseDraft: true
           prerelease: false
+          args: --target ${{ matrix.target }}

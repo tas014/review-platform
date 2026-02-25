@@ -10,7 +10,8 @@ import VideoState from "../assets/interfaces/VideoState";
 import type {SelectedTool} from "../assets/interfaces/ModeState"
 import DeleteMode from "./analysis/DeleteMode.vue";
 import { exportAnalysisFile } from "../assets/utils/exportAnalysis";
-import { videoPath } from "./store/hooks/useFileUpload";
+import { videoPath, pendingProcess } from "./store/hooks/useFileUpload";
+import { save } from "@tauri-apps/plugin-dialog";
 
 const breakpointStore = inject("breakpointStore") as BreakpointHook;
 const videoStore = inject("video") as VideoState;
@@ -25,12 +26,29 @@ const deleteBreakpoint = () => {
 };
 
 const handleExport = async () => {
+  const savePath = await save({
+    filters: [
+      {
+        name: "Analysis File",
+        extensions: ["an"],
+      },
+    ],
+    defaultPath: "my_analysis.an",
+  });
+
+  if (!savePath) return;
+
+  pendingProcess.value = "Exporting file...";
+  
   await exportAnalysisFile(
     videoPath.value,
     breakpointStore.breakpoints.value as unknown as Breakpoint[],
     videoStore.playbackControls.videoStart.value,
-    videoStore.playbackControls.totalDuration.value
+    videoStore.playbackControls.totalDuration.value,
+    savePath
   );
+  
+  pendingProcess.value = null;
 };
 </script>
 <template>

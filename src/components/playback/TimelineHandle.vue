@@ -10,16 +10,16 @@ const props = defineProps<{
 }>();
 
 const { mode } = inject("mode") as ModeState;
-const { playbackControls, videoElement } = inject("video") as VideoInjection;
+const { playbackControls } = inject("video") as VideoInjection;
 const { videoSrc } = playbackControls;
 
 const showBreakpointButton = computed(() => {
   const renderCondition =
     playbackControls.isPlaying.value ||
     mode.value !== "analysis" ||
-    videoElement.value?.src === null ||
+    !videoSrc ||
     props.isSeeking ||
-    videoElement.value?.readyState === 0;
+    playbackControls.currentTime.value === null;
 
   return !renderCondition;
 });

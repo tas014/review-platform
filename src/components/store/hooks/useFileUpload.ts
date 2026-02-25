@@ -1,9 +1,9 @@
-import { readDir } from "@tauri-apps/plugin-fs";
+import { readDir, exists, mkdir } from "@tauri-apps/plugin-fs";
 import { open } from "@tauri-apps/plugin-dialog";
 import { invoke, convertFileSrc } from "@tauri-apps/api/core";
 import { type } from "@tauri-apps/plugin-os";
 import { ref } from "vue";
-import { basename, tempDir, join } from "@tauri-apps/api/path";
+import { basename, appDataDir, join } from "@tauri-apps/api/path";
 import type { AnalysisExportData } from "../../../assets/interfaces/AnalysisFileData";
 
 const analysisData = ref<null | AnalysisExportData>(null);
@@ -11,7 +11,7 @@ const analysisData = ref<null | AnalysisExportData>(null);
 const videoPath = ref<null | string>(null);
 const videoUrl = ref<null | string>(null);
 const videoName = ref<null | string>(null);
-const isLoading = ref<boolean>(false);
+const pendingProcess = ref<string | null>(null);
 
 const buildAssetUrl = (port: number, absolutePath: string) => {
   if (type() === "linux") {
@@ -38,7 +38,7 @@ const selectVideo = async () => {
 
     // Check if the user selected a file
     if (typeof selected === "string") {
-      isLoading.value = true;
+      pendingProcess.value = "Loading file...";
       videoUrl.value = null; // Unmount current video so the new one triggers @loadedmetadata
 
       // Get the ephemeral port from the backend
@@ -50,7 +50,13 @@ const selectVideo = async () => {
 
       if (fileName.endsWith(".an") || fileName.endsWith(".anal")) {
         // Unpack the archive using the Rust backend to completely bypass Javascript engine memory limits natively
-        const systemTempDir = await tempDir();
+        const appData = await appDataDir();
+        const systemTempDir = await join(appData, "temp");
+
+        if (!(await exists(systemTempDir))) {
+          await mkdir(systemTempDir, { recursive: true });
+        }
+
         const extractionTarget = await join(
           systemTempDir,
           fileName + "_extracted",
@@ -116,8 +122,15 @@ const selectVideo = async () => {
   } catch (error) {
     console.error("Error opening file dialog or converting path:", error);
   } finally {
-    isLoading.value = false;
+    pendingProcess.value = null;
   }
 };
 
-export { videoUrl, videoPath, videoName, analysisData, isLoading, selectVideo };
+export {
+  videoUrl,
+  videoPath,
+  videoName,
+  analysisData,
+  pendingProcess,
+  selectVideo,
+};
