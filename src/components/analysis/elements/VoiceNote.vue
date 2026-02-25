@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, onUnmounted, watch } from "vue";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, convertFileSrc } from "@tauri-apps/api/core";
+import { type } from "@tauri-apps/plugin-os";
 import { mkdir, exists, BaseDirectory } from "@tauri-apps/plugin-fs";
 import { join, appDataDir } from "@tauri-apps/api/path";
 import {
@@ -163,11 +164,19 @@ const stopRecording = async () => {
       recordingInterval = null;
     }
 
-    // Fetch the audio stream over localhost to optimize Mac IPC
-    const port = await invoke<number>("get_video_server_port");
-    const url = `http://127.0.0.1:${port}/?path=${encodeURIComponent(result.filePath)}`;
+    // Fetch the recorded file — branch by OS since Windows has no localhost video server
+    let fetchUrl: string;
+    if (type() !== "windows") {
+      const port = await invoke<number>("get_video_server_port");
+      fetchUrl = `http://127.0.0.1:${port}/?path=${encodeURIComponent(result.filePath)}`;
+    } else {
+      fetchUrl = convertFileSrc(result.filePath).replace(
+        "asset://localhost/",
+        "http://asset.localhost/",
+      );
+    }
 
-    const response = await fetch(url);
+    const response = await fetch(fetchUrl);
     if (!response.ok) throw new Error("Failed to fetch recording");
     const audioBlob = await response.blob();
 
