@@ -333,6 +333,7 @@ fn stop_recording_internal(
 
     // Stop the stream
     if let Some(s) = stream.take() {
+        let _ = s.pause();
         drop(s);
     }
 

@@ -113,8 +113,7 @@ const clearInlineStyles = () => {
   }
 };
 
-// When props update, if we are NOT manually resizing, ensure inline styles are cleared
-// so the element tracks the prop-based % size (responsiveness).
+// When props update, if we are NOT manually resizing, ensure inline styles are cleared so the element tracks the prop-based % size
 watch(
   () => props.dimensions,
   () => {
@@ -323,6 +322,7 @@ onUnmounted(() => {
   outline: none;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   min-width: 150px;
+  min-height: 100px;
   overflow-y: scroll;
   flex-grow: 0;
   flex-shrink: 0;
