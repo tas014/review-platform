@@ -1,4 +1,4 @@
-# Game Review App
+# Creative! App
 
 This is a project made to help gamers review their games and theorize about creative solutions to their everyday in-game problems. Review your gameplay, use the analysis tools to better visualize your thoughts, and export them as analysis files to keep them or share with friends or coaches!
 
