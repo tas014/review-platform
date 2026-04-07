@@ -70,8 +70,7 @@
         { "path": "$APPDATA" },
         { "path": "$APPDATA/*" },
         { "path": "$APPDATA/**" },
-        { "path": "$TEMP/**" },
-        { "path": "**" }
+        { "path": "$TEMP/**" }
       ]
     },
     {
